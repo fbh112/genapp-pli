@@ -1,0 +1,206 @@
+ /******************************************************************    00010000
+ *                                                                *     00030000
+ * LICENSED MATERIALS - PROPERTY OF IBM                                 00040000
+ *                                                                *     00050000
+ *                                                                *     00070000
+ * "RESTRICTED MATERIALS OF IBM"                                        00080000
+ *                                                                *     00090000
+ * CB12                                                                 00120000
+ *                                                                *     00130000
+ * (C) COPYRIGHT IBM CORP. 2011, 2013 ALL RIGHTS RESERVED               00140000
+ *                                                                *     00150000
+ * US GOVERNMENT USERS RESTRICTED RIGHTS - USE, DUPLICATION,      *     00160000
+ * OR DISCLOSURE RESTRICTED BY GSA ADP SCHEDULE                   *     00170000
+ * CONTRACT WITH IBM CORPORATION                                  *     00171000
+ *                                                                *     00172000
+ *                    Update Policy - VSAM                        *     00180000
+ *                                                                *     00190000
+ * VSAM KSDS Policy record UPDATE                                 *     00200000
+ *                                                                *     00210000
+ *                                                                *     00230000
+ ******************************************************************/    00240000
+ LGUPVS01: Proc(COMM_AREA_PTR) Options(Main);                           00250000
+                                                                        00260000
+                                                                        00270000
+  DCL 1  WS_RESP                FIXED BIN(31);                          00280000
+  DCL 1  WS_RESP2               FIXED BIN(31);                          00290000
+  DCL 1  WS_Comm_Len            FIXED BIN(31) INIT(0);                  00300000
+  DCL 1  WS_STARTCODE           CHAR(2) INIT(' ');                      00310000
+  DCL 1  WS_SYSID               CHAR(4) INIT(' ');                      00320000
+  DCL 1  WS_Commarea_Len        FIXED BIN(15) INIT(0);                  00330000
+  DCL 1  WS_Commarea_LenF       FIXED BIN(15) INIT(0);                  00331000
+                                                                        00340000
+  DCL 1 WF_Policy_Info,                                                 00350000
+      03  WF_Policy_Key,                                                00360000
+        05  WF_Request_ID           CHAR(1),                            00370000
+        05  WF_Customer_Num         CHAR(10),                           00380000
+        05  WF_Policy_Num           CHAR(10),                           00390000
+      03 WF_Policy_Data             UNION,                              00400000
+      04 WF_Policy_Text             CHAR(43),                           00410000
+      04 WF_C_Policy_Data,                                              00420000
+        05  WF_B_Postcode           CHAR(8),                            00430000
+        05  WF_B_Status             FIXED BIN(15),                      00440000
+        05  WF_B_Customer           CHAR(31),                           00450000
+      04 WF_E_Policy_Data,                                              00460000
+        05  WF_E_WITH_PROFITS       CHAR(1),                            00470000
+        05  WF_E_EQUITIES           CHAR(1),                            00480000
+        05  WF_E_MANAGED_FUND       CHAR(1),                            00490000
+        05  WF_E_FUND_NAME          CHAR(10),                           00500000
+        05  WF_E_LIFE_ASSURED       CHAR(30),                           00510000
+      04 WF_H_Policy_Data,                                              00520000
+        05  WF_H_PROPERTY_TYPE      CHAR(15),                           00530000
+        05  WF_H_BEDROOMS           PIC '(3)9',                         00540000
+        05  WF_H_VALUE              PIC '(8)9',                         00550000
+        05  WF_H_POSTCODE           CHAR(8),                            00560000
+        05  WF_H_HOUSE_NAME         CHAR(9),                            00570000
+      04 WF_M_Policy_Data,                                              00580000
+        05  WF_M_MAKE               CHAR(15),                           00590000
+        05  WF_M_MODEL              CHAR(15),                           00600000
+        05  WF_M_VALUE              PIC '(6)9',                         00610000
+        05  WF_M_REGNUMBER          CHAR(7);                            00620000
+                                                                        00630000
+  DCL 1  WS_FileIn                CHAR(1024) INIT(' ');                 00631002
+ /* Variables for time/date processing */                               00640000
+  DCL 1  WS_ABSTIME               FIXED BIN(31) INIT(+0);               00650000
+  DCL 1  WS_TIME                  CHAR(8)  INIT(' ');                   00660000
+  DCL 1  WS_DATE                  CHAR(10) INIT(' ');                   00670000
+ /* Error Message structure */                                          00680000
+  DCL 1  ERROR_MSG,                                                     00690000
+      03 EM_DATE                  CHAR(10) INIT(' '),                   00700000
+      03 *                        CHAR     INIT(' '),                   00710000
+      03 EM_TIME                  CHAR(8)  INIT(' '),                   00720000
+      03 *                        CHAR(9)  INIT(' LGUPVS01'),           00730000
+      03 EM_VARIABLE union,                                             00740000
+        5 EM_MSG_TEXT             CHAR(63),                             00750000
+        5 *,                                                            00760000
+         7 *                      CHAR(6)  INIT(' PNUM='),              00770000
+         7 EM_POLNUM              CHAR(10) INIT(' '),                   00780000
+         7 *                      CHAR(6)  INIT(' CNUM='),              00790000
+         7 EM_CUSNUM              CHAR(10) INIT(' '),                   00800000
+         7 *                      CHAR(20)                              00810000
+                                   INIT(' Re-write KSDSPOLY  '),        00820000
+         7 *                      CHAR(6)  INIT(' RESP='),              00830000
+         7 EM_RESPRC              PIC '+(5)9',                          00840000
+         7 *                      CHAR(7)  INIT(' RESP2='),             00850000
+        05 EM_RESP2RC             PIC '+(5)9';                          00860000
+                                                                        00870000
+  DCL 1  CA_ERROR_MSG,                                                  00880000
+      03 *                        CHAR(9)  INIT('COMMAREA='),           00890000
+      03 CA_Data                  CHAR(90) INIT(' ');                   00900000
+                                                                        00910000
+                                                                        00920000
+  DCL 1 Eyecatcher               CHAR(16)                               00930000
+                                 INIT('Program LGUPVS01');              00940000
+                                                                        00950000
+ %INCLUDE LGCMAREA;                                                     00960000
+                                                                        00970000
+  WS_Commarea_Len = EIBCALEN;                                           00980000
+  WF_Request_ID = SUBSTR(CA_Request_ID,4,1);                            00990000
+  WF_Policy_Num = CA_Policy_Num;                                        01000000
+  WF_Customer_Num = CA_Customer_Num;                                    01010000
+                                                                        01020000
+  SELECT (WF_Request_ID);                                               01030000
+                                                                        01040000
+    WHEN ('C') DO;                                                      01050000
+      WF_B_Postcode = CA_B_Postcode;                                    01060000
+      WF_B_Status   = CA_B_Status;                                      01070000
+      WF_B_Customer = CA_B_Customer;                                    01080000
+    END;                                                                01090000
+                                                                        01100000
+    WHEN ('E') DO;                                                      01110000
+      WF_E_WITH_PROFITS = CA_E_WITH_PROFITS;                            01120000
+      WF_E_EQUITIES     = CA_E_EQUITIES;                                01130000
+      WF_E_MANAGED_FUND = CA_E_MANAGED_FUND;                            01140000
+      WF_E_FUND_NAME    = CA_E_FUND_NAME;                               01150000
+      WF_E_LIFE_ASSURED = CA_E_LIFE_ASSURED;                            01160000
+    END;                                                                01170000
+                                                                        01180000
+    WHEN ('H') DO;                                                      01190000
+      WF_H_PROPERTY_TYPE = CA_H_PROPERTY_TYPE;                          01200000
+      WF_H_BEDROOMS      = CA_H_BEDROOMS;                               01210000
+      WF_H_VALUE         = CA_H_VALUE;                                  01220000
+      WF_H_POSTCODE      = CA_H_POSTCODE;                               01230000
+      WF_H_HOUSE_NAME    = CA_H_HOUSE_NAME;                             01240000
+    END;                                                                01250000
+                                                                        01260000
+    WHEN ('M') DO;                                                      01270000
+      WF_M_MAKE      = CA_M_MAKE;                                       01280000
+      WF_M_MODEL     = CA_M_MODEL;                                      01290000
+      WF_M_VALUE     = CA_M_VALUE;                                      01300000
+      WF_M_REGNUMBER = CA_M_REGNUMBER;                                  01310000
+    END;                                                                01320000
+                                                                        01330000
+    OTHERWISE DO;                                                       01340000
+      WF_Policy_Text = ' ';                                             01350000
+    END;                                                                01360000
+  END; /* (WF_Request_ID) */                                            01370000
+                                                                        01380000
+  WF_Policy_Num = CA_Policy_Num;                                        01390000
+                                                                        01400000
+  Exec CICS Read File('KSDSPOLY')                                       01410000
+            Into(WS_FileIn)                                             01420003
+            Length(WS_Commarea_Len)                                     01430001
+            Ridfld(WF_Policy_Key)                                       01440000
+            KeyLength(21)                                               01450000
+            RESP(WS_RESP)                                               01460000
+            Update;                                                     01461000
+                                                                        01470000
+  If (WS_RESP <> DFHRESP(NORMAL)) THEN DO;                              01480000
+    WS_RESP2 = EIBRESP2;                                                01490000
+    CA_RETURN_CODE = '81';                                              01500000
+    CALL WRITE_ERROR_MESSAGE;                                           01510000
+    EXEC CICS ABEND ABCODE('LGV3') NODUMP;                              01520000
+    EXEC CICS RETURN;                                                   01521000
+  End;                                                                  01530000
+                                                                        01540000
+  Exec CICS ReWrite File('KSDSPOLY')                                    01541000
+            From(WF_Policy_Info)                                        01542001
+            Length(WS_Commarea_LenF)                                    01543001
+            RESP(WS_RESP);                                              01544001
+                                                                        01545000
+  If (WS_RESP <> DFHRESP(NORMAL)) THEN DO;                              01545100
+    WS_RESP2 = EIBRESP2;                                                01545200
+    CA_RETURN_CODE = '82';                                              01545300
+    CALL WRITE_ERROR_MESSAGE;                                           01545400
+    EXEC CICS ABEND ABCODE('LGV4') NODUMP;                              01545500
+    EXEC CICS RETURN;                                                   01545600
+  End;                                                                  01545700
+                                                                        01546000
+ RETURN;                                                                01550000
+                                                                        01560000
+ /*---------------------------------------------------------------*/    01570000
+ WRITE_ERROR_MESSAGE: PROCEDURE;                                        01580000
+  EXEC CICS ASKTIME ABSTIME(WS_ABSTIME);                                01590000
+                                                                        01600000
+  EXEC CICS FORMATTIME ABSTIME(WS_ABSTIME)                              01610000
+            MMDDYYYY(WS_DATE)                                           01620000
+            TIME(WS_TIME);                                              01630000
+                                                                        01640000
+  EM_DATE = WS_DATE;                                                    01650000
+  EM_TIME = WS_TIME;                                                    01660000
+  EM_Cusnum = CA_Customer_Num;                                          01670000
+  EM_RespRC = WS_RESP;                                                  01680000
+  EM_Resp2RC = WS_RESP2;                                                01690000
+  EXEC CICS LINK PROGRAM('LGSTSQ')                                      01700000
+            COMMAREA(ERROR_MSG)                                         01710000
+            LENGTH(STG(ERROR_MSG));                                     01720000
+                                                                        01730000
+  IF (EIBCALEN > 0) THEN DO;                                            01740000
+    IF (EIBCALEN < 91) THEN DO;                                         01750000
+      CA_Data = LEFT(COMM_AREA_RAW,EIBCALEN);                           01760000
+      EXEC CICS LINK PROGRAM('LGSTSQ')                                  01770000
+                COMMAREA(CA_ERROR_MSG)                                  01780000
+                LENGTH(STG(ERROR_MSG));                                 01790000
+    END;                                                                01800000
+    ELSE DO;                                                            01810000
+      CA_Data = LEFT(COMM_AREA_RAW,90);                                 01820000
+      EXEC CICS LINK PROGRAM('LGSTSQ')                                  01830000
+                COMMAREA(CA_ERROR_MSG)                                  01840000
+                LENGTH(STG(ERROR_MSG));                                 01850000
+                                                                        01860000
+    END;                                                                01870000
+  END;                                                                  01880000
+ RETURN;                                                                01890000
+ END WRITE_ERROR_MESSAGE;                                               01900000
+                                                                        01910000
+ END LGUPVS01;                                                          01920000

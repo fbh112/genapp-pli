@@ -1,0 +1,617 @@
+ /******************************************************************    00010000
+ *                                                                *     00020000
+ *                    ADD Policy                                  *     00030000
+ *                                                                *     00040000
+ *   To add full details of an individual policy:                 *     00050000
+ *     Endowment, House, Motor, Commercial                        *     00060000
+ *                                                                *     00070000
+ *                                                                *     00080000
+ ******************************************************************/    00090000
+ LGAPDB01: Proc(COMM_AREA_PTR) Options(Main);                           00100006
+ /*-------------------------------------------------------------------*/00110000
+ /* Common defintions                                                 */00120000
+ /*-------------------------------------------------------------------*/00130000
+ /* Run time (debug) infomation for this invocation */                  00140000
+  DCL 1 WS_HEADER,                                                      00150000
+      03 WS_EYECATCHER                CHAR(16)                          00160000
+                                       INIT ('LGAPDB01------WS'),       00170005
+      03 WS_TRANSID                   CHAR(4) INIT(''),                 00180000
+      03 WS_TERMID                    CHAR(4) INIT(''),                 00190000
+      03 WS_TASKNUM                   PIC '(7)9' INIT(0),               00200000
+      03 WS_FILLER                    CHAR INIT(''),                    00210000
+      03 WS_ADDR_DFHCOMMAREA          PTR INIT(SYSNULL()),              00220000
+      03 WS_CALEN                     FIXED BIN(15) INIT(0);            00230000
+                                                                        00240000
+ /* Variables for time/date processing */                               00250000
+  DCL 1 ABS_TIME                  FIXED  DEC(15) INIT(+0);              00260000
+  DCL 1 TIME1                     CHAR(8)  INIT(' ');                   00270000
+  DCL 1 DATE1                     CHAR(10) INIT(' ');                   00280000
+                                                                        00290000
+ /* Error Message structure */                                          00300000
+  DCL 1 ERROR_MSG,                                                      00310000
+       3 EM_DATE                  CHAR(10) INIT(''),                    00320002
+       3 *                        CHAR     INIT(''),                    00330000
+       3 EM_TIME                  CHAR(8)  INIT(''),                    00340002
+       3 *                        CHAR(9)  INIT(' LGIPOL01'),           00350000
+       3 EM_VARIABLE UNION,                                             00360001
+         5 EM_MSG_TEXT            CHAR(63),                             00370001
+         5 *,                                                           00371001
+          7 *                     CHAR(6)  INIT(' CNUM='),              00372001
+          7 EM_CUSNUM             CHAR(10) INIT(''),                    00380001
+          7 *                     CHAR(6)  INIT(' PNUM='),              00390001
+          7 EM_POLNUM             CHAR(10) INIT(''),                    00400001
+          7 EM_SQLREQ             CHAR(16) INIT(''),                    00410001
+          7 *                     CHAR(9)  INIT(' SQLCODE='),           00420001
+          7 EM_SQLRC              PIC '+(5)9';                          00430001
+                                                                        00440000
+  DCL 1  CA_ERROR_MSG,                                                  00450000
+       3 FILLER                   CHAR(9)  INIT('COMMAREA='),           00460000
+       3 CA_DATA                  CHAR(90) INIT(' ');                   00470000
+                                                                        00480000
+ /*----------------------------------------------------------------*    00490000
+ * Definitions required for data manipulation                     *     00500000
+ *----------------------------------------------------------------*/    00510000
+ /* Fields to be used to check that commarea is correct length */       00520000
+  DCL 1 WS_COMMAREA_LENGTHS,                                            00530000
+      03 WS_CA_HEADER_LEN             FIXED BIN(15) INIT(28),           00540001
+      03 WS_REQUIRED_CA_LEN           PIC 'S(4)9' INIT(+0);             00550000
+                                                                        00560000
+ /* Define a varying length character string to contain actual          00570000
+ * amount of data that will be inserted to Varchar field */             00580000
+  DCL 1 WS_VARY_FIELD,                                                  00590000
+     49 WS_VARY_LEN               FIXED BIN(15),                        00600000
+     49 WS_VARY_CHAR              CHAR(3900);                           00610000
+                                                                        00620000
+ /*    Include copybook for defintion of customer details length */     00630000
+  EXEC SQL                                                              00640000
+        INCLUDE LGPOLICY;                                               00650004
+                                                                        00660000
+ /*----------------------------------------------------------------*    00670000
+ * Definitions required by SQL statement                          *     00680000
+ *   DB2 datatypes to COBOL equivalents                           *     00690000
+ *     SMALLINT    :   PIC S9(4) COMP                             *     00700000
+ *     INTEGER     :   PIC S9(9) COMP                             *     00710000
+ *     DATE        :   CHAR(10)                                   *     00720000
+ *     TIMESTAMP   :   CHAR(26)                                   *     00730000
+ *----------------------------------------------------------------*/    00740000
+ /* Host variables for input to DB2 integer types */                    00750000
+  DCL 1 DB2_IN_INTEGERS,                                                00760000
+      03 DB2_CUSTOMERNUM_INT          FIXED BIN(31) INIT(0),            00770000
+      03 DB2_BROKERID_INT             FIXED BIN(31) INIT(0),            00780000
+      03 DB2_PAYMENT_INT              FIXED BIN(31) INIT(0),            00790000
+      03 DB2_E_TERM_SINT              FIXED BIN(15) INIT(0),            00800000
+      03 DB2_E_SUMASSURED_INT         FIXED BIN(31) INIT(0),            00810000
+      03 DB2_E_PADDING_LEN            FIXED BIN(31) INIT(0),            00820000
+      03 DB2_H_BEDROOMS_SINT          FIXED BIN(15) INIT(0),            00830000
+      03 DB2_H_VALUE_INT              FIXED BIN(31) INIT(0),            00840000
+      03 DB2_M_VALUE_INT              FIXED BIN(31) INIT(0),            00850000
+      03 DB2_M_CC_SINT                FIXED BIN(15) INIT(0),            00860000
+      03 DB2_M_PREMIUM_INT            FIXED BIN(31) INIT(0),            00870000
+      03 DB2_M_ACCIDENTS_INT          FIXED BIN(31) INIT(0),            00880000
+      03 DB2_B_FirePeril_INT          FIXED BIN(15) INIT(0),            00890000
+      03 DB2_B_FirePremium_INT        FIXED BIN(31) INIT(0),            00900000
+      03 DB2_B_CrimePeril_INT         FIXED BIN(15) INIT(0),            00910000
+      03 DB2_B_CrimePremium_INT       FIXED BIN(31) INIT(0),            00920000
+      03 DB2_B_FloodPeril_INT         FIXED BIN(15) INIT(0),            00930000
+      03 DB2_B_FloodPremium_INT       FIXED BIN(31) INIT(0),            00940000
+      03 DB2_B_WeatherPeril_INT       FIXED BIN(15) INIT(0),            00950000
+      03 DB2_B_WeatherPremium_INT     FIXED BIN(31) INIT(0),            00960000
+      03 DB2_B_Status_INT             FIXED BIN(15) INIT(0),            00970000
+      03 DB2_C_Policynum_INT          FIXED BIN(31) INIT(0),            00980000
+      03 DB2_C_Num_INT                FIXED BIN(31) INIT(0),            00990000
+      03 DB2_C_Paid_INT               FIXED BIN(31) INIT(0),            01000000
+      03 DB2_C_Value_INT              FIXED BIN(31) INIT(0);            01010000
+                                                                        01020000
+  DCL 1 DB2_OUT_INTEGERS,                                               01030000
+      03 DB2_POLICYNUM_INT            FIXED BIN(31) INIT(+0);           01040000
+                                                                        01050000
+  DCL 1 LGAPVS1                      CHAR(8) INIT('LGAPVS1');           01060000
+ /*----------------------------------------------------------------*    01070000
+ *    DB2 CONTROL                                                       01080000
+ *----------------------------------------------------------------*/    01090000
+ /* SQLCA DB2 communications area */                                    01100000
+  EXEC SQL                                                              01110000
+      INCLUDE SQLCA;                                                    01120000
+                                                                        01130000
+  EXEC SQL                                                              01140000
+      INCLUDE LGCMAREA;                                                 01150004
+                                                                        01160000
+                                                                        01170000
+ /* set up general variable */                                          01210000
+  WS_TRANSID = EIBTRNID;                                                01220000
+  WS_TERMID  = EIBTRMID;                                                01230000
+  WS_TASKNUM = EIBTASKN;                                                01240000
+  WS_CALEN   = EIBCALEN;                                                01250000
+                                                                        01260000
+ /* initialize DB2 host variables */                                    01270000
+  DB2_IN_INTEGERS = 0;                                                  01280000
+  DB2_OUT_INTEGERS = 0;                                                 01290000
+                                                                        01300000
+ /*----------------------------------------------------------------*    01310000
+ * Check commarea and obtain required details                     *     01320000
+ *----------------------------------------------------------------*/    01330000
+ /* If NO commarea received issue an ABEND */                           01340000
+   IF ( EIBCALEN = 0 ) THEN DO;                                         01350000
+      EM_MSG_TEXT = ' NO COMMAREA RECEIVED';                            01360001
+      CALL WRITE_ERROR_MESSAGE;                                         01370000
+      EXEC CICS ABEND ABCODE('LGCA') NODUMP;                            01380000
+   END;                                                                 01390000
+                                                                        01400000
+ /* initialize commarea return code to zero */                          01410000
+  CA_RETURN_CODE = '00';                                                01420000
+  WS_ADDR_DFHCOMMAREA = COMM_AREA_PTR;                                  01430001
+                                                                        01440000
+ /* Convert commarea customer & policy nums to DB2 integer format */    01450000
+  DB2_CUSTOMERNUM_INT = CA_CUSTOMER_NUM;                                01460000
+  DB2_C_PolicyNum_INT = CA_POLICY_NUM;                                  01470000
+ /* and save in error msg field incase required */                      01480000
+  EM_CUSNUM = CA_CUSTOMER_NUM;                                          01490000
+                                                                        01500000
+ /* Check commarea length */                                            01510000
+  WS_REQUIRED_CA_LEN = WS_CA_HEADER_LEN + WS_REQUIRED_CA_LEN;           01520000
+                                                                        01530000
+  SELECT (CA_REQUEST_ID);                                               01540000
+                                                                        01550000
+    WHEN ('01AEND') DO;                                                 01560000
+      WS_REQUIRED_CA_LEN = WS_FULL_ENDOW_LEN + WS_REQUIRED_CA_LEN;      01570000
+      DB2_POLICYTYPE = 'E';                                             01580000
+    END;                                                                01590000
+                                                                        01600000
+    WHEN ('01AHOU') DO;                                                 01610000
+      WS_REQUIRED_CA_LEN = WS_FULL_HOUSE_LEN + WS_REQUIRED_CA_LEN;      01620000
+      DB2_POLICYTYPE = 'H';                                             01630000
+    END;                                                                01640000
+                                                                        01650000
+    WHEN ('01AMOT') DO;                                                 01660000
+      WS_REQUIRED_CA_LEN = WS_FULL_MOTOR_LEN + WS_REQUIRED_CA_LEN;      01670000
+      DB2_POLICYTYPE = 'M';                                             01680000
+    END;                                                                01690000
+                                                                        01700000
+    WHEN ('01ACOM') DO;                                                 01710000
+      DB2_POLICYTYPE = 'C';                                             01720000
+    END;                                                                01730000
+                                                                        01740000
+    WHEN ('01ACLM') DO;                                                 01750000
+      DB2_POLICYTYPE = 'X';                                             01760000
+    END;                                                                01770000
+                                                                        01780000
+    OTHERWISE DO;                                                       01790000
+      CA_RETURN_CODE = '99';                                            01800000
+      EXEC CICS RETURN;                                                 01810000
+    END;                                                                01820000
+                                                                        01830000
+  END; /* SELECT (CA_REQUEST_ID) */                                     01840000
+                                                                        01850000
+ /*    if less set error return code and return to caller */            01860000
+  IF (EIBCALEN < WS_REQUIRED_CA_LEN) THEN DO;                           01870000
+    CA_RETURN_CODE = '98';                                              01880000
+    EXEC CICS RETURN;                                                   01890000
+  END;                                                                  01900000
+                                                                        01910000
+ /*----------------------------------------------------------------*    01920000
+ *    CALL the INSERTs against appropriate tables              *        01930000
+ *----------------------------------------------------------------*/    01940000
+ /*    Call procedure to Insert row in policy table */                  01950000
+  If (CA_REQUEST_ID <> '01ACLM') THEN DO;                               01960000
+    CALL INSERT_POLICY;                                                 01970000
+  END;                                                                  01980000
+                                                                        01990000
+ /*    Call appropriate routine to insert row to specific               02000000
+ *    policy type table. */                                             02010000
+  SELECT (CA_REQUEST_ID);                                               02020000
+                                                                        02030000
+    WHEN ('01AEND') DO;                                                 02040000
+      CALL INSERT_ENDOW;                                                02050000
+    END;                                                                02060000
+                                                                        02070000
+    WHEN ('01AHOU') DO;                                                 02080000
+      CALL INSERT_HOUSE;                                                02090000
+    END;                                                                02100000
+                                                                        02110000
+    WHEN ('01AMOT') DO;                                                 02120000
+      CALL INSERT_MOTOR;                                                02130000
+    END;                                                                02140000
+                                                                        02150000
+    WHEN ('01ACOM') DO;                                                 02160000
+      CALL INSERT_COMMERCIAL;                                           02170000
+    END;                                                                02180000
+                                                                        02190000
+    WHEN ('01ACLM') DO;                                                 02200000
+      CALL INSERT_CLAIM;                                                02210000
+    END;                                                                02220000
+                                                                        02230000
+    OTHERWISE DO;                                                       02240000
+      CA_RETURN_CODE = '99';                                            02250000
+    END;                                                                02260000
+                                                                        02270000
+  END; /* SELECT (CA_REQUEST_ID) */                                     02280000
+                                                                        02290000
+  EXEC CICS Link Program('LGAPVS01')                                    02300005
+            Commarea(COMM_AREA)                                         02310001
+            LENGTH(32500);                                              02320000
+                                                                        02330000
+ /* Return to caller */                                                 02340000
+  EXEC CICS RETURN;                                                     02350000
+                                                                        02360000
+ RETURN;                                                                02370000
+                                                                        02380000
+ /*================================================================*    02390000
+ *  Issue INSERT on Policy table using values passed in commarea  *     02400000
+ * set the timestamp and allow DB2 to allocate a policy number.   *     02410000
+ *================================================================*/    02420000
+ INSERT_POLICY: PROCEDURE;                                              02430000
+                                                                        02440000
+ /*    Move numeric fields to integer format */                         02450000
+  DB2_BROKERID_INT = CA_BROKERID;                                       02460000
+  DB2_PAYMENT_INT  = CA_PAYMENT;                                        02470000
+                                                                        02480000
+  EM_SQLREQ = ' INSERT POLICY';                                         02490000
+  EXEC SQL                                                              02500000
+        INSERT INTO POLICY                                              02510000
+                  ( POLICYNUMBER,                                       02520000
+                    CUSTOMERNUMBER,                                     02530000
+                    ISSUEDATE,                                          02540000
+                    EXPIRYDATE,                                         02550000
+                    POLICYTYPE,                                         02560000
+                    LASTCHANGED,                                        02570000
+                    BROKERID,                                           02580000
+                    BROKERSREFERENCE,                                   02590000
+                    PAYMENT           )                                 02600000
+           VALUES ( DEFAULT,                                            02610000
+                    :DB2_CUSTOMERNUM_INT,                               02620000
+                    :CA_ISSUE_DATE,                                     02630000
+                    :CA_EXPIRY_DATE,                                    02640000
+                    :DB2_POLICYTYPE,                                    02650000
+                    CURRENT TIMESTAMP,                                  02660000
+                    :DB2_BROKERID_INT,                                  02670000
+                    :CA_BROKERSREF,                                     02680000
+                    :DB2_PAYMENT_INT      );                            02690000
+                                                                        02700000
+  SELECT (SQLCODE);                                                     02710000
+                                                                        02720000
+    When (0) DO;                                                        02730000
+      CA_RETURN_CODE = '00';                                            02740000
+    END;                                                                02750000
+                                                                        02760000
+    When (-530) DO;                                                     02770000
+      CA_RETURN_CODE = '70';                                            02780000
+      CALL WRITE_ERROR_MESSAGE;                                         02790000
+      EXEC CICS RETURN;                                                 02800000
+    END;                                                                02810000
+                                                                        02820000
+    OTHERWISE DO;                                                       02830000
+      CA_RETURN_CODE = '90';                                            02840000
+      CALL WRITE_ERROR_MESSAGE;                                         02850000
+      EXEC CICS RETURN;                                                 02860000
+    END;                                                                02870000
+                                                                        02880000
+  END; /* SELECT (SQLCODE) */                                           02890000
+                                                                        02900000
+ /*    get value of assigned policy number */                           02910000
+  EXEC SQL                                                              02920000
+        SET :DB2_POLICYNUM_INT = IDENTITY_VAL_LOCAL();                  02930000
+                                                                        02940000
+  CA_POLICY_NUM = DB2_POLICYNUM_INT;                                    02950000
+ /*    and save in error msg field incase required */                   02960000
+  EM_POLNUM = CA_POLICY_NUM;                                            02970000
+                                                                        02980000
+ /*    get value of assigned Timestamp  */                              02990000
+  EXEC SQL                                                              03000000
+        SELECT LASTCHANGED                                              03010000
+          INTO :CA_LASTCHANGED                                          03020000
+          FROM POLICY                                                   03030000
+          WHERE POLICYNUMBER = :DB2_POLICYNUM_INT;                      03040000
+                                                                        03050000
+ END INSERT_POLICY;                                                     03060000
+                                                                        03070000
+ /*================================================================*    03080000
+ * Issue INSERT on endowment table using values passed in commarea*     03090000
+ *================================================================*/    03100000
+ INSERT_ENDOW: PROCEDURE;                                               03110000
+                                                                        03120000
+ /*    Move numeric fields to integer format */                         03130000
+  DB2_E_TERM_SINT      = CA_E_TERM;                                     03140000
+  DB2_E_SUMASSURED_INT = CA_E_SUM_ASSURED;                              03150000
+                                                                        03160000
+  EM_SQLREQ = ' INSERT ENDOW ';                                         03170000
+ /*----------------------------------------------------------------*    03180000
+ *    There are 2 versions of INSERT...                           *     03190000
+ *      one which updates all fields including Varchar            *     03200000
+ *      one which updates all fields Except Varchar               *     03210000
+ *----------------------------------------------------------------*/    03220000
+  WS_VARY_LEN = EIBCALEN - WS_REQUIRED_CA_LEN;                          03230000
+                                                                        03240000
+  IF (WS_VARY_LEN > 0) THEN DO;                                         03250000
+ /*       Commarea contains data for Varchar field */                   03260000
+     SUBSTR(WS_VARY_CHAR,1,WS_VARY_LEN) = CA_E_PADDING_DATA;            03270000
+                                                                        03280000
+     EXEC SQL                                                           03290000
+       INSERT INTO ENDOWMENT                                            03300000
+                 ( POLICYNUMBER,                                        03310000
+                   WITHPROFITS,                                         03320000
+                   EQUITIES,                                            03330000
+                   MANAGEDFUND,                                         03340000
+                   FUNDNAME,                                            03350000
+                   TERM,                                                03360000
+                   SUMASSURED,                                          03370000
+                   LIFEASSURED,                                         03380000
+                   PADDINGDATA    )                                     03390000
+          VALUES ( :DB2_POLICYNUM_INT,                                  03400000
+                   :CA_E_WITH_PROFITS,                                  03410000
+                   :CA_E_EQUITIES,                                      03420000
+                   :CA_E_MANAGED_FUND,                                  03430000
+                   :CA_E_FUND_NAME,                                     03440000
+                   :DB2_E_TERM_SINT,                                    03450000
+                   :DB2_E_SUMASSURED_INT,                               03460000
+                   :CA_E_LIFE_ASSURED,                                  03470000
+                   :WS_VARY_FIELD );                                    03480000
+  END;                                                                  03490000
+  ELSE DO;                                                              03500000
+     EXEC SQL                                                           03510000
+       INSERT INTO ENDOWMENT                                            03520000
+                 ( POLICYNUMBER,                                        03530000
+                   WITHPROFITS,                                         03540000
+                   EQUITIES,                                            03550000
+                   MANAGEDFUND,                                         03560000
+                   FUNDNAME,                                            03570000
+                   TERM,                                                03580000
+                   SUMASSURED,                                          03590000
+                   LIFEASSURED    )                                     03600000
+          VALUES ( :DB2_POLICYNUM_INT,                                  03610000
+                   :CA_E_WITH_PROFITS,                                  03620000
+                   :CA_E_EQUITIES,                                      03630000
+                   :CA_E_MANAGED_FUND,                                  03640000
+                   :CA_E_FUND_NAME,                                     03650000
+                   :DB2_E_TERM_SINT,                                    03660000
+                   :DB2_E_SUMASSURED_INT,                               03670000
+                   :CA_E_LIFE_ASSURED );                                03680000
+  END;                                                                  03690000
+                                                                        03700000
+  IF (SQLCODE <> 0) THEN DO;                                            03710000
+    CA_RETURN_CODE = '90';                                              03720000
+    CALL WRITE_ERROR_MESSAGE;                                           03730000
+ /*      Issue Abend to cause backout of update to Policy table */      03740000
+    EXEC CICS ABEND ABCODE('LGSQ') NODUMP;                              03750000
+    EXEC CICS RETURN;                                                   03760000
+  END;                                                                  03770000
+                                                                        03780000
+ END INSERT_ENDOW;                                                      03790000
+                                                                        03800000
+ /*================================================================*    03810000
+ * Issue INSERT on house table using values passed in commarea    *     03820000
+ *================================================================*/    03830000
+ INSERT_HOUSE: PROCEDURE;                                               03840000
+                                                                        03850000
+ /*    Move numeric fields to integer format */                         03860000
+  DB2_H_VALUE_INT     = CA_H_VALUE;                                     03870000
+  DB2_H_BEDROOMS_SINT = CA_H_BEDROOMS;                                  03880000
+                                                                        03890000
+  EM_SQLREQ = ' INSERT HOUSE ';                                         03900000
+  EXEC SQL                                                              03910000
+        INSERT INTO HOUSE                                               03920000
+                  ( POLICYNUMBER,                                       03930000
+                    PROPERTYTYPE,                                       03940000
+                    BEDROOMS,                                           03950000
+                    VALUE,                                              03960000
+                    HOUSENAME,                                          03970000
+                    HOUSENUMBER,                                        03980000
+                    POSTCODE          )                                 03990000
+           VALUES ( :DB2_POLICYNUM_INT,                                 04000000
+                    :CA_H_PROPERTY_TYPE,                                04010000
+                    :DB2_H_BEDROOMS_SINT,                               04020000
+                    :DB2_H_VALUE_INT,                                   04030000
+                    :CA_H_HOUSE_NAME,                                   04040000
+                    :CA_H_HOUSE_NUMBER,                                 04050000
+                    :CA_H_POSTCODE      );                              04060000
+                                                                        04070000
+  IF (SQLCODE <> 0) THEN DO;                                            04080000
+        CA_RETURN_CODE = '90';                                          04090000
+        CALL WRITE_ERROR_MESSAGE;                                       04100000
+ /*      Issue Abend to cause backout of update to Policy table */      04110000
+        EXEC CICS ABEND ABCODE('LGSQ') NODUMP;                          04120000
+        EXEC CICS RETURN;                                               04130000
+  END;                                                                  04140000
+                                                                        04150000
+ END INSERT_HOUSE;                                                      04160000
+                                                                        04170000
+ /*================================================================*    04180000
+ * Issue INSERT on motor table using values passed in commarea    *     04190000
+ *================================================================*/    04200000
+ INSERT_MOTOR: PROCEDURE;                                               04210000
+                                                                        04220000
+ /*    Move numeric fields to integer format */                         04230000
+  DB2_M_VALUE_INT = CA_M_VALUE;                                         04240000
+  DB2_M_CC_SINT = CA_M_CC;                                              04250000
+  DB2_M_PREMIUM_INT = CA_M_PREMIUM;                                     04260000
+  DB2_M_ACCIDENTS_INT = CA_M_ACCIDENTS;                                 04270000
+                                                                        04280000
+  EM_SQLREQ = ' INSERT MOTOR ';                                         04290000
+  EXEC SQL                                                              04300000
+        INSERT INTO MOTOR                                               04310000
+                  ( POLICYNUMBER,                                       04320000
+                    MAKE,                                               04330000
+                    MODEL,                                              04340000
+                    VALUE,                                              04350000
+                    REGNUMBER,                                          04360000
+                    COLOUR,                                             04370000
+                    CC,                                                 04380000
+                    YEAROFMANUFACTURE,                                  04390000
+                    PREMIUM,                                            04400000
+                    ACCIDENTS )                                         04410000
+           VALUES ( :DB2_POLICYNUM_INT,                                 04420000
+                    :CA_M_MAKE,                                         04430000
+                    :CA_M_MODEL,                                        04440000
+                    :DB2_M_VALUE_INT,                                   04450000
+                    :CA_M_REGNUMBER,                                    04460000
+                    :CA_M_COLOUR,                                       04470000
+                    :DB2_M_CC_SINT,                                     04480000
+                    :CA_M_MANUFACTURED,                                 04490000
+                    :DB2_M_PREMIUM_INT,                                 04500000
+                    :DB2_M_ACCIDENTS_INT );                             04510000
+                                                                        04520000
+  IF (SQLCODE <> 0) THEN DO;                                            04530000
+    CA_RETURN_CODE = '90';                                              04540000
+    CALL WRITE_ERROR_MESSAGE;                                           04550000
+ /*      Issue Abend to cause backout of update to Policy table */      04560000
+    EXEC CICS ABEND ABCODE('LGSQ') NODUMP;                              04570000
+    EXEC CICS RETURN;                                                   04580000
+  END;                                                                  04590000
+                                                                        04600000
+ END INSERT_MOTOR;                                                      04610000
+                                                                        04620000
+ /*================================================================*    04630000
+ * Issue INSERT on commercial table with values passed in commarea*     04640000
+ *================================================================*/    04650000
+ INSERT_COMMERCIAL: PROCEDURE;                                          04660000
+                                                                        04670000
+  DB2_B_FirePeril_INT       = CA_B_FirePeril;                           04680000
+  DB2_B_FirePremium_INT     = CA_B_FirePremium;                         04690000
+  DB2_B_CrimePeril_INT      = CA_B_CrimePeril;                          04700000
+  DB2_B_CrimePremium_INT    = CA_B_CrimePremium;                        04710000
+  DB2_B_FloodPeril_INT      = CA_B_FloodPeril;                          04720000
+  DB2_B_FloodPremium_INT    = CA_B_FloodPremium;                        04730000
+  DB2_B_WeatherPeril_INT    = CA_B_WeatherPeril;                        04740000
+  DB2_B_WeatherPremium_INT  = CA_B_WeatherPremium;                      04750000
+  DB2_B_Status_INT          = CA_B_Status;                              04760000
+                                                                        04770000
+  EM_SQLREQ = ' INSERT COMMER';                                         04780000
+  EXEC SQL                                                              04790000
+        INSERT INTO COMMERCIAL                                          04800000
+                  (                                                     04810000
+                    PolicyNumber,                                       04820000
+                    RequestDate,                                        04830000
+                    StartDate,                                          04840000
+                    RenewalDate,                                        04850000
+                    Address,                                            04860000
+                    Zipcode,                                            04870000
+                    LatitudeN,                                          04880000
+                    LongitudeW,                                         04890000
+                    Customer,                                           04900000
+                    PropertyType,                                       04910000
+                    FirePeril,                                          04920000
+                    FirePremium,                                        04930000
+                    CrimePeril,                                         04940000
+                    CrimePremium,                                       04950000
+                    FloodPeril,                                         04960000
+                    FloodPremium,                                       04970000
+                    WeatherPeril,                                       04980000
+                    WeatherPremium,                                     04990000
+                    Status,                                             05000000
+                    RejectionReason                                     05010000
+                                        )                               05020000
+           VALUES (                                                     05030000
+                    :DB2_POLICYNUM_INT,                                 05040000
+                    :CA_LASTCHANGED,                                    05050000
+                    :CA_ISSUE_DATE,                                     05060000
+                    :CA_EXPIRY_DATE,                                    05070000
+                    :CA_B_Address,                                      05080000
+                    :CA_B_Postcode,                                     05090000
+                    :CA_B_Latitude,                                     05100000
+                    :CA_B_Longitude,                                    05110000
+                    :CA_B_Customer,                                     05120000
+                    :CA_B_PropType,                                     05130000
+                    :DB2_B_FirePeril_INT,                               05140000
+                    :DB2_B_FirePremium_INT,                             05150000
+                    :DB2_B_CrimePeril_INT,                              05160000
+                    :DB2_B_CrimePremium_INT,                            05170000
+                    :DB2_B_FloodPeril_INT,                              05180000
+                    :DB2_B_FloodPremium_INT,                            05190000
+                    :DB2_B_WeatherPeril_INT,                            05200000
+                    :DB2_B_WeatherPremium_INT,                          05210000
+                    :DB2_B_Status_INT,                                  05220000
+                    :CA_B_RejectReason                                  05230000
+                                        );                              05240000
+                                                                        05250000
+  IF (SQLCODE <> 0) THEN DO;                                            05260000
+    CA_RETURN_CODE = '90';                                              05270000
+    CALL WRITE_ERROR_MESSAGE;                                           05280000
+ /*      Issue Abend to cause backout of update to Policy table */      05290000
+    EXEC CICS ABEND ABCODE('LGSQ') NODUMP;                              05300000
+    EXEC CICS RETURN;                                                   05310000
+  END;                                                                  05320000
+                                                                        05330000
+ END INSERT_COMMERCIAL;                                                 05340000
+                                                                        05350000
+ /*================================================================*    05360000
+ * Issue INSERT on claim table with values passed in commarea     *     05370000
+ *================================================================*/    05380000
+ INSERT_CLAIM: PROCEDURE;                                               05390000
+                                                                        05400000
+  DB2_C_Paid_INT  = CA_C_Paid;                                          05410000
+  DB2_C_Value_INT = CA_C_Value;                                         05420000
+                                                                        05430000
+  EM_SQLREQ = ' INSERT CLAIM';                                          05440000
+  EXEC SQL                                                              05450000
+        INSERT INTO CLAIM                                               05460000
+                  (                                                     05470000
+                    ClaimNumber,                                        05480000
+                    PolicyNumber,                                       05490000
+                    ClaimDate,                                          05500000
+                    Paid,                                               05510000
+                    Value,                                              05520000
+                    Cause,                                              05530000
+                    Observations                                        05540000
+                                        )                               05550000
+           VALUES (                                                     05560000
+                    :DB2_C_Num_INT,                                     05570000
+                    :DB2_C_Policynum_INT,                               05580000
+                    :CA_C_Date,                                         05590000
+                    :DB2_C_Paid_INT,                                    05600000
+                    :DB2_C_Value_INT,                                   05610000
+                    :CA_C_CAuse,                                        05620000
+                    :CA_C_Observations                                  05630000
+                                        );                              05640000
+                                                                        05650000
+  CA_C_Num = DB2_C_Num_INT;                                             05660000
+                                                                        05670000
+  IF (SQLCODE <> 0) THEN DO;                                            05680000
+    CA_RETURN_CODE = '90';                                              05690000
+    CALL WRITE_ERROR_MESSAGE;                                           05700000
+ /*      Issue Abend to cause backout of update to Policy table */      05710000
+    EXEC CICS ABEND ABCODE('LGSQ') NODUMP;                              05720000
+    EXEC CICS RETURN;                                                   05730000
+  END;                                                                  05740000
+                                                                        05750000
+ END INSERT_CLAIM;                                                      05760000
+                                                                        05770000
+ /*================================================================*    05780000
+ * Procedure to write error message to Queues                     *     05790000
+ *   message will include Date, Time, Program Name, Customer      *     05800000
+ *   Number, Policy Number and SQLCODE.                           *     05810000
+ *================================================================*/    05820000
+ WRITE_ERROR_MESSAGE: PROCEDURE;                                        05830000
+ /* Save SQLCODE in message */                                          05840000
+  EM_SQLRC = SQLCODE;                                                   05850000
+ /* Obtain and format current time and date */                          05860000
+  EXEC CICS ASKTIME ABSTIME(ABS_TIME);                                  05870000
+                                                                        05880000
+  EXEC CICS FORMATTIME ABSTIME(ABS_TIME)                                05890000
+                MMDDYYYY(DATE1)                                         05900000
+                TIME(TIME1);                                            05910000
+                                                                        05920000
+  EM_DATE = DATE1;                                                      05930000
+  EM_TIME = TIME1;                                                      05940000
+ /* Write output message to TDQ */                                      05950000
+  EXEC CICS LINK PROGRAM('LGSTSQ')                                      05960000
+                COMMAREA(ERROR_MSG)                                     05970000
+                LENGTH(STG(ERROR_MSG));                                 05980001
+                                                                        05990000
+ /* Write 90 bytes or as much as we have of commarea to TDQ */          06000000
+  IF (EIBCALEN > 0) THEN DO;                                            06010000
+        IF (EIBCALEN < 91) THEN DO;                                     06020000
+          CA_DATA = LEFT(COMM_AREA_RAW,EIBCALEN);                       06030000
+          EXEC CICS LINK PROGRAM('LGSTSQ')                              06040000
+                    COMMAREA(CA_ERROR_MSG)                              06050000
+                    LENGTH(STG(ERROR_MSG));                             06060001
+        END;                                                            06070000
+        ELSE DO;                                                        06080000
+          CA_DATA = LEFT(COMM_AREA_RAW,90);                             06090000
+          EXEC CICS LINK PROGRAM('LGSTSQ')                              06100000
+                    COMMAREA(CA_ERROR_MSG)                              06110000
+                    LENGTH(STG(ERROR_MSG));                             06120001
+        END;                                                            06130000
+  END;                                                                  06140000
+ RETURN;                                                                06150000
+ END WRITE_ERROR_MESSAGE;                                               06160000
+                                                                        06170000
+ END LGAPDB01;                                                          06190005

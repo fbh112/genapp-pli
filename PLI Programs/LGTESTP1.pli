@@ -1,0 +1,285 @@
+ /*********************************************************************/00010000
+ /*                                                                   */00020000
+ /*                        Motor Policy Menu                          */00030000
+ /*                                                                   */00040000
+ /* Menu for Motor Policy Transactions                                */00050000
+ /*                                                                   */00060000
+ /*********************************************************************/00070000
+ LGTESTP1: Proc(DFHEIPTR,COMM_AREA_PTR) Options(Main,Reentrant);        00080003
+                                                                        00090000
+ DCL MSGEND CHAR(24) STATIC INIT('Transaction ended      ');            00100000
+                                                                        00110000
+ %INCLUDE SSMAP;                                                        00120000
+ %INCLUDE LGCMAREA;                                                     00130002
+ DCL BASE_COMM_AREA CHAR(STG(COMM_AREA));                               00140000
+                                                                        00150000
+ /*-------------------------------------------------------------------*/00160000
+ /********************************************************************/ 00170000
+ /*-------------------------------------------------------------------*/00180000
+ IF EIBCALEN = 0 THEN DO;                                               00190000
+                                                                        00200000
+    COMM_AREA_PTR = ADDR(BASE_COMM_AREA);                               00210000
+    SSMAPP1O = '';                                                      00220000
+    CA_REQUEST_ID = '';                                                 00230000
+    CA_RETURN_CODE = 0;                                                 00240000
+    CA_CUSTOMER_NUM = 0;                                                00250000
+    CA_REQUEST_INITIALISER = '';                                        00260000
+    ENP1CNOO = '0000000000';                                            00270000
+    ENP1PNOO = '0000000000';                                            00280000
+    ENP1VALO = '000000';                                                00290000
+    ENP1CCO = '00000';                                                  00300000
+    ENP1ACCO = '000000';                                                00310000
+    ENP1PREO = '000000';                                                00320000
+                                                                        00330000
+    /* Display Main Menu */                                             00340000
+    EXEC CICS SEND MAP ('SSMAPP1')                                      00350000
+              MAPSET ('SSMAP')                                          00360000
+              ERASE;                                                    00370000
+ END;                                                                   00380000
+                                                                        00390000
+ A_GAIN:                                                                00400000
+                                                                        00410000
+    EXEC CICS HANDLE AID                                                00420000
+              CLEAR(CLEARIT)                                            00430000
+              PF3(ENDIT);                                               00440000
+    EXEC CICS HANDLE CONDITION                                          00450000
+              MAPFAIL(ENDIT);                                           00460000
+                                                                        00470000
+    EXEC CICS RECEIVE MAP('SSMAPP1')                                    00480000
+              INTO(SSMAPP1I)                                            00490000
+              MAPSET('SSMAP');                                          00500000
+                                                                        00510000
+                                                                        00520000
+    SELECT (ENP1OPTO);                                                  00530000
+                                                                        00540000
+       WHEN ('1') DO;                                                   00550000
+          CA_REQUEST_ID = '01IMOT';                                     00560000
+          CA_CUSTOMER_NUM = ENP1CNOO;                                   00570000
+          CA_POLICY_NUM = ENP1PNOO;                                     00580000
+          EXEC CICS LINK PROGRAM('LGIPOL01')                            00590000
+                    COMMAREA(COMM_AREA)                                 00600000
+                    LENGTH(32500);                                      00610000
+          IF CA_RETURN_CODE > 0 THEN                                    00620000
+             GO TO NO_DATA;                                             00630000
+                                                                        00640000
+          ENP1IDAI = CA_ISSUE_DATE;                                     00650000
+          ENP1EDAI = CA_EXPIRY_DATE;                                    00660000
+          ENP1CMKI = CA_M_MAKE;                                         00670000
+          ENP1CMOI = CA_M_MODEL;                                        00680000
+          ENP1VALI = CA_M_VALUE;                                        00690000
+          ENP1REGI = CA_M_REGNUMBER;                                    00700000
+          ENP1COLI = CA_M_COLOUR;                                       00710000
+          ENP1CCI = CA_M_CC;                                            00720000
+          ENP1MANI = CA_M_MANUFACTURED;                                 00730000
+          ENP1PREI = CA_M_PREMIUM;                                      00740000
+          ENP1ACCI = CA_M_ACCIDENTS;                                    00750000
+          EXEC CICS SEND MAP ('SSMAPP1')                                00760000
+                    FROM(SSMAPP1O)                                      00770000
+                    MAPSET ('SSMAP');                                   00780000
+          GO TO ENDIT_STARTIT;                                          00790000
+       END;                                                             00800000
+                                                                        00810000
+       WHEN ('2') DO;                                                   00820000
+          CA_REQUEST_ID = '01AMOT';                                     00830000
+          CA_CUSTOMER_NUM = ENP1CNOI;                                   00840000
+          CA_PAYMENT = 0;                                               00850000
+          CA_BROKERID = 0;                                              00860000
+          CA_BROKERSREF = '';                                           00870000
+          CA_ISSUE_DATE = ENP1IDAI;                                     00880000
+          CA_EXPIRY_DATE = ENP1EDAI;                                    00890000
+         // CA_M_MAKE = ENP1CMKI;                                       00900000
+         // CA_M_MODEL = ENP1CMOI;                                      00910000
+          CA_M_VALUE = ENP1VALI;                                        00920000
+          CA_M_REGNUMBER = ENP1REGI;                                    00930000
+          CA_M_COLOUR = ENP1COLI;                                       00940000
+          CA_M_CC = ENP1CCI;                                            00950000
+          CA_M_MANUFACTURED = ENP1MANI;                                 00960000
+          CA_M_PREMIUM = ENP1PREI;                                      00970000
+          CA_M_ACCIDENTS = ENP1ACCI;                                    00980000
+                                                                        00990000
+          EXEC CICS LINK PROGRAM('LGAPOL01')                            01000000
+                    COMMAREA(COMM_AREA)                                 01010000
+                    LENGTH(32500);                                      01020000
+          IF CA_RETURN_CODE > 0 THEN DO;                                01030000
+             Exec CICS Syncpoint Rollback;                              01040000
+             GO TO NO_ADD;                                              01050000
+          END;                                                          01060000
+                                                                        01070000
+          ENP1CNOI = CA_CUSTOMER_NUM;                                   01080000
+          ENP1PNOI = CA_POLICY_NUM;                                     01090000
+          ENP1OPTI = '';                                                01100000
+          ERP1FLDO = 'New Motor Policy Inserted';                       01110000
+          EXEC CICS SEND MAP ('SSMAPP1')                                01120000
+                    FROM(SSMAPP1O)                                      01130000
+                    MAPSET ('SSMAP');                                   01140000
+          GO TO ENDIT_STARTIT;                                          01150000
+       END;                                                             01160000
+                                                                        01170000
+       WHEN ('3') DO;                                                   01180000
+          CA_REQUEST_ID = '01DMOT';                                     01190000
+          CA_CUSTOMER_NUM = ENP1CNOO;                                   01200000
+          CA_POLICY_NUM = ENP1PNOO;                                     01210000
+          EXEC CICS LINK PROGRAM('LGDPOL01')                            01220000
+                    COMMAREA(COMM_AREA)                                 01230000
+                    LENGTH(32500);                                      01240000
+          IF CA_RETURN_CODE > 0 THEN DO;                                01250000
+             Exec CICS Syncpoint Rollback;                              01260000
+             GO TO NO_DELETE;                                           01270000
+          END;                                                          01280000
+                                                                        01290000
+          ENP1IDAI = '';                                                01300000
+          ENP1EDAI = '';                                                01310000
+          ENP1CMKI = '';                                                01320000
+          ENP1CMOI = '';                                                01330000
+          ENP1VALI = '';                                                01340000
+          ENP1REGI = '';                                                01350000
+          ENP1COLI = '';                                                01360000
+          ENP1CCI = '';                                                 01370000
+          ENP1MANI = '';                                                01380000
+          ERP1FLDO = 'Motor Policy Deleted';                            01390000
+          EXEC CICS SEND MAP ('SSMAPP1')                                01400000
+                    FROM(SSMAPP1O)                                      01410000
+                    MAPSET ('SSMAP');                                   01420000
+          GO TO ENDIT_STARTIT;                                          01430000
+       END;                                                             01440000
+                                                                        01450000
+       WHEN ('4') DO;                                                   01460000
+          CA_REQUEST_ID = '01IMOT';                                     01470000
+          CA_CUSTOMER_NUM = ENP1CNOO;                                   01480000
+          CA_POLICY_NUM = ENP1PNOO;                                     01490000
+          EXEC CICS LINK PROGRAM('LGIPOL01')                            01500000
+                    COMMAREA(COMM_AREA)                                 01510000
+                    LENGTH(32500);                                      01520000
+          IF CA_RETURN_CODE > 0 THEN                                    01530000
+             GO TO NO_DATA;                                             01540000
+                                                                        01550000
+          ENP1IDAI = CA_ISSUE_DATE;                                     01560000
+          ENP1EDAI = CA_EXPIRY_DATE;                                    01570000
+          ENP1CMKI = CA_M_MAKE;                                         01580000
+          ENP1CMOI = CA_M_MODEL;                                        01590000
+          ENP1VALI = CA_M_VALUE;                                        01600000
+          ENP1REGI = CA_M_REGNUMBER;                                    01610000
+          ENP1COLI = CA_M_COLOUR;                                       01620000
+          ENP1CCI = CA_M_CC;                                            01630000
+          ENP1MANI = CA_M_MANUFACTURED;                                 01640000
+          ENP1PREI = CA_M_PREMIUM;                                      01650000
+          ENP1ACCI = CA_M_ACCIDENTS;                                    01660000
+          EXEC CICS SEND MAP ('SSMAPP1')                                01670000
+                    FROM(SSMAPP1O)                                      01680000
+                    MAPSET ('SSMAP');                                   01690000
+          EXEC CICS RECEIVE MAP('SSMAPP1')                              01700000
+                    INTO(SSMAPP1I)                                      01710000
+                    MAPSET('SSMAP');                                    01720000
+                                                                        01730000
+          CA_REQUEST_ID = '01UMOT';                                     01740000
+          CA_CUSTOMER_NUM = ENP1CNOI;                                   01750000
+          CA_PAYMENT = 0;                                               01760000
+          CA_BROKERID = 0;                                              01770000
+          CA_BROKERSREF = '';                                           01780000
+          CA_ISSUE_DATE = ENP1IDAI;                                     01790000
+          CA_EXPIRY_DATE = ENP1EDAI;                                    01800000
+         // CA_M_MAKE = ENP1CMKI;                                       01810000
+         // CA_M_MODEL = ENP1CMOI;                                      01820000
+          CA_M_VALUE = ENP1VALI;                                        01830000
+          CA_M_REGNUMBER = ENP1REGI;                                    01840000
+          CA_M_COLOUR = ENP1COLI;                                       01850000
+          CA_M_CC = ENP1CCI;                                            01860000
+          CA_M_MANUFACTURED = ENP1MANI;                                 01870000
+          CA_M_PREMIUM = ENP1PREI;                                      01880000
+          CA_M_ACCIDENTS = ENP1ACCI;                                    01890000
+          EXEC CICS LINK PROGRAM('LGUPOL01')                            01900000
+                    COMMAREA(COMM_AREA)                                 01910000
+                    LENGTH(32500);                                      01920000
+          IF CA_RETURN_CODE > 0 THEN                                    01930000
+             GO TO NO_UPD;                                              01940000
+                                                                        01950000
+          ENP1CNOI = CA_CUSTOMER_NUM;                                   01960000
+          ENP1PNOI = CA_POLICY_NUM;                                     01970000
+          ENP1OPTI = '';                                                01980000
+          ERP1FLDO = 'Motor Policy Updated';                            01990000
+          EXEC CICS SEND MAP ('SSMAPP1')                                02000000
+                    FROM(SSMAPP1O)                                      02010000
+                    MAPSET ('SSMAP');                                   02020000
+                                                                        02030000
+          GO TO ENDIT_STARTIT;                                          02040000
+       END;                                                             02050000
+                                                                        02060000
+       OTHERWISE DO;                                                    02070000
+                                                                        02080000
+          ERP1FLDO = 'Please enter a valid option';                     02090000
+          ENP1OPTL = -1;                                                02100000
+                                                                        02110000
+          EXEC CICS SEND MAP ('SSMAPP1')                                02120000
+                    FROM(SSMAPP1O)                                      02130000
+                    MAPSET ('SSMAP')                                    02140000
+                    CURSOR;                                             02150000
+          GO TO ENDIT_STARTIT;                                          02160000
+       END;                                                             02170000
+    END;                                                                02180000
+                                                                        02190000
+                                                                        02200000
+    /* Send message to terminal and return */                           02210000
+                                                                        02220000
+    EXEC CICS RETURN;                                                   02230000
+                                                                        02240000
+    ENDIT_STARTIT:                                                      02250000
+       EXEC CICS RETURN                                                 02260000
+                 TRANSID('SSP1')                                        02270000
+                 COMMAREA(COMM_AREA);                                   02280000
+                                                                        02290000
+    ENDIT:                                                              02300000
+       EXEC CICS SEND TEXT                                              02310000
+                 FROM(MSGEND)                                           02320000
+                 LENGTH(STG(MSGEND))                                    02330000
+                 ERASE                                                  02340000
+                 FREEKB;                                                02350000
+       EXEC CICS RETURN;                                                02360000
+                                                                        02370000
+    CLEARIT:                                                            02380000
+                                                                        02390000
+       SSMAPP1O = '';                                                   02400000
+       EXEC CICS SEND MAP ('SSMAPP1')                                   02410000
+                 MAPSET ('SSMAP')                                       02420000
+                 MAPONLY;                                               02430000
+                                                                        02440000
+       EXEC CICS RETURN                                                 02450000
+                 TRANSID('SSP1')                                        02460000
+                 COMMAREA(COMM_AREA);                                   02470000
+                                                                        02480000
+    NO_ADD:                                                             02490000
+       SELECT (CA_RETURN_CODE);                                         02500000
+          When (70) DO;                                                 02510000
+             ERP1FLDO = 'Customer does not exist';                      02520000
+             Go To ERROR_OUT;                                           02530000
+          END;                                                          02540000
+          OTHERWISE DO;                                                 02550000
+             ERP1FLDO = 'Error Adding Motor Policy';                    02560000
+             Go To ERROR_OUT;                                           02570000
+          END;                                                          02580000
+       END;                                                             02590000
+                                                                        02600000
+    NO_UPD:                                                             02610000
+       ERP1FLDO = 'Error Updating Motor Policy';                        02620000
+       Go To ERROR_OUT;                                                 02630000
+                                                                        02640000
+    NO_DELETE:                                                          02650000
+       ERP1FLDO = 'Error Deleting Motor Policy';                        02660000
+       Go To ERROR_OUT;                                                 02670000
+                                                                        02680000
+    NO_DATA:                                                            02690000
+       ERP1FLDO = 'No data was returned.';                              02700000
+       Go To ERROR_OUT;                                                 02710000
+                                                                        02720000
+    ERROR_OUT:                                                          02730000
+       EXEC CICS SEND MAP ('SSMAPP1')                                   02740000
+                 FROM(SSMAPP1O)                                         02750000
+                 MAPSET ('SSMAP');                                      02760000
+                                                                        02770000
+       SSMAPP1O = '';                                                   02780000
+       CA_REQUEST_ID = '';                                              02790000
+       CA_RETURN_CODE = 0;                                              02800000
+       CA_CUSTOMER_NUM = 0;                                             02810000
+       CA_REQUEST_INITIALISER = '';                                     02820000
+                                                                        02830000
+       GO TO ENDIT_STARTIT;                                             02840000
+ END LGTESTP1;                                                          02850003

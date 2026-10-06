@@ -1,0 +1,1253 @@
+ /*********************************************************************/00010000
+ /*                                                                   */00020000
+ /*                    Inquire Policy                                 */00030000
+ /*                                                                   */00040000
+ /*   To obtain full details of an individual policy:                 */00050000
+ /*     Endowment, House, Motor, Commercial                           */00060000
+ /*                                                                   */00070000
+ /*                                                                   */00080000
+ /*********************************************************************/00090000
+ /* LGIPDB01: Proc(COMM_AREA) Options(Main,Reentrant); */               00100032
+ LGIPDB01: Proc(COMM_AREA_PTR) Options(Main);                           00101035
+                                                                        00110000
+ DCL 1 TSAREA,                                                          00120000
+       3 TSAREAPOSTCODE           CHAR(8),                              00130000
+       3 *                        CHAR INIT(''),                        00140000
+       3 TSAREACUSTNUM            Pic '(10)9',                          00150000
+       3 *                        CHAR INIT(''),                        00160000
+       3 TSAREAPOLNUM             Pic '(10)9',                          00170000
+       3 *                        CHAR INIT('');                        00180000
+ /*-------------------------------------------------------------------*/00190000
+ /* Common defintions                                                 */00200000
+ /*-------------------------------------------------------------------*/00210000
+ /* Run time (debug) infomation for this invocation */                  00220000
+ DCL 1 WS_HEADER,                                                       00230000
+       3 WS_EYECATCHER            CHAR(16) INIT('LGIPDB01-----WS'),     00240025
+       3 WS_TRANSID               CHAR(4) INIT(''),                     00250000
+       3 WS_TERMID                CHAR(4) INIT(''),                     00260000
+       3 WS_TASKNUM               Pic '(7)9' INIT(0),                   00270000
+       3 WS_FILLER                CHAR INIT(''),                        00280000
+       3 WS_ADDR_DFHCOMMAREA      PTR INIT(SYSNULL()),                  00290000
+       3 WS_CALEN                 FIXED BIN(15) INIT(0);                00300000
+                                                                        00310000
+ /* Variables for time/date processing */                               00320000
+ DCL ABS_TIME                    FIXED BIN(31) INIT(0);                 00330000
+ DCL TIME1                       CHAR(8)  INIT('');                     00340000
+ DCL DATE1                       CHAR(10) INIT('');                     00350000
+                                                                        00360000
+ /* Error Message structure */                                          00370000
+ DCL 1 ERROR_MSG,                                                       00380000
+       3 EM_DATE                  CHAR(10) INIT(''),                    00390000
+       3 *                        CHAR     INIT(''),                    00400000
+       3 EM_TIME                  CHAR(8)  INIT(''),                    00410000
+       3 *                        CHAR(9)  INIT(' LGIPOL01'),           00420000
+       3 EM_VARIABLE UNION,                                             00430000
+         5 EM_MSG_TEXT            CHAR(63),                             00440000
+         5 *,                                                           00450000
+          7 *                     CHAR(6)  INIT(' CNUM='),              00460000
+          7 EM_CUSNUM             CHAR(10) INIT(''),                    00470000
+          7 *                     CHAR(6)  INIT(' PNUM='),              00480000
+          7 EM_POLNUM             CHAR(10) INIT(''),                    00490000
+          7 EM_SQLREQ             CHAR(16) INIT(''),                    00500000
+          7 *                     CHAR(9)  INIT(' SQLCODE='),           00510000
+          7 EM_SQLRC              PIC '+(5)9';                          00520000
+                                                                        00530000
+ DCL 1 CA_ERROR_MSG,                                                    00540000
+       3 *                        CHAR(9)  INIT('COMMAREA='),           00550000
+       3 CA_DATA                  CHAR(90) INIT('');                    00560000
+                                                                        00570000
+ /*-------------------------------------------------------------------*/00580000
+ /* Definitions required for data manipulation                        */00590000
+ /*-------------------------------------------------------------------*/00600000
+ DCL MINUS_ONE                    FIXED BIN(15) STATIC INIT(-1);        00610000
+                                                                        00620000
+ DCL 1 WS_COMMAREA_LENGTHS,                                             00630000
+       3 WS_CA_HEADERTRAILER_LEN  FIXED BIN(15) INIT(33),               00640000
+       3 WS_REQUIRED_CA_LEN       FIXED BIN(15) INIT(0);                00650026
+ /*    3 WS_REQUIRED_CA_LEN       PIC 'S(4)9'   INIT(0); */             00651026
+                                                                        00660000
+ /* Position of first char in commarea after end of policy data */      00670000
+ /* for use when placing end of data indicator */                       00680000
+ DCL END_POLICY_POS              FIXED BIN(15) INIT(1);                 00690000
+                                                                        00700000
+ DCL ICOM_Record_Count           FIXED BIN(15);                         00710000
+ DCL ICOM_Length                 FIXED BIN(31) INIT(32767);             00720000
+ DCL ICOM_Data_Length            FIXED BIN(31);                         00730000
+ DCL ICOM_Pointer                PTR;                                   00740000
+ DCL ICOM_Pointer_Start          PTR;                                   00750000
+ DCL ICOM_Container              CHAR(16) INIT('ICOM_Data');            00760000
+ DCL ICOM_Channel                CHAR(16) INIT('ICOM');                 00770000
+ DCL WS_Request_ID               CHAR(6);                               00780000
+ DCL WS_Resp                     FIXED BIN(31);                         00790000
+                                                                        00800000
+ /*-------------------------------------------------------------------*/00810000
+ /*    DB2 CONTROL                                                    */00820000
+ /*-------------------------------------------------------------------*/00830000
+ /*-------------------------------------------------------------------*/00840000
+ /* Declare Cursors                                                   */00850000
+ /*-------------------------------------------------------------------*/00860000
+ EXEC SQL                                                               00870000
+   DECLARE Cust_Cursor Insensitive Scroll Cursor For                    00880000
+   SELECT                                                               00890000
+         CustomerNumber,                                                00900000
+         Policy.PolicyNumber,                                           00910000
+         RequestDate,                                                   00920000
+         StartDate,                                                     00930000
+         RenewalDate,                                                   00940000
+         Address,                                                       00950000
+         Zipcode,                                                       00960000
+         LatitudeN,                                                     00970000
+         LongitudeW,                                                    00980000
+         Customer,                                                      00990000
+         PropertyType,                                                  01000000
+         FirePeril,                                                     01010000
+         FirePremium,                                                   01020000
+         CrimePeril,                                                    01030000
+         CrimePremium,                                                  01040000
+         FloodPeril,                                                    01050000
+         FloodPremium,                                                  01060000
+         WeatherPeril,                                                  01070000
+         WeatherPremium,                                                01080000
+         Status,                                                        01090000
+         RejectionReason                                                01100000
+   FROM  POLICY,COMMERCIAL                                              01110000
+   WHERE ( POLICY.POLICYNUMBER =                                        01120000
+              Commercial.POLICYNUMBER AND                               01130000
+           Policy.CustomerNumber =                                      01140000
+              :DB2_CUSTOMERNUM_INT  );                                  01150000
+ /*-------------------------------------------------------------------*/01160000
+ EXEC SQL                                                               01170000
+   DECLARE Zip_Cursor Insensitive Scroll Cursor For                     01180000
+   SELECT                                                               01190000
+         CustomerNumber,                                                01200000
+         Policy.PolicyNumber,                                           01210000
+         RequestDate,                                                   01220000
+         StartDate,                                                     01230000
+         RenewalDate,                                                   01240000
+         Address,                                                       01250000
+         Zipcode,                                                       01260000
+         LatitudeN,                                                     01270000
+         LongitudeW,                                                    01280000
+         Customer,                                                      01290000
+         PropertyType,                                                  01300000
+         FirePeril,                                                     01310000
+         FirePremium,                                                   01320000
+         CrimePeril,                                                    01330000
+         CrimePremium,                                                  01340000
+         FloodPeril,                                                    01350000
+         FloodPremium,                                                  01360000
+         WeatherPeril,                                                  01370000
+         WeatherPremium,                                                01380000
+         Status,                                                        01390000
+         RejectionReason                                                01400000
+   FROM  POLICY,COMMERCIAL                                              01410000
+   WHERE ( POLICY.POLICYNUMBER =                                        01420000
+              Commercial.POLICYNUMBER   AND                             01430000
+           Commercial.Zipcode =                                         01440000
+              :CA_B_POSTCODE  );                                        01450000
+ /*-------------------------------------------------------------------*/01460000
+ EXEC SQL                                                               01470000
+   DECLARE CusClaim_Cursor Insensitive Scroll Cursor For                01480000
+   SELECT                                                               01490000
+         POLICY.CustomerNumber,                                         01500000
+         ClaimNumber,                                                   01510000
+         CLAIM.PolicyNumber,                                            01520000
+         ClaimDate,                                                     01530000
+         Paid,                                                          01540000
+         Value,                                                         01550000
+         Cause,                                                         01560000
+         Observations                                                   01570000
+   FROM  POLICY,CLAIM                                                   01580000
+   WHERE ( POLICY.POLICYNUMBER =                                        01590000
+              CLAIM.POLICYNUMBER   AND                                  01600000
+           POLICY.CustomerNumber =                                      01610000
+              :DB2_CUSTOMERNUM_INT);                                    01620000
+                                                                        01630000
+ /* SQLCA DB2 communications area */                                    01640000
+ EXEC SQL                                                               01650000
+     INCLUDE SQLCA;                                                     01660000
+                                                                        01670000
+                                                                        01680000
+ /*-------------------------------------------------------------------*/01690000
+ /* Definitions required by SQL statement                             */01700000
+ /*   DB2 datatypes to COBOL equivalents                              */01710000
+ /*     SMALLINT    :   FIXED BIN(15)                                 */01720000
+ /*     INTEGER     :   FIXED BIN(31)                                */ 01730000
+ /*     DATE        :   CHAR(10)                                      */01740000
+ /*     TIMESTAMP   :   CHAR(26)                                      */01750000
+ /*-------------------------------------------------------------------*/01760000
+ /* Host variables for input to DB2 integer types */                    01770000
+ DCL 1 DB2_IN_INTEGERS,                                                 01780000
+       3 DB2_CUSTOMERNUM_INT      FIXED BIN(31) INIT(0),                01790000
+       3 DB2_POLICYNUM_INT        FIXED BIN(31) INIT(0),                01800000
+       3 DB2_CLAIMNUM_INT         FIXED BIN(31) INIT(0);                01810000
+ DCL 1 DB2_OUT_INTEGERS,                                                01820000
+       3 DB2_BROKERID_INT         FIXED BIN(31) INIT(0),                01830000
+       3 DB2_PAYMENT_INT          FIXED BIN(31) INIT(0),                01840000
+       3 DB2_E_TERM_SINT          FIXED BIN(15) INIT(0),                01850000
+       3 DB2_E_SUMASSURED_INT     FIXED BIN(31) INIT(0),                01860000
+       3 DB2_E_PADDING_LEN        FIXED BIN(31) INIT(0),                01870000
+       3 DB2_H_BEDROOMS_SINT      FIXED BIN(15) INIT(0),                01880000
+       3 DB2_H_VALUE_INT          FIXED BIN(31) INIT(0),                01890000
+       3 DB2_M_VALUE_INT          FIXED BIN(31) INIT(0),                01900000
+       3 DB2_M_CC_SINT            FIXED BIN(15) INIT(0),                01910000
+       3 DB2_M_PREMIUM_INT        FIXED BIN(31) INIT(0),                01920000
+       3 DB2_M_ACCIDENTS_INT      FIXED BIN(31) INIT(0),                01930000
+       3 DB2_B_FirePeril_Int      FIXED BIN(15) INIT(0),                01940000
+       3 DB2_B_FirePremium_Int    FIXED BIN(31) INIT(0),                01950000
+       3 DB2_B_CrimePeril_Int     FIXED BIN(15) INIT(0),                01960000
+       3 DB2_B_CrimePremium_Int   FIXED BIN(31) INIT(0),                01970000
+       3 DB2_B_FloodPeril_Int     FIXED BIN(15) INIT(0),                01980000
+       3 DB2_B_FloodPremium_Int   FIXED BIN(31) INIT(0),                01990000
+       3 DB2_B_WeatherPeril_Int   FIXED BIN(15) INIT(0),                02000000
+       3 DB2_B_WeatherPremium_Int FIXED BIN(31) INIT(0),                02010000
+       3 DB2_B_Status_Int         FIXED BIN(15) INIT(0),                02020000
+       3 DB2_C_Paid_int           FIXED BIN(31) INIT(0),                02030000
+       3 DB2_C_Value_int          FIXED BIN(31) INIT(0);                02040000
+                                                                        02050000
+ /* Policy descriptions to receive output from DB2 */                   02060000
+ /* Must be an SQL INCLUDE so available to SQL pre_compiler */          02070000
+ EXEC SQL                                                               02080000
+   INCLUDE LGPOLICY;                                                    02090024
+                                                                        02100000
+ /* Indicator variables for columns which could return nulls */         02110000
+ /*   if these are not specified and SQL FETCH tries to return */       02120000
+ /*   null value for a listed column it will FAIL with SQLCODE=-305 */  02130000
+ DCL IND_BROKERID                FIXED BIN(15);                         02140000
+ DCL IND_BROKERSREF              FIXED BIN(15);                         02150000
+ DCL IND_PAYMENT                 FIXED BIN(15);                         02160000
+ DCL IND_E_PADDINGDATA           FIXED BIN(15);                         02170000
+ DCL IND_E_PADDINGDATAL          FIXED BIN(15);                         02180000
+                                                                        02190000
+ /* DCL COMM_AREA_PTR     PTR; */                                       02191030
+ /* DCL 1 COMM_AREA       UNION BASED(COMM_AREA_PTR), */                02192029
+ EXEC SQL                                                               02200029
+    INCLUDE LGCMAREA;                                                   02210029
+                                                                        02220000
+ DCL ICOM_Record      CHAR(1202) BASED(ICOM_Pointer_Start);             02230011
+                                                                        02240000
+ /*********************************************************************/02250000
+ /*    P R O C E D U R E S                                            */02260000
+ /*********************************************************************/02270000
+ /*-------------------------------------------------------------------*/02280000
+ /* Common code                                                       */02290000
+ /*-------------------------------------------------------------------*/02300000
+ /* set up general variable */                                          02310000
+ WS_TRANSID = EIBTRNID;                                                 02320000
+ WS_TERMID = EIBTRMID;                                                  02330000
+ WS_TASKNUM = EIBTASKN;                                                 02340000
+                                                                        02350000
+                                                                        02360000
+ Exec Cics Get Container(ICOM_Container)                                02370000
+               Channel(ICOM_Channel)                                    02380000
+               Flength(ICOM_Data_Length)                                02390000
+               Set(ICOM_Pointer)                                        02400000
+               Resp(WS_RESP);                                           02410000
+ If WS_RESP = DFHRESP(NORMAL) then do;                                  02420000
+    ICOM_Pointer_Start = ICOM_Pointer;                                  02430000
+    COMM_AREA_PTR = ICOM_Pointer;                                       02440000
+    WS_Request_ID = CA_Request_ID;                                      02450000
+    DB2_Customernum_Int = CA_Customer_Num;                              02460000
+ End;                                                                   02470000
+ Else do;                                                               02480000
+    /*----------------------------------------------------------------*/02490000
+    /* Check commarea and obtain required details                     */02500000
+    /*----------------------------------------------------------------*/02510000
+    /* If NO commarea received issue an ABEND */                        02520000
+       IF EIBCALEN = 0 THEN DO;                                         02530000
+          EM_MSG_TEXT = ' NO COMMAREA RECEIVED';                        02540000
+          CALL WRITE_ERROR_MESSAGE;                                     02550000
+          EXEC CICS ABEND ABCODE('LGCA') NODUMP;                        02560000
+       END;                                                             02570000
+                                                                        02580000
+    /* initialize commarea return code to zero */                       02590000
+    CA_RETURN_CODE = '00';                                              02600000
+    WS_CALEN = EIBCALEN;                                                02610000
+    WS_ADDR_DFHCOMMAREA = COMM_AREA_PTR;                                02620000
+                                                                        02630000
+    /* Convert commarea customer & policy nums to DB2 integer format */ 02640000
+    DB2_CUSTOMERNUM_INT = CA_CUSTOMER_NUM;                              02650000
+    DB2_POLICYNUM_INT = CA_POLICY_NUM;                                  02660000
+    /* and save in error msg field incase required */                   02670000
+    EM_CUSNUM = CA_CUSTOMER_NUM;                                        02680000
+    EM_POLNUM = CA_POLICY_NUM;                                          02690000
+                                                                        02700000
+    /*----------------------------------------------------------------*/02710000
+    /* Check which policy type is being requested                     */02720000
+    /* This is not actually required whilst only endowment policy     */02730000
+    /* inquires are supported, but will make future expansion simpler */02740000
+    /*----------------------------------------------------------------*/02750000
+    /* Upper case value passed in Request Id field                    */02760000
+    WS_REQUEST_ID = UPPERCASE(CA_REQUEST_ID);                           02770000
+ End;                                                                   02780000
+                                                                        02790000
+ SELECT (WS_REQUEST_ID);                                                02800000
+                                                                        02810000
+    WHEN ('01IEND') DO;                                                 02820000
+       CALL GET_ENDOW_DB2_INFO;                                         02830000
+    END;                                                                02840000
+                                                                        02850000
+    WHEN ('01IHOU') DO;                                                 02860000
+       CALL GET_HOUSE_DB2_INFO;                                         02870000
+    END;                                                                02880000
+                                                                        02890000
+    WHEN ('01IMOT') DO;                                                 02900000
+       CALL GET_MOTOR_DB2_INFO;                                         02910000
+    END;                                                                02920000
+                                                                        02930000
+    WHEN ('01ICOM') DO;                                                 02940000
+       CALL GET_COMMERCIAL_DB2_INFO_1;                                  02950000
+    END;                                                                02960000
+                                                                        02970000
+    WHEN ('02ICOM') DO;                                                 02980000
+       CALL GET_COMMERCIAL_DB2_INFO_2;                                  02990000
+    END;                                                                03000000
+                                                                        03010000
+    WHEN ('03ICOM') DO;                                                 03020000
+       CALL GET_COMMERCIAL_DB2_INFO_3;                                  03030000
+    END;                                                                03040000
+                                                                        03050000
+    WHEN ('05ICOM') DO;                                                 03060000
+       CALL GET_COMMERCIAL_DB2_INFO_5;                                  03070000
+    END;                                                                03080000
+                                                                        03090000
+    WHEN ('01ICLM') DO;                                                 03100000
+       DB2_CLAIMNUM_INT = CA_C_Num;                                     03110000
+       CALL GET_CLAIM_DB2_INFO_1;                                       03120000
+    END;                                                                03130000
+                                                                        03140000
+    WHEN ('02ICLM') DO;                                                 03150000
+       CALL GET_CLAIM_DB2_INFO_2;                                       03160000
+    END;                                                                03170000
+                                                                        03180000
+    OTHERWISE DO;                                                       03190000
+       CA_RETURN_CODE = '99';                                           03200000
+    END;                                                                03210000
+ END;                                                                   03220000
+                                                                        03230000
+ /* End_Program: */                                                     03240000
+    EXEC CICS RETURN;                                                   03250000
+                                                                        03260000
+ RETURN;                                                                03270000
+                                                                        03280000
+                                                                        03290000
+ /*===================================================================*/03300000
+ /* Use Select on join of Policy and Endowment tables to obtain       */03310000
+ /* single row that matches customer and policy number requested.     */03320000
+ /* NOTE: because we do not know length of varchar yet - we must      */03330000
+ /*      put output of DB2 SELECT into working storage to avoid       */03340000
+ /*      risk of overwriting CICS storage beyond commarea.            */03350000
+ /*===================================================================*/03360000
+ GET_ENDOW_DB2_INFO: PROCEDURE;                                         03370000
+                                                                        03380000
+    EM_SQLREQ = ' SELECT ENDOW ';                                       03390000
+    EXEC SQL                                                            03400000
+      SELECT  ISSUEDATE,                                                03410000
+              EXPIRYDATE,                                               03420000
+              LASTCHANGED,                                              03430000
+              BROKERID,                                                 03440000
+              BROKERSREFERENCE,                                         03450000
+              PAYMENT,                                                  03460000
+              WITHPROFITS,                                              03470000
+              EQUITIES,                                                 03480000
+              MANAGEDFUND,                                              03490000
+              FUNDNAME,                                                 03500000
+              TERM,                                                     03510000
+              SUMASSURED,                                               03520000
+              LIFEASSURED,                                              03530000
+              PADDINGDATA,                                              03540000
+              LENGTH(PADDINGDATA)                                       03550000
+      INTO  :DB2_ISSUEDATE,                                             03560000
+            :DB2_EXPIRYDATE,                                            03570000
+            :DB2_LASTCHANGED,                                           03580000
+            :DB2_BROKERID_INT INDICATOR :IND_BROKERID,                  03590000
+            :DB2_BROKERSREF INDICATOR :IND_BROKERSREF,                  03600000
+            :DB2_PAYMENT_INT INDICATOR :IND_PAYMENT,                    03610000
+            :DB2_E_WITHPROFITS,                                         03620000
+            :DB2_E_EQUITIES,                                            03630000
+            :DB2_E_MANAGEDFUND,                                         03640000
+            :DB2_E_FUNDNAME,                                            03650000
+            :DB2_E_TERM_SINT,                                           03660000
+            :DB2_E_SUMASSURED_INT,                                      03670000
+            :DB2_E_LIFEASSURED,                                         03680000
+            :DB2_E_PADDINGDATA INDICATOR :IND_E_PADDINGDATA,            03690000
+            :DB2_E_PADDING_LEN INDICATOR :IND_E_PADDINGDATAL            03700000
+      FROM  POLICY,ENDOWMENT                                            03710000
+      WHERE ( POLICY.POLICYNUMBER =                                     03720000
+                 ENDOWMENT.POLICYNUMBER   AND                           03730000
+              POLICY.CUSTOMERNUMBER =                                   03740000
+                 :DB2_CUSTOMERNUM_INT      AND                          03750000
+              POLICY.POLICYNUMBER =                                     03760000
+                 :DB2_POLICYNUM_INT        );                           03770000
+                                                                        03780000
+    SELECT (SQLCODE);                                                   03790017
+    WHEN (0) DO;                                                        03800017
+       /*      Select was successful */                                 03810017
+       CALL GET_ENDOW_DB2_INFO_A;                                       03820019
+    END; /* SQLCODE = 0 */                                              03830017
+    WHEN (100) DO;                                                      03840017
+      /*      Non_zero SQLCODE from first SQL FETCH statement */        03850017
+      /*        No rows found - invalid customer / policy number */     03860017
+         CA_RETURN_CODE = '01';                                         03870017
+    END; /* SQLCODE = 100 */                                            03880017
+    OTHERWISE DO;                                                       03890017
+      /*        something has gone wrong */                             03900017
+        CA_RETURN_CODE = '90';                                          03910017
+      /*        Write error message to TD QUEUE(CSMT) */                03920017
+        CALL WRITE_ERROR_MESSAGE;                                       03930017
+    END; /* OTHERWISE */                                                03940017
+    END; /* SELECT SQLCODE */                                           03950021
+ END GET_ENDOW_DB2_INFO;                                                03960000
+                                                                        03970000
+ /*================================================================*/   03980019
+ GET_ENDOW_DB2_INFO_A: PROCEDURE;                                       03990019
+   /*      Calculate size of commarea required to return all data */    04000019
+   WS_REQUIRED_CA_LEN = WS_REQUIRED_CA_LEN                              04010019
+                        + WS_CA_HEADERTRAILER_LEN;                      04020019
+   WS_REQUIRED_CA_LEN = WS_REQUIRED_CA_LEN + WS_FULL_ENDOW_LEN;         04030019
+                                                                        04040019
+   /*-------------------------------------------------------------*/    04050019
+   /*  Specific code to allow for length of VACHAR data           */    04060019
+   /*  check whether PADDINGDATA field is non_null                */    04070019
+   /*    and calculate length of endowment policy                 */    04080019
+   /*    and position of free space in commarea after policy data */    04090019
+   /*-------------------------------------------------------------*/    04100019
+   IF (IND_E_PADDINGDATAL <> MINUS_ONE) THEN DO;                        04110019
+      WS_REQUIRED_CA_LEN = WS_REQUIRED_CA_LEN + DB2_E_PADDING_LEN;      04120019
+      END_POLICY_POS = END_POLICY_POS + DB2_E_PADDING_LEN;              04130019
+   END;                                                                 04140019
+                                                                        04150019
+  /*      if commarea received is not large enough ..;  */              04160019
+  /*        set error return code and return to caller  */              04170019
+   IF (EIBCALEN < WS_REQUIRED_CA_LEN) THEN DO;                          04180020
+     CA_RETURN_CODE = '98';                                             04190019
+     EXEC CICS RETURN;                                                  04200019
+   END;                                                                 04210019
+  /*        Length is sufficent so commarea = data  */                  04220019
+  /*        Move Integer fields to required length numerics */          04230019
+  /*        Don't move null fields */                                   04240019
+   IF (IND_BROKERID <> MINUS_ONE) THEN DO;                              04250019
+      DB2_BROKERID = DB2_BROKERID_INT;                                  04260019
+   END;                                                                 04270019
+   IF (IND_PAYMENT <> MINUS_ONE) THEN DO;                               04280019
+       DB2_PAYMENT = DB2_PAYMENT_INT;                                   04290019
+   END;                                                                 04300019
+                                                                        04310019
+   DB2_E_TERM = DB2_E_TERM_SINT;                                        04320019
+   DB2_E_SUMASSURED = DB2_E_SUMASSURED_INT;                             04330019
+ /*   CA_POLICY_COMMON = DB2_POLICY_COMMON;  */                         04340019
+   CA_ISSUE_DATE    = DB2_ISSUEDATE;                                    04350019
+   CA_EXPIRY_DATE   = DB2_EXPIRYDATE;                                   04360019
+   CA_LASTCHANGED   = DB2_LASTCHANGED;                                  04370019
+   CA_BROKERID      = DB2_BROKERID;                                     04380019
+   CA_BROKERSREF    = DB2_BROKERSREF;                                   04390019
+   CA_PAYMENT       = DB2_PAYMENT;                                      04400019
+   /*CA_ENDOWMENT_PTR = ADDR(CA_POLICY_SPECIFIC);*/                     04410035
+   SUBSTR(CA_POLICY_RAW,1,WS_ENDOW_LEN)                                 04420037
+         = DB2_ENDOW_TEXT;                                              04430019
+   IF (IND_E_PADDINGDATA <> MINUS_ONE) THEN DO;                         04440019
+      SUBSTR(CA_E_PADDING_DATA,1,DB2_E_PADDING_LEN)                     04450019
+            = DB2_E_PADDINGDATA;                                        04460019
+   END;                                                                 04470019
+                                                                        04480019
+  /*      Mark the end of the policy data */                            04490019
+   SUBSTR(CA_E_PADDING_DATA,END_POLICY_POS,5)                           04500019
+         = 'FINAL';                                                     04510019
+ END GET_ENDOW_DB2_INFO_A;                                              04520019
+ /*================================================================*    04530000
+ * Use Select on join of Policy and House tables to obtain        *     04540000
+ * single row that matches customer and policy number requested.  *     04550000
+ * NOTE: because we do not know length of varchar yet - we must   *     04560000
+ *      put output of DB2 SELECT into working storage to avoid    *     04570000
+ *      risk of overwriting CICS storage beyond commarea.         *     04580000
+ *================================================================*/    04590000
+ GET_HOUSE_DB2_INFO: PROCEDURE;                                         04600000
+                                                                        04610000
+  EM_SQLREQ = ' SELECT HOUSE ';                                         04620000
+  EXEC SQL                                                              04630000
+        SELECT  ISSUEDATE,                                              04640000
+                EXPIRYDATE,                                             04650000
+                LASTCHANGED,                                            04660000
+                BROKERID,                                               04670000
+                BROKERSREFERENCE,                                       04680000
+                PAYMENT,                                                04690000
+                PROPERTYTYPE,                                           04700000
+                BEDROOMS,                                               04710000
+                VALUE,                                                  04720000
+                HOUSENAME,                                              04730000
+                HOUSENUMBER,                                            04740000
+                POSTCODE                                                04750000
+        INTO  :DB2_ISSUEDATE,                                           04760000
+              :DB2_EXPIRYDATE,                                          04770000
+              :DB2_LASTCHANGED,                                         04780000
+              :DB2_BROKERID_INT INDICATOR :IND_BROKERID,                04790000
+              :DB2_BROKERSREF INDICATOR :IND_BROKERSREF,                04800000
+              :DB2_PAYMENT_INT INDICATOR :IND_PAYMENT,                  04810000
+              :DB2_H_PROPERTYTYPE,                                      04820000
+              :DB2_H_BEDROOMS_SINT,                                     04830000
+              :DB2_H_VALUE_INT,                                         04840000
+              :DB2_H_HOUSENAME,                                         04850000
+              :DB2_H_HOUSENUMBER,                                       04860000
+              :DB2_H_POSTCODE                                           04870000
+        FROM  POLICY,HOUSE                                              04880000
+        WHERE ( POLICY.POLICYNUMBER =                                   04890000
+                   HOUSE.POLICYNUMBER    AND                            04900000
+                POLICY.CUSTOMERNUMBER =                                 04910000
+                   :DB2_CUSTOMERNUM_INT  AND                            04920000
+                POLICY.POLICYNUMBER =                                   04930000
+                   :DB2_POLICYNUM_INT               );                  04940000
+                                                                        04950000
+  IF (SQLCODE = 0) THEN DO;                                             04960000
+ /*      Select was successful */                                       04970000
+ /*      Calculate size of commarea required to return all data */      04980000
+    WS_REQUIRED_CA_LEN = WS_CA_HEADERTRAILER_LEN + WS_REQUIRED_CA_LEN;  04990000
+    WS_REQUIRED_CA_LEN = WS_FULL_HOUSE_LEN + WS_REQUIRED_CA_LEN;        05000000
+                                                                        05010000
+ /*      if commarea received is not large enough ... */                05020000
+ /*        set error return code and return to caller */                05030000
+    IF (EIBCALEN < WS_REQUIRED_CA_LEN) THEN DO;                         05040000
+      CA_RETURN_CODE = '98';                                            05050000
+      EXEC CICS RETURN;                                                 05060000
+    END;                                                                05070000
+    ELSE DO;                                                            05080000
+ /*    Length is sufficent so move data to commarea */                  05090000
+ /*    Move Integer fields to required length numerics */               05100000
+ /*   Don't move null fields */                                         05110000
+      IF (IND_BROKERID <> MINUS_ONE) THEN DO;                           05120000
+        DB2_BROKERID = DB2_BROKERID_INT;                                05130000
+      END;                                                              05140000
+      IF (IND_PAYMENT <> MINUS_ONE) THEN DO;                            05150000
+        DB2_PAYMENT = DB2_PAYMENT_INT;                                  05160000
+      END;                                                              05170000
+      DB2_H_BEDROOMS = DB2_H_BEDROOMS_SINT;                             05180000
+      DB2_H_VALUE = DB2_H_VALUE_INT;                                    05190000
+    /*   CA_POLICY_COMMON = DB2_POLICY_COMMON;  */                      05200003
+      CA_ISSUE_DATE    = DB2_ISSUEDATE;                                 05210003
+      CA_EXPIRY_DATE   = DB2_EXPIRYDATE;                                05220003
+      CA_LASTCHANGED   = DB2_LASTCHANGED;                               05230003
+      CA_BROKERID      = DB2_BROKERID;                                  05240003
+      CA_BROKERSREF    = DB2_BROKERSREF;                                05250003
+      CA_PAYMENT       = DB2_PAYMENT;                                   05260003
+    /*CA_HOUSE_PTR = ADDR(CA_POLICY_SPECIFIC);*/                        05270035
+      SUBSTR(CA_POLICY_RAW,1,WS_HOUSE_LEN) = DB2_HOUSE_TEXT;            05280037
+    END;                                                                05290000
+                                                                        05300000
+ /*  Mark the end of the policy data */                                 05310000
+    SUBSTR(CA_H_FILLER,1,5) = 'FINAL';                                  05320000
+  END;                                                                  05330000
+  ELSE DO;                                                              05340000
+ /*      Non-zero SQLCODE from first SQL FETCH statement */             05350000
+    IF (SQLCODE = 100) THEN DO;                                         05360000
+ /*    No rows found - invalid customer / policy number */              05370000
+      CA_RETURN_CODE =  '01';                                           05380000
+    END;                                                                05390000
+    ELSE DO;                                                            05400000
+ /*    something has gone wrong */                                      05410000
+      CA_RETURN_CODE = '90';                                            05420000
+ /*    Write error message to TD QUEUE(CSMT) */                         05430000
+      CALL WRITE_ERROR_MESSAGE;                                         05440000
+    END;                                                                05450000
+  END;                                                                  05460000
+                                                                        05470000
+ END GET_HOUSE_DB2_INFO;                                                05480000
+                                                                        05490000
+ /*================================================================*    05500000
+ * Use Select on join of Policy and Motor tables to obtain        *     05510000
+ * single row that matches customer and policy number requested.  *     05520000
+ *================================================================*/    05530000
+ GET_MOTOR_DB2_INFO: PROCEDURE;                                         05540000
+                                                                        05550000
+  EM_SQLREQ = ' SELECT MOTOR ';                                         05560000
+  EXEC SQL                                                              05570000
+    SELECT  ISSUEDATE,                                                  05580000
+            EXPIRYDATE,                                                 05590000
+            LASTCHANGED,                                                05600000
+            BROKERID,                                                   05610000
+            BROKERSREFERENCE,                                           05620000
+            PAYMENT,                                                    05630000
+            MAKE,                                                       05640000
+            MODEL,                                                      05650000
+            VALUE,                                                      05660000
+            REGNUMBER,                                                  05670000
+            COLOUR,                                                     05680000
+            CC,                                                         05690000
+            YEAROFMANUFACTURE,                                          05700000
+            PREMIUM,                                                    05710000
+            ACCIDENTS                                                   05720000
+    INTO  :DB2_ISSUEDATE,                                               05730000
+          :DB2_EXPIRYDATE,                                              05740000
+          :DB2_LASTCHANGED,                                             05750000
+          :DB2_BROKERID_INT INDICATOR :IND_BROKERID,                    05760000
+          :DB2_BROKERSREF INDICATOR :IND_BROKERSREF,                    05770000
+          :DB2_PAYMENT_INT INDICATOR :IND_PAYMENT,                      05780000
+          :DB2_M_MAKE,                                                  05790000
+          :DB2_M_MODEL,                                                 05800000
+          :DB2_M_VALUE_INT,                                             05810000
+          :DB2_M_REGNUMBER,                                             05820000
+          :DB2_M_COLOUR,                                                05830000
+          :DB2_M_CC_SINT,                                               05840000
+          :DB2_M_MANUFACTURED,                                          05850000
+          :DB2_M_PREMIUM_INT,                                           05860000
+          :DB2_M_ACCIDENTS_INT                                          05870000
+    FROM  POLICY,MOTOR                                                  05880000
+    WHERE ( POLICY.POLICYNUMBER =                                       05890000
+            MOTOR.POLICYNUMBER   AND                                    05900000
+            POLICY.CUSTOMERNUMBER =                                     05910000
+           :DB2_CUSTOMERNUM_INT             AND                         05920000
+            POLICY.POLICYNUMBER =                                       05930000
+           :DB2_POLICYNUM_INT               );                          05940000
+                                                                        05950000
+  IF (SQLCODE = 0) THEN DO;                                             05960000
+ /*  Select was successful */                                           05970000
+                                                                        05980000
+ /*      Calculate size of commarea required to return all data */      05990000
+    WS_REQUIRED_CA_LEN = WS_CA_HEADERTRAILER_LEN + WS_REQUIRED_CA_LEN;  06000000
+    WS_REQUIRED_CA_LEN = WS_FULL_MOTOR_LEN       + WS_REQUIRED_CA_LEN;  06010000
+                                                                        06020000
+ /*      if commarea received is not large enough ...                   06030000
+ *        set error return code and return to caller */                 06040000
+    IF (EIBCALEN < WS_REQUIRED_CA_LEN) THEN DO;                         06050000
+      CA_RETURN_CODE = '98';                                            06060000
+      EXEC CICS RETURN;                                                 06070000
+    END;                                                                06080000
+    ELSE DO;                                                            06090000
+ /*        Length is sufficent so move data to commarea                 06100000
+ *        Move Integer fields to required length numerics */            06110000
+ /*       Don't move null fields */                                     06120000
+      IF (IND_BROKERID <> MINUS_ONE) THEN DO;                           06130000
+        DB2_BROKERID = DB2_BROKERID_INT;                                06140000
+      END;                                                              06150000
+      IF (IND_PAYMENT <> MINUS_ONE) THEN DO;                            06160000
+        DB2_PAYMENT = DB2_PAYMENT_INT;                                  06170000
+      END;                                                              06180000
+      DB2_M_CC = DB2_M_CC_SINT;                                         06190000
+      DB2_M_VALUE = DB2_M_VALUE_INT;                                    06200000
+      DB2_M_PREMIUM = DB2_M_PREMIUM_INT;                                06210000
+      DB2_M_ACCIDENTS = DB2_M_ACCIDENTS_INT;                            06220000
+      CA_M_PREMIUM = DB2_M_PREMIUM_INT;                                 06230000
+      CA_M_ACCIDENTS = DB2_M_ACCIDENTS_INT;                             06240000
+    /*   CA_POLICY_COMMON = DB2_POLICY_COMMON;  */                      06250003
+      CA_ISSUE_DATE    = DB2_ISSUEDATE;                                 06260003
+      CA_EXPIRY_DATE   = DB2_EXPIRYDATE;                                06270003
+      CA_LASTCHANGED   = DB2_LASTCHANGED;                               06280003
+      CA_BROKERID      = DB2_BROKERID;                                  06290003
+      CA_BROKERSREF    = DB2_BROKERSREF;                                06300003
+      CA_PAYMENT       = DB2_PAYMENT;                                   06310003
+    /*CA_MOTOR_PTR = ADDR(CA_POLICY_SPECIFIC);*/                        06320035
+      SUBSTR(CA_POLICY_RAW,1,WS_MOTOR_LEN) = DB2_MOTOR_TEXT;            06330037
+    END;                                                                06340000
+ /*      Mark the end of the policy data */                             06350000
+    SUBSTR(CA_M_FILLER,1,5) = 'FINAL';                                  06360000
+  END;                                                                  06370000
+  ELSE DO;                                                              06380000
+ /*      Non-zero SQLCODE from first SQL FETCH statement */             06390000
+    IF (SQLCODE = 100) THEN DO;                                         06400000
+ /*        No rows found - invalid customer / policy number */          06410000
+      CA_RETURN_CODE = '01';                                            06420000
+    END;                                                                06430000
+    ELSE DO;                                                            06440000
+ /*        something has gone wrong */                                  06450000
+      CA_RETURN_CODE = '90';                                            06460000
+ /*        Write error message to TD QUEUE(CSMT) */                     06470000
+      CALL WRITE_ERROR_MESSAGE;                                         06480000
+    END;                                                                06490000
+  END;                                                                  06500000
+                                                                        06510000
+ END GET_MOTOR_DB2_INFO;                                                06520000
+                                                                        06530000
+ /*================================================================*    06540000
+ * Use Select on join of Policy and Commer table to obtain        *     06550000
+ * single row that matches customer and policy number requested.  *     06560000
+ *================================================================*/    06570000
+ GET_Commercial_DB2_INFO_1: PROCEDURE;                                  06580000
+                                                                        06590000
+  EM_SQLREQ = ' SELECT Commrcl ';                                       06600022
+                                                                        06610000
+  EXEC SQL                                                              06620000
+    SELECT                                                              06630000
+          RequestDate,                                                  06640000
+          StartDate,                                                    06650000
+          RenewalDate,                                                  06660000
+          Address,                                                      06670000
+          Zipcode,                                                      06680000
+          LatitudeN,                                                    06690000
+          LongitudeW,                                                   06700000
+          Customer,                                                     06710000
+          PropertyType,                                                 06720000
+          FirePeril,                                                    06730000
+          FirePremium,                                                  06740000
+          CrimePeril,                                                   06750000
+          CrimePremium,                                                 06760000
+          FloodPeril,                                                   06770000
+          FloodPremium,                                                 06780000
+          WeatherPeril,                                                 06790000
+          WeatherPremium,                                               06800000
+          Status,                                                       06810000
+          RejectionReason                                               06820000
+    INTO  :DB2_LASTCHANGED,                                             06830000
+          :DB2_ISSUEDATE,                                               06840000
+          :DB2_EXPIRYDATE,                                              06850000
+          :DB2_B_Address,                                               06860000
+          :DB2_B_Postcode,                                              06870000
+          :DB2_B_Latitude,                                              06880000
+          :DB2_B_Longitude,                                             06890000
+          :DB2_B_Customer,                                              06900000
+          :DB2_B_PropType,                                              06910000
+          :DB2_B_FirePeril_INT,                                         06920000
+          :DB2_B_FirePremium_INT,                                       06930000
+          :DB2_B_CrimePeril_INT,                                        06940000
+          :DB2_B_CrimePremium_INT,                                      06950000
+          :DB2_B_FloodPeril_INT,                                        06960000
+          :DB2_B_FloodPremium_INT,                                      06970000
+          :DB2_B_WeatherPeril_INT,                                      06980000
+          :DB2_B_WeatherPremium_INT,                                    06990000
+          :DB2_B_Status_INT,                                            07000000
+          :DB2_B_RejectReason                                           07010000
+    FROM  POLICY,COMMERCIAL                                             07020000
+    WHERE ( POLICY.POLICYNUMBER =                                       07030000
+               COmmercial.POLICYNUMBER   AND                            07040000
+            POLICY.CUSTOMERNUMBER =                                     07050000
+               :DB2_CUSTOMERNUM_INT             AND                     07060000
+            POLICY.POLICYNUMBER =                                       07070000
+               :DB2_POLICYNUM_INT               );                      07080000
+                                                                        07090000
+  IF (SQLCODE = 0) THEN DO;                                             07100000
+ /*      Select was successful */                                       07110000
+                                                                        07120000
+ /*      Calculate size of commarea required to return all data */      07130000
+    WS_REQUIRED_CA_LEN = WS_CA_HEADERTRAILER_LEN +                      07140000
+                         WS_REQUIRED_CA_LEN;                            07150000
+    WS_REQUIRED_CA_LEN = WS_FULL_COMM_LEN + WS_REQUIRED_CA_LEN;         07160000
+                                                                        07170000
+ /*      if commarea received is not large enough ...                   07180000
+ *        set error return code and return to caller */                 07190000
+    IF (EIBCALEN < WS_REQUIRED_CA_LEN) THEN DO;                         07200000
+      CA_RETURN_CODE = '98';                                            07210000
+      EXEC CICS RETURN;                                                 07220000
+    END;                                                                07230000
+    ELSE DO;                                                            07240000
+      DB2_B_FirePeril       = DB2_B_FirePeril_INT;                      07250000
+      DB2_B_FirePremium     = DB2_B_FirePremium_INT;                    07260000
+      DB2_B_CrimePeril      = DB2_B_CrimePeril_INT;                     07270000
+      DB2_B_CrimePremium    = DB2_B_CrimePremium_INT;                   07280000
+      DB2_B_FloodPeril      = DB2_B_FloodPeril_INT;                     07290000
+      DB2_B_FloodPremium    = DB2_B_FloodPremium_INT;                   07300000
+      DB2_B_WeatherPeril    = DB2_B_WeatherPeril_INT;                   07310000
+      DB2_B_WeatherPremium  = DB2_B_WeatherPremium_INT;                 07320000
+      DB2_B_Status          = DB2_B_Status_INT;                         07330000
+                                                                        07340000
+    /*   CA_POLICY_COMMON = DB2_POLICY_COMMON;  */                      07350003
+      CA_ISSUE_DATE    = DB2_ISSUEDATE;                                 07360003
+      CA_EXPIRY_DATE   = DB2_EXPIRYDATE;                                07370003
+      CA_LASTCHANGED   = DB2_LASTCHANGED;                               07380003
+      CA_BROKERID      = DB2_BROKERID;                                  07390003
+      CA_BROKERSREF    = DB2_BROKERSREF;                                07400003
+      CA_PAYMENT       = DB2_PAYMENT;                                   07410003
+   /* CA_COMMERCIAL_PTR = ADDR(CA_POLICY_SPECIFIC);*/                   07420035
+      SUBSTR(CA_POLICY_RAW,1,WS_COMM_LEN)                               07430037
+             = DB2_COMM_TEXT;                                           07440009
+    END;                                                                07450000
+                                                                        07460000
+ /*      Mark the end of the policy data */                             07470000
+    SUBSTR(CA_B_FILLER,1,5) = 'FINAL';                                  07480000
+  END;                                                                  07490000
+  ELSE DO;                                                              07500000
+ /*      Non-zero SQLCODE from first SQL FETCH statement */             07510000
+    IF (SQLCODE = 100) THEN DO;                                         07520000
+ /*        No rows found - invalid customer / policy number */          07530000
+      CA_RETURN_CODE = '01';                                            07540000
+    END;                                                                07550000
+    ELSE DO;                                                            07560000
+ /*        something has gone wrong */                                  07570000
+      CA_RETURN_CODE = '90';                                            07580000
+ /*        Write error message to TD QUEUE(CSMT) */                     07590000
+      CALL WRITE_ERROR_MESSAGE;                                         07600000
+    END;                                                                07610000
+  END;                                                                  07620000
+                                                                        07630000
+ END GET_Commercial_DB2_INFO_1;                                         07640000
+                                                                        07650000
+ /*================================================================*    07660000
+ * Use Select on Policy number only to obtain                     *     07670000
+ * single row that matches the requested ploicy.                  *     07680000
+ *================================================================*/    07690000
+ GET_Commercial_DB2_INFO_2: PROCEDURE;                                  07700000
+                                                                        07710000
+  EM_SQLREQ = ' SELECT Commrcl ';                                       07720022
+                                                                        07730000
+  EXEC SQL                                                              07740000
+    SELECT                                                              07750000
+          CustomerNumber,                                               07760000
+          RequestDate,                                                  07770000
+          StartDate,                                                    07780000
+          RenewalDate,                                                  07790000
+          Address,                                                      07800000
+          Zipcode,                                                      07810000
+          LatitudeN,                                                    07820000
+          LongitudeW,                                                   07830000
+          Customer,                                                     07840000
+          PropertyType,                                                 07850000
+          FirePeril,                                                    07860000
+          FirePremium,                                                  07870000
+          CrimePeril,                                                   07880000
+          CrimePremium,                                                 07890000
+          FloodPeril,                                                   07900000
+          FloodPremium,                                                 07910000
+          WeatherPeril,                                                 07920000
+          WeatherPremium,                                               07930000
+          Status,                                                       07940000
+          RejectionReason                                               07950000
+    INTO                                                                07960000
+          :DB2_CUSTOMERNUM_INT,                                         07970000
+          :DB2_LASTCHANGED,                                             07980000
+          :DB2_ISSUEDATE,                                               07990000
+          :DB2_EXPIRYDATE,                                              08000000
+          :DB2_B_Address,                                               08010000
+          :DB2_B_Postcode,                                              08020000
+          :DB2_B_Latitude,                                              08030000
+          :DB2_B_Longitude,                                             08040000
+          :DB2_B_Customer,                                              08050000
+          :DB2_B_PropType,                                              08060000
+          :DB2_B_FirePeril_INT,                                         08070000
+          :DB2_B_FirePremium_INT,                                       08080000
+          :DB2_B_CrimePeril_INT,                                        08090000
+          :DB2_B_CrimePremium_INT,                                      08100000
+          :DB2_B_FloodPeril_INT,                                        08110000
+          :DB2_B_FloodPremium_INT,                                      08120000
+          :DB2_B_WeatherPeril_INT,                                      08130000
+          :DB2_B_WeatherPremium_INT,                                    08140000
+          :DB2_B_Status_INT,                                            08150000
+          :DB2_B_RejectReason                                           08160000
+    FROM  POLICY,COMMERCIAL                                             08170000
+    WHERE ( POLICY.POLICYNUMBER =                                       08180000
+               COmmercial.POLICYNUMBER   AND                            08190000
+            POLICY.POLICYNUMBER =                                       08200000
+               :DB2_POLICYNUM_INT               );                      08210000
+                                                                        08220000
+  IF (SQLCODE = 0) THEN DO;                                             08230000
+ /*      Select was successful */                                       08240000
+                                                                        08250000
+ /*      Calculate size of commarea required to return all data */      08260000
+    WS_REQUIRED_CA_LEN = WS_CA_HEADERTRAILER_LEN + WS_REQUIRED_CA_LEN;  08270000
+    WS_REQUIRED_CA_LEN = WS_FULL_COMM_LEN        + WS_REQUIRED_CA_LEN;  08280000
+                                                                        08290000
+ /*      if commarea received is not large enough ...                   08300000
+ *        set error return code and return to caller */                 08310000
+    IF (EIBCALEN < WS_REQUIRED_CA_LEN) THEN DO;                         08320000
+      CA_RETURN_CODE = '98';                                            08330000
+      EXEC CICS RETURN;                                                 08340000
+    END;                                                                08350000
+    ELSE DO;                                                            08360000
+      CA_Customer_NUM = DB2_CustomerNum_INT;                            08370000
+      DB2_B_FirePeril = DB2_B_FirePeril_INT;                            08380000
+      DB2_B_FirePremium = DB2_B_FirePremium_INT;                        08390000
+      DB2_B_CrimePeril = DB2_B_CrimePeril_INT;                          08400000
+      DB2_B_CrimePremium = DB2_B_CrimePremium_INT;                      08410000
+      DB2_B_FloodPeril = DB2_B_FloodPeril_INT;                          08420000
+      DB2_B_FloodPremium = DB2_B_FloodPremium_INT;                      08430000
+      DB2_B_WeatherPeril = DB2_B_WeatherPeril_INT;                      08440000
+      DB2_B_WeatherPremium = DB2_B_WeatherPremium_INT;                  08450000
+      DB2_B_Status = DB2_B_Status_INT;                                  08460000
+                                                                        08470000
+    /*   CA_POLICY_COMMON = DB2_POLICY_COMMON;  */                      08480003
+      CA_ISSUE_DATE    = DB2_ISSUEDATE;                                 08490003
+      CA_EXPIRY_DATE   = DB2_EXPIRYDATE;                                08500003
+      CA_LASTCHANGED   = DB2_LASTCHANGED;                               08510003
+      CA_BROKERID      = DB2_BROKERID;                                  08520003
+      CA_BROKERSREF    = DB2_BROKERSREF;                                08530003
+      CA_PAYMENT       = DB2_PAYMENT;                                   08540003
+    /*CA_COMMERCIAL_PTR = ADDR(CA_POLICY_SPECIFIC);*/                   08550035
+      SUBSTR(CA_POLICY_RAW,1,WS_COMM_LEN)                               08560037
+            = DB2_COMM_TEXT;                                            08570009
+    END;                                                                08580000
+                                                                        08590000
+ /*      Mark the end of the policy data */                             08600000
+    SUBSTR(CA_B_FILLER,1,5) = 'FINAL';                                  08610000
+  END;                                                                  08620000
+  ELSE DO;                                                              08630000
+ /*      Non-zero SQLCODE from first SQL FETCH statement */             08640000
+    IF (SQLCODE = 100) THEN DO;                                         08650000
+ /*        No rows found - invalid customer / policy number */          08660000
+      CA_RETURN_CODE =  '01';                                           08670000
+    END;                                                                08680000
+    ELSE DO;                                                            08690000
+ /*        something has gone wrong */                                  08700000
+      CA_RETURN_CODE = '90';                                            08710000
+ /*        Write error message to TD QUEUE(CSMT) */                     08720000
+      CALL WRITE_ERROR_MESSAGE;                                         08730000
+    END;                                                                08740000
+  END;                                                                  08750000
+                                                                        08760000
+ END GET_Commercial_DB2_INFO_2;                                         08770000
+                                                                        08780000
+ /*================================================================*    08790000
+ * Use Cursor to obtain matching customer policy records          *     08800000
+ * from commercial table                                          *     08810000
+ *================================================================*/    08820000
+ GET_Commercial_DB2_INFO_3: PROCEDURE;                                  08830000
+                                                                        08840000
+  EM_SQLREQ = ' SELECT Commrcl ';                                       08850022
+  ICOM_Record_Count = 0;                                                08860000
+                                                                        08870000
+  EXEC SQL                                                              08880000
+    OPEN Cust_Cursor;                                                   08890000
+                                                                        08900000
+  IF (SQLCODE <> 0) THEN DO;                                            08910000
+    CA_RETURN_CODE = '89';                                              08920000
+    CALL WRITE_ERROR_MESSAGE;                                           08930000
+  END;                                                                  08940000
+                                                                        08950000
+  DO UNTIL (SQLCODE > 0);                                               08960000
+     CALL GET_Commercial_DB2_INFO_3_Cur;                                08970000
+  END;                                                                  08980000
+                                                                        08990000
+  EXEC SQL                                                              09000000
+    Close Cust_Cursor;                                                  09010000
+                                                                        09020000
+  IF (SQLCODE <> 0) THEN DO;                                            09030000
+    CA_RETURN_CODE = '88';                                              09040000
+    CALL WRITE_ERROR_MESSAGE;                                           09050000
+  END;                                                                  09060000
+                                                                        09070000
+  /* ADDR(ICOM_Record) = ICOM_Pointer_Start; */                         09080011
+                                                                        09090000
+  ICOM_Data_Length = ICOM_Record_Count * 1202;                          09100000
+  Exec CICS Put Container('ICOM_Data')                                  09110000
+                Channel('ICOM')                                         09120000
+                From(ICOM_Record)                                       09130000
+                Flength(ICOM_Data_Length);                              09140000
+                                                                        09150000
+  Exec CICS Put Container('ICOM_Count')                                 09160000
+                Channel('ICOM')                                         09170000
+                From(ICOM_Record_Count)                                 09180000
+                Flength(2);                                             09190000
+                                                                        09200000
+ END GET_Commercial_DB2_INFO_3;                                         09210000
+                                                                        09220000
+ /*---------------------------------------------------------*/          09230000
+ GET_Commercial_DB2_INFO_3_Cur: PROCEDURE;                              09240000
+                                                                        09250000
+  COMM_AREA_PTR = ICOM_Pointer;                                         09260000
+                                                                        09270000
+  EXEC SQL                                                              09280000
+    Fetch Cust_Cursor                                                   09290000
+    INTO                                                                09300000
+          :DB2_CUSTOMERNUM_INT,                                         09310000
+          :DB2_POLICYNUM_INT,                                           09320000
+          :DB2_LASTCHANGED,                                             09330000
+          :DB2_ISSUEDATE,                                               09340000
+          :DB2_EXPIRYDATE,                                              09350000
+          :DB2_B_Address,                                               09360000
+          :DB2_B_Postcode,                                              09370000
+          :DB2_B_Latitude,                                              09380000
+          :DB2_B_Longitude,                                             09390000
+          :DB2_B_Customer,                                              09400000
+          :DB2_B_PropType,                                              09410000
+          :DB2_B_FirePeril_INT,                                         09420000
+          :DB2_B_FirePremium_INT,                                       09430000
+          :DB2_B_CrimePeril_INT,                                        09440000
+          :DB2_B_CrimePremium_INT,                                      09450000
+          :DB2_B_FloodPeril_INT,                                        09460000
+          :DB2_B_FloodPremium_INT,                                      09470000
+          :DB2_B_WeatherPeril_INT,                                      09480000
+          :DB2_B_WeatherPremium_INT,                                    09490000
+          :DB2_B_Status_INT,                                            09500000
+          :DB2_B_RejectReason;                                          09510000
+                                                                        09520000
+  IF (SQLCODE = 0) THEN DO;                                             09530000
+    DB2_B_FirePeril = DB2_B_FirePeril_INT;                              09540000
+    DB2_B_FirePremium = DB2_B_FirePremium_INT;                          09550000
+    DB2_B_CrimePeril = DB2_B_CrimePeril_INT;                            09560000
+    DB2_B_CrimePremium = DB2_B_CrimePremium_INT;                        09570000
+    DB2_B_FloodPeril = DB2_B_FloodPeril_INT;                            09580000
+    DB2_B_FloodPremium = DB2_B_FloodPremium_INT;                        09590000
+    DB2_B_WeatherPeril = DB2_B_WeatherPeril_INT;                        09600000
+    DB2_B_WeatherPremium = DB2_B_WeatherPremium_INT;                    09610000
+    DB2_B_Status = DB2_B_Status_INT;                                    09620000
+    CA_CUSTOMER_NUM = DB2_CustomerNum_INT;                              09630000
+    CA_POLICY_NUM = DB2_PolicyNum_INT;                                  09640000
+    /*   CA_POLICY_COMMON = DB2_POLICY_COMMON;  */                      09650003
+    CA_ISSUE_DATE    = DB2_ISSUEDATE;                                   09660003
+    CA_EXPIRY_DATE   = DB2_EXPIRYDATE;                                  09670003
+    CA_LASTCHANGED   = DB2_LASTCHANGED;                                 09680003
+    CA_BROKERID      = DB2_BROKERID;                                    09690003
+    CA_BROKERSREF    = DB2_BROKERSREF;                                  09700003
+    CA_PAYMENT       = DB2_PAYMENT;                                     09710003
+  /*CA_COMMERCIAL_PTR = ADDR(CA_POLICY_SPECIFIC);*/                     09720035
+    SUBSTR(CA_POLICY_RAW,1,WS_COMM_LEN) = DB2_COMM_TEXT;                09730037
+                                                                        09740000
+    ICOM_Record_Count = ICOM_Record_Count + 1;                          09750000
+    ICOM_pointer = ADDR(CA_B_FILLER);                                   09760000
+    If (ICOM_Record_Count > 20) THEN DO;                                09770000
+      SQLCODE = 17;                                                     09780000
+    END;                                                                09790000
+  END;                                                                  09800000
+                                                                        09810000
+ END GET_Commercial_DB2_INFO_3_Cur;                                     09820000
+                                                                        09830000
+ /*================================================================*    09840000
+ * Use Cursor to obtain matching rows                             *     09850000
+ * from commercial table                                          *     09860000
+ *================================================================*/    09870000
+ GET_Commercial_DB2_INFO_5: PROCEDURE;                                  09880000
+                                                                        09890000
+  EM_SQLREQ = ' SELECT Commrcl ';                                       09900022
+                                                                        09910000
+  EXEC SQL                                                              09920000
+    OPEN Zip_Cursor;                                                    09930000
+                                                                        09940000
+  IF (SQLCODE <> 0) THEN DO;                                            09950000
+    CA_RETURN_CODE = '89';                                              09960000
+    CALL WRITE_ERROR_MESSAGE;                                           09970000
+  END;                                                                  09980000
+                                                                        09990000
+  DO UNTIL (SQLCODE > 0);                                               10000000
+     CALL GET_Commercial_DB2_INFO_5_Cur;                                10010000
+  END;                                                                  10020000
+                                                                        10030000
+  EXEC SQL                                                              10040000
+    Close Zip_Cursor;                                                   10050000
+                                                                        10060000
+  IF (SQLCODE <> 0) THEN DO;                                            10070000
+    CA_RETURN_CODE = '88';                                              10080000
+    CALL WRITE_ERROR_MESSAGE;                                           10090000
+  END;                                                                  10100000
+                                                                        10110000
+ END GET_Commercial_DB2_INFO_5;                                         10120000
+                                                                        10130000
+ /*---------------------------------------------------------*/          10140000
+ GET_Commercial_DB2_INFO_5_Cur: PROCEDURE;                              10150000
+  EXEC SQL                                                              10160000
+    Fetch Zip_Cursor                                                    10170000
+    INTO                                                                10180000
+          :DB2_CUSTOMERNUM_INT,                                         10190000
+          :DB2_POLICYNUM_INT,                                           10200000
+          :DB2_LASTCHANGED,                                             10210000
+          :DB2_ISSUEDATE,                                               10220000
+          :DB2_EXPIRYDATE,                                              10230000
+          :DB2_B_Address,                                               10240000
+          :DB2_B_Postcode,                                              10250000
+          :DB2_B_Latitude,                                              10260000
+          :DB2_B_Longitude,                                             10270000
+          :DB2_B_Customer,                                              10280000
+          :DB2_B_PropType,                                              10290000
+          :DB2_B_FirePeril_INT,                                         10300000
+          :DB2_B_FirePremium_INT,                                       10310000
+          :DB2_B_CrimePeril_INT,                                        10320000
+          :DB2_B_CrimePremium_INT,                                      10330000
+          :DB2_B_FloodPeril_INT,                                        10340000
+          :DB2_B_FloodPremium_INT,                                      10350000
+          :DB2_B_WeatherPeril_INT,                                      10360000
+          :DB2_B_WeatherPremium_INT,                                    10370000
+          :DB2_B_Status_INT,                                            10380000
+          :DB2_B_RejectReason;                                          10390000
+                                                                        10400000
+  If (SQLCODE = 0) THEN DO;                                             10410000
+    DB2_B_FirePeril               = DB2_B_FirePeril_INT;                10420000
+    DB2_B_FirePremium             = DB2_B_FirePremium_INT;              10430000
+    DB2_B_CrimePeril              = DB2_B_CrimePeril_INT;               10440000
+    DB2_B_CrimePremium            = DB2_B_CrimePremium_INT;             10450000
+    DB2_B_FloodPeril              = DB2_B_FloodPeril_INT;               10460000
+    DB2_B_FloodPremium            = DB2_B_FloodPremium_INT;             10470000
+    DB2_B_WeatherPeril            = DB2_B_WeatherPeril_INT;             10480000
+    DB2_B_WeatherPremium          = DB2_B_WeatherPremium_INT;           10490000
+    DB2_B_Status                  = DB2_B_Status_INT;                   10500000
+    CA_CUSTOMER_NUM               = DB2_CustomerNum_INT;                10510000
+    CA_POLICY_NUM                 = DB2_PolicyNum_INT;                  10520000
+    /*   CA_POLICY_COMMON = DB2_POLICY_COMMON;  */                      10530003
+    CA_ISSUE_DATE    = DB2_ISSUEDATE;                                   10540003
+    CA_EXPIRY_DATE   = DB2_EXPIRYDATE;                                  10550003
+    CA_LASTCHANGED   = DB2_LASTCHANGED;                                 10560003
+    CA_BROKERID      = DB2_BROKERID;                                    10570003
+    CA_BROKERSREF    = DB2_BROKERSREF;                                  10580003
+    CA_PAYMENT       = DB2_PAYMENT;                                     10590003
+  /*CA_COMMERCIAL_PTR = ADDR(CA_POLICY_SPECIFIC);*/                     10600035
+    SUBSTR(CA_POLICY_RAW,1,WS_COMM_LEN)  = DB2_COMM_TEXT;               10610037
+  END;                                                                  10620000
+                                                                        10630000
+ END GET_Commercial_DB2_INFO_5_Cur;                                     10640000
+                                                                        10650000
+ /*================================================================*    10660000
+ * Use Select on Claim to return a                                      10670000
+ * single row that matches the claim number                             10680000
+ *================================================================*/    10690000
+ GET_Claim_DB2_INFO_1: PROCEDURE;                                       10700000
+                                                                        10710000
+  EM_SQLREQ = ' SELECT Claim ';                                         10720000
+                                                                        10730000
+  EXEC SQL                                                              10740000
+    SELECT                                                              10750000
+          POLICY.CustomerNumber,                                        10760000
+          ClaimNumber,                                                  10770000
+          CLAIM.PolicyNumber,                                           10780000
+          ClaimDate,                                                    10790000
+          Paid,                                                         10800000
+          Value,                                                        10810000
+          Cause,                                                        10820000
+          Observations                                                  10830000
+    INTO  :DB2_Customernum_INT,                                         10840000
+          :DB2_Claimnum_INT,                                            10850000
+          :DB2_POLICYNUM_INT,                                           10860000
+          :DB2_C_Date,                                                  10870000
+          :DB2_C_Paid_INT,                                              10880000
+          :DB2_C_Value_INT,                                             10890000
+          :DB2_C_CAuse,                                                 10900000
+          :DB2_C_Observations                                           10910000
+    FROM  POLICY,CLAIM                                                  10920000
+    WHERE ( POLICY.POLICYNUMBER =                                       10930000
+               CLAIM.POLICYNUMBER   AND                                 10940000
+            CLAIM.ClaimNumber =                                         10950000
+               :DB2_ClaimNum_INT             );                         10960000
+                                                                        10970000
+  IF (SQLCODE = 0) THEN DO;                                             10980000
+ /*      Select was successful */                                       10990000
+                                                                        11000000
+ /*      Calculate size of commarea required to return all data */      11010000
+    WS_REQUIRED_CA_LEN = WS_CA_HEADERTRAILER_LEN + WS_REQUIRED_CA_LEN;  11020000
+    WS_REQUIRED_CA_LEN = WS_FULL_CLAIM_LEN       + WS_REQUIRED_CA_LEN;  11030000
+                                                                        11040000
+ /*      if commarea received is not large enough ...                   11050000
+ *        set error return code and return to caller */                 11060000
+    IF (EIBCALEN < WS_REQUIRED_CA_LEN) THEN DO;                         11070000
+      CA_RETURN_CODE = '98';                                            11080000
+      EXEC CICS RETURN;                                                 11090000
+    END;                                                                11100000
+    ELSE DO;                                                            11110000
+      CA_CUSTOMER_NUM = DB2_Customernum_INT;                            11120000
+      CA_POLICY_NUM   = DB2_PolicyNum_INT;                              11130000
+      DB2_C_Num       = DB2_Claimnum_INT;                               11140000
+      DB2_C_Paid      = DB2_C_Paid_INT;                                 11150000
+      DB2_C_Value     = DB2_C_Value_INT;                                11160000
+                                                                        11170000
+    /*   CA_POLICY_COMMON = DB2_POLICY_COMMON;  */                      11180003
+      CA_ISSUE_DATE    = DB2_ISSUEDATE;                                 11190003
+      CA_EXPIRY_DATE   = DB2_EXPIRYDATE;                                11200003
+      CA_LASTCHANGED   = DB2_LASTCHANGED;                               11210003
+      CA_BROKERID      = DB2_BROKERID;                                  11220003
+      CA_BROKERSREF    = DB2_BROKERSREF;                                11230003
+      CA_PAYMENT       = DB2_PAYMENT;                                   11240003
+    /*CA_CLAIM_PTR = ADDR(CA_POLICY_SPECIFIC);*/                        11250035
+      SUBSTR(CA_POLICY_RAW,1,WS_COMM_LEN) = DB2_CLAIM_TEXT;             11260037
+    END;                                                                11270000
+                                                                        11280000
+ /*      Mark the end of the policy data */                             11290000
+    SUBSTR(CA_C_FILLER,1,5) = 'FINAL';                                  11300000
+  END;                                                                  11310000
+  ELSE DO;                                                              11320000
+ /*      Non-zero SQLCODE from first SQL FETCH statement */             11330000
+    IF (SQLCODE = 100) THEN DO;                                         11340000
+ /*        No rows found - invalid customer / policy number */          11350000
+      CA_RETURN_CODE = '01';                                            11360000
+    END;                                                                11370000
+    ELSE DO;                                                            11380000
+ /*        something has gone wrong */                                  11390000
+      CA_RETURN_CODE = '90';                                            11400000
+ /*        Write error message to TD QUEUE(CSMT) */                     11410000
+      CALL WRITE_ERROR_MESSAGE;                                         11420000
+    END;                                                                11430000
+  END;                                                                  11440000
+                                                                        11450000
+ END GET_Claim_DB2_INFO_1;                                              11460000
+                                                                        11470000
+ /*================================================================*    11480000
+ * Use Select on Claim to return rows                                   11490000
+ * that matches the customer number                                     11500000
+ *================================================================*/    11510000
+ GET_Claim_DB2_INFO_2: PROCEDURE;                                       11520000
+                                                                        11530000
+  EM_SQLREQ = ' SELECT Claim ';                                         11540000
+                                                                        11550000
+  EXEC SQL                                                              11560000
+    OPEN CusClaim_Cursor;                                               11570000
+                                                                        11580000
+  IF (SQLCODE <> 0) THEN DO;                                            11590000
+    CA_RETURN_CODE = '89';                                              11600000
+    CALL WRITE_ERROR_MESSAGE;                                           11610000
+  END;                                                                  11620000
+                                                                        11630000
+  DO UNTIL (SQLCODE > 0);                                               11640000
+     CALL GET_ClaiM_DB2_INFO_2_Cur;                                     11650000
+  END;                                                                  11660000
+                                                                        11670000
+  EXEC SQL                                                              11680000
+    Close CusClaim_Cursor;                                              11690000
+                                                                        11700000
+  IF (SQLCODE <> 0) THEN DO;                                            11710000
+    CA_RETURN_CODE = '88';                                              11720000
+    CALL WRITE_ERROR_MESSAGE;                                           11730000
+  END;                                                                  11740000
+                                                                        11750000
+ END GET_Claim_DB2_INFO_2;                                              11760000
+                                                                        11770000
+ /*---------------------------------------------------------*/          11780000
+ GET_ClaiM_DB2_INFO_2_Cur: PROCEDURE;                                   11790000
+                                                                        11800000
+  EXEC SQL                                                              11810000
+    Fetch CusClaim_Cursor                                               11820000
+    INTO                                                                11830000
+          :DB2_Customernum_INT,                                         11840000
+          :DB2_Claimnum_INT,                                            11850000
+          :DB2_POLICYNUM_INT,                                           11860000
+          :DB2_C_Date,                                                  11870000
+          :DB2_C_Paid_INT,                                              11880000
+          :DB2_C_Value_INT,                                             11890000
+          :DB2_C_CAuse,                                                 11900000
+          :DB2_C_Observations;                                          11910000
+                                                                        11920000
+  IF (SQLCODE = 0) THEN DO;                                             11930000
+      CA_CUSTOMER_NUM = DB2_Customernum_INT;                            11940000
+      CA_POLICY_NUM = DB2_PolicyNum_INT;                                11950000
+      DB2_C_Num = DB2_Claimnum_INT;                                     11960000
+      DB2_C_Paid = DB2_C_Paid_INT;                                      11970000
+      DB2_C_Value = DB2_C_Value_INT;                                    11980000
+    /*   CA_POLICY_COMMON = DB2_POLICY_COMMON;  */                      11990003
+      CA_ISSUE_DATE    = DB2_ISSUEDATE;                                 12000003
+      CA_EXPIRY_DATE   = DB2_EXPIRYDATE;                                12010003
+      CA_LASTCHANGED   = DB2_LASTCHANGED;                               12020003
+      CA_BROKERID      = DB2_BROKERID;                                  12030003
+      CA_BROKERSREF    = DB2_BROKERSREF;                                12040003
+      CA_PAYMENT       = DB2_PAYMENT;                                   12050003
+   /* CA_CLAIM_PTR = ADDR(CA_POLICY_SPECIFIC);*/                        12060035
+      SUBSTR(CA_POLICY_RAW,1,WS_COMM_LEN) = DB2_CLAIM_TEXT;             12070037
+      SUBSTR(CA_C_FILLER,1,5) = 'FINAL';                                12080000
+  END;                                                                  12090000
+                                                                        12100000
+ END GET_ClaiM_DB2_INFO_2_Cur;                                          12110000
+                                                                        12120000
+ /*===================================================================*/12130000
+ /* Procedure to write error message to Queues                        */12140000
+ /*   message will include Date, Time, Program Name, Customer         */12150000
+ /*   Number, Policy Number and SQLCODE.                              */12160000
+ /*===================================================================*/12170000
+ WRITE_ERROR_MESSAGE: PROC;                                             12180000
+ /* Save SQLCODE in message */                                          12190000
+ EM_SQLRC = SQLCODE;                                                    12200000
+ /* Obtain and format current time and date */                          12210000
+ EXEC CICS ASKTIME ABSTIME(ABS_TIME);                                   12220000
+ EXEC CICS FORMATTIME ABSTIME(ABS_TIME)                                 12230000
+           MMDDYYYY(DATE1)                                              12240000
+           TIME(TIME1);                                                 12250000
+ EM_DATE = DATE1;                                                       12260000
+ EM_TIME = TIME1;                                                       12270000
+ /* Write output message to TDQ */                                      12280000
+ EXEC CICS LINK PROGRAM('LGSTSQ')                                       12290000
+           COMMAREA(ERROR_MSG)                                          12300000
+           LENGTH(STG(ERROR_MSG));                                      12310000
+ /* Write 90 bytes or as much as we have of commarea to TDQ */          12320000
+ IF EIBCALEN > 0 THEN DO;                                               12330000
+    IF EIBCALEN < 91 THEN DO;                                           12340000
+       CA_DATA = LEFT(COMM_AREA_RAW,EIBCALEN);                          12350000
+       EXEC CICS LINK PROGRAM('LGSTSQ')                                 12360000
+                 COMMAREA(CA_ERROR_MSG)                                 12370000
+                 LENGTH(STG(CA_ERROR_MSG));                             12380000
+    END;                                                                12390000
+    ELSE DO;                                                            12400000
+       CA_DATA = LEFT(COMM_AREA_RAW,90);                                12410000
+       EXEC CICS LINK PROGRAM('LGSTSQ')                                 12420000
+                 COMMAREA(CA_ERROR_MSG)                                 12430000
+                 LENGTH(STG(CA_ERROR_MSG));                             12440000
+    END;                                                                12450000
+ END;                                                                   12460000
+ RETURN;                                                                12470000
+ END WRITE_ERROR_MESSAGE;                                               12480000
+ END LGIPDB01;                                                          12490025

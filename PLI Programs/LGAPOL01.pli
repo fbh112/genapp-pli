@@ -1,0 +1,187 @@
+ /******************************************************************    00010000
+ *                                                                *     00020000
+ *                    ADD Policy                                  *     00030000
+ *                                                                *     00040000
+ *  Add Policy business logic                                     *     00050000
+ *   To add full details of an individual policy:                 *     00060000
+ *     Endowment, House, Motor, Commercial                        *     00070000
+ *                                                                *     00080000
+ ******************************************************************/    00090000
+ LGAPOL01: Proc(COMM_AREA_PTR) Options(Main);                           00100013
+ /*----------------------------------------------------------------*    00110000
+ * Common defintions                                              *     00120000
+ *----------------------------------------------------------------*/    00130000
+ /* Run time (debug) infomation for this invocation */                  00140000
+  DCL 1  WS_HEADER,                                                     00150000
+       3 WS_EYECATCHER            CHAR(16)                              00160000
+                                  INIT ('LGAPOL01------WS'),            00170010
+       3 WS_TRANSID               CHAR(4) INIT(''),                     00180000
+       3 WS_TERMID                CHAR(4) INIT(''),                     00190000
+       3 WS_TASKNUM               PIC '(7)9' INIT(0),                   00200000
+       3 WS_FILLER                CHAR INIT(''),                        00210000
+       3 WS_ADDR_DFHCOMMAREA      PTR INIT(SYSNULL()),                  00220000
+       3 WS_CALEN                 FIXED BIN(15) INIT(0);                00230000
+                                                                        00240000
+ /* Variables for time/date processing */                               00250000
+  DCL 1  ABS_TIME                 FIXED DEC(15) INIT(+0);               00260000
+  DCL 1  TIME1                    CHAR(8)  INIT((8)' ');                00270000
+  DCL 1  DATE1                    CHAR(10) INIT((10)' ');               00280000
+                                                                        00290000
+ /*----------------------------------------------------------------*    00300000
+ * Definitions required to check for Business Rule processing           00310000
+ *----------------------------------------------------------------*/    00320000
+  DCL 1  BUSINESS_RULES           CHAR INIT('N');                       00330000
+                                                                        00340000
+ /* Error Message structure */                                          00350000
+  DCL 1  ERROR_MSG,                                                     00360000
+       3 EM_DATE                  CHAR(10) INIT(' '),                   00370001
+       3 *                        CHAR     INIT(' '),                   00380000
+       3 EM_TIME                  CHAR(8)  INIT(' '),                   00390001
+       3 *                        CHAR(9)  INIT(' LGAPOL01'),           00400000
+       3 EM_VARIABLE UNION,                                             00410001
+         5 EM_MSG_TEXT            CHAR(63),                             00420001
+         5 *,                                                           00421001
+          7 *                     CHAR(6)  INIT(' CNUM='),              00422001
+          7 EM_CUSNUM             CHAR(10) INIT(' '),                   00430001
+          7 *                     CHAR(6)  INIT(' PNUM='),              00440001
+          7 EM_POLNUM             CHAR(10) INIT(' '),                   00450001
+          7 EM_SQLREQ             CHAR(16) INIT(' '),                   00460001
+          7 *                     CHAR(9)  INIT(' SQLCODE='),           00470001
+          7 EM_SQLRC              PIC '+(5)9';                          00480001
+                                                                        00490000
+  DCL 1  CA_ERROR_MSG,                                                  00500000
+       3 *                        CHAR(9)  INIT('COMMAREA='),           00510000
+       3 CA_DATA                  CHAR(90) INIT(' ');                   00520000
+  DCL 1  LGAPDB1                  CHAR(8)  INIT('LGAPDB1');             00530000
+  DCL 1  LGAPBR1                  CHAR(8)  INIT('LGAPBR1');             00540000
+  DCL 1  LGAPVS1                  CHAR(8)  INIT('LGAPVS1');             00550000
+                                                                        00560000
+ /*----------------------------------------------------------------*    00570000
+ * Definitions required for data manipulation                     *     00580000
+ *----------------------------------------------------------------*/    00590000
+ /* Fields to be used to check that commarea is correct length */       00600000
+  DCL 1  WS_COMMAREA_LENGTHS,                                           00610000
+      03 WS_CA_HEADER_LEN         FIXED BIN(15) INIT(+28),              00620000
+      03 WS_REQUIRED_CA_LEN       PIC 'S(4)9' INIT(0);                  00630000
+                                                                        00640000
+ /* Define a varying length character string to contain actual          00650000
+ * amount of data that will be inserted to Varchar field */             00660000
+  DCL 1 WS_VARY_FIELD,                                                  00670000
+     49 WS_VARY_LEN               FIXED BIN(15),                        00680000
+     49 WS_VARY_CHAR              CHAR(3900);                           00690000
+                                                                        00700000
+ %INCLUDE LGCMAREA;                                                     00710009
+                                                                        00730000
+ /*----------------------------------------------------------------*    00760000
+ * Common code                                                    *     00770000
+ *----------------------------------------------------------------*/    00780000
+                                                                        00790000
+ /* set up general variable */                                          00800000
+  WS_TRANSID = EIBTRNID;                                                00810000
+  WS_TERMID  = EIBTRMID;                                                00820000
+  WS_TASKNUM = EIBTASKN;                                                00830000
+  WS_CALEN   = EIBCALEN;                                                00840000
+                                                                        00850000
+ /*----------------------------------------------------------------*    00860000
+ * Check commarea and obtain required details                     *     00870000
+ *----------------------------------------------------------------*/    00880000
+ /* If NO commarea received issue an ABEND */                           00890000
+  IF ( EIBCALEN = 0 ) THEN DO;                                          00900000
+      EM_MSG_TEXT = ' NO COMMAREA RECEIVED';                            00910002
+      CALL WRITE_ERROR_MESSAGE;                                         00920000
+      EXEC CICS ABEND ABCODE('LGCA') NODUMP;                            00930000
+   END;                                                                 00940000
+                                                                        00950000
+ /* initialize Commarea return code to zero */                          00960000
+  CA_RETURN_CODE = '00';                                                00970000
+  WS_ADDR_DFHCOMMAREA = COMM_AREA_PTR;                                  00980000
+                                                                        00990000
+ /* and save in error msg field incase required */                      01000000
+  EM_CUSNUM = CA_CUSTOMER_NUM;                                          01010000
+                                                                        01020000
+ /* Check commarea length */                                            01030000
+  WS_REQUIRED_CA_LEN = WS_CA_HEADER_LEN + WS_REQUIRED_CA_LEN;           01040000
+                                                                        01050000
+                                                                        01060000
+ /*    if less set error return code and return to caller */            01070000
+  IF (EIBCALEN < WS_REQUIRED_CA_LEN) THEN DO;                           01080000
+    CA_RETURN_CODE = '98';                                              01090000
+    EXEC CICS RETURN;                                                   01100000
+  END;                                                                  01110000
+                                                                        01120000
+ /*----------------------------------------------------------------*    01130000
+ *    CALL Business Rule processing via ODM                    *        01140000
+ *----------------------------------------------------------------*/    01150000
+ /*    If an Endowment policy is being added, and if Business           01160000
+ *    Rule processing is required, then call the Business Rule          01170000
+ *    program.                                                          01180000
+ *    Note: uncomment the following 'MOVE' statement to apply           01190000
+ *          Business Rule processing (default=no) */                    01200000
+ /*    MOVE 'Y' TO BUSINESS_RULES */                                    01210000
+                                                                        01220000
+  IF (BUSINESS_RULES = 'Y') THEN DO;                                    01230005
+     IF (CA_REQUEST_ID = '01AEND') THEN DO;                             01231007
+      EXEC CICS Link Program('LGAPBR01')                                01240010
+           Commarea(COMM_AREA)                                          01250005
+           LENGTH(32500);                                               01260000
+     END;                                                               01261005
+  END;                                                                  01270000
+                                                                        01280000
+ /*----------------------------------------------------------------*    01290000
+ *    CALL the data Inserts                                    *        01300000
+ *----------------------------------------------------------------*/    01310000
+  EXEC CICS Link Program('LGAPDB01')                                    01320010
+       Commarea(COMM_AREA)                                              01330001
+       LENGTH(32500);                                                   01340000
+                                                                        01350000
+  IF (CA_RETURN_CODE > 0) THEN DO;                                      01360004
+    EXEC CICS RETURN;                                                   01370000
+  END;                                                                  01380000
+                                                                        01390000
+ /* Return to caller */                                                 01400000
+  EXEC CICS RETURN;                                                     01410000
+                                                                        01420000
+ RETURN;                                                                01430000
+                                                                        01440000
+ /*================================================================*    01450000
+ * Procedure to write error message to Queues                     *     01460000
+ *   message will include Date, Time, Program Name, Customer      *     01470000
+ *   Number, Policy Number and SQLCODE.                           *     01480000
+ *================================================================*/    01490000
+ WRITE_ERROR_MESSAGE: PROCEDURE;                                        01500004
+                                                                        01510000
+ /* Save SQLCODE in message                                             01520000
+ * Obtain and format current time and date */                           01530000
+  EXEC CICS ASKTIME ABSTIME(ABS_TIME);                                  01540000
+                                                                        01550000
+  EXEC CICS FORMATTIME ABSTIME(ABS_TIME)                                01560000
+            MMDDYYYY(DATE1)                                             01570000
+            TIME(TIME1);                                                01580000
+                                                                        01590000
+  EM_DATE = DATE1;                                                      01600000
+  EM_TIME = TIME1;                                                      01610000
+                                                                        01620000
+ /* Write output message to TDQ */                                      01630000
+  EXEC CICS LINK PROGRAM('LGSTSQ')                                      01640000
+            COMMAREA(ERROR_MSG)                                         01650000
+            LENGTH(STG(ERROR_MSG));                                     01660001
+                                                                        01670000
+ /* Write 90 bytes or as much as we have of commarea to TDQ */          01680000
+  IF ( EIBCALEN > 0 ) THEN DO;                                          01690000
+    IF ( EIBCALEN < 91 ) THEN DO;                                       01700000
+      CA_DATA = LEFT(COMM_AREA_RAW,EIBCALEN);                           01710000
+      EXEC CICS LINK PROGRAM('LGSTSQ')                                  01720000
+                COMMAREA(CA_ERROR_MSG)                                  01730000
+                LENGTH(STG(ERROR_MSG));                                 01740001
+    END;                                                                01750000
+    ELSE DO;                                                            01760000
+      CA_DATA = LEFT(COMM_AREA_RAW,90);                                 01770000
+      EXEC CICS LINK PROGRAM('LGSTSQ')                                  01780000
+                COMMAREA(CA_ERROR_MSG)                                  01790000
+                LENGTH(STG(ERROR_MSG));                                 01800001
+    END;                                                                01810000
+  END;                                                                  01820000
+ RETURN;                                                                01830000
+ END WRITE_ERROR_MESSAGE;                                               01840000
+                                                                        01850000
+ END LGAPOL01;                                                          01870010

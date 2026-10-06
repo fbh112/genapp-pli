@@ -1,0 +1,473 @@
+ /*****************************************************************     
+ *                                                                *     
+ *                     UPDATE policy details                      *     
+ *                                                                *     
+ *                                                                      
+ ******************************************************************/    
+ LGUPDB01: Proc(COMM_AREA_PTR) Options(Main);                           
+ /*----------------------------------------------------------------*    
+  * Common defintions                                              *    
+  *----------------------------------------------------------------*/   
+ /* Run time (debug) infomation for this invocation */                  
+  DCL 1  WS_HEADER,                                                     
+       3 WS_EYECATCHER            CHAR(16)                              
+                                  INIT ('LGUPDB01------WS'),            
+       3 WS_TRANSID               CHAR(4)INIT(''),                      
+       3 WS_TERMID                CHAR(4)INIT(''),                      
+       3 WS_TASKNUM               PIC '(7)9'INIT(0),                    
+       3 WS_FILLER                CHAR INIT(''),                        
+       3 WS_ADDR_DFHCOMMAREA      PTR INIT(SYSNULL()),                  
+       3 WS_CALEN                 FIXED BIN(15) INIT(0),                
+       3 WS_RETRY                 CHAR INIT('');                        
+ /* Variables for time/date processing */                               
+  DCL 1  WS_ABSTIME               FIXED BIN(31) INIT(+0);               
+  DCL 1  WS_TIME                  CHAR(8)  INIT(' ');                   
+  DCL 1  WS_DATE                  CHAR(10) INIT(' ');                   
+ /* Error Message structure */                                          
+  DCL 1 ERROR_MSG,                                                      
+       3 EM_DATE                  CHAR(10) INIT(''),                    
+       3 *                        CHAR     INIT(''),                    
+       3 EM_TIME                  CHAR(8)  INIT(''),                    
+       3 *                        CHAR(9)  INIT(' LGIPOL01'),           
+       3 EM_VARIABLE UNION,                                             
+         5 EM_MSG_TEXT            CHAR(63),                             
+         5 *,                                                           
+          7 *                     CHAR(6)  INIT(' CNUM='),              
+          7 EM_CUSNUM             CHAR(10) INIT(''),                    
+          7 *                     CHAR(6)  INIT(' PNUM='),              
+          7 EM_POLNUM             CHAR(10) INIT(''),                    
+          7 EM_SQLREQ             CHAR(16) INIT(''),                    
+          7 *                     CHAR(9)  INIT(' SQLCODE='),           
+          7 EM_SQLRC              PIC '+(5)9';                          
+  DCL 1  CA_ERROR_MSG,                                                  
+       3 FILLER                   CHAR(9)  INIT('COMMAREA='),           
+       3 CA_DATA                  CHAR(90) INIT(' ');                           
+ /*----------------------------------------------------------------*    
+ * Definitions required for data manipulation                     *     
+ *----------------------------------------------------------------*/    
+ /* Fields to be used to calculate minimum commarea length required     
+ * (for Endowment this does not allow for VARCHAR) */                   
+  DCL 1  WS_COMMAREA_LENGTHS,                                           
+       3 WS_CA_HEADER_LEN         FIXED BIN(15) INIT(+28),              
+       3 WS_REQUIRED_CA_LEN       PIC 'S(4)9'   INIT(0);                
+ /* Define a WS_VARYing length character string to contain actual       
+ * amount of data that will be updated in Varchar field */              
+  DCL 1 WS_VARY_FIELD,                                                  
+       49 WS_VARY_LEN               FIXED BIN(15),                      
+       49 WS_VARY_CHAR              CHAR(3900);                         
+ /*----------------------------------------------------------------*    
+ * Definitions required by SQL statement                          *     
+ *   DB2 datatypes to COBOL equivalents                           *     
+ *     SMALLINT    :   PIC S9(4) COMP                             *     
+ *     INTEGER     :   PIC S9(9) COMP                             *     
+ *     DATE        :   CHAR(10)                                  *      
+ *     TIMESTAMP   :   CHAR(26)                                  *      
+ *----------------------------------------------------------------*/    
+ /* Host variables for input to DB2 integer types                       
+ * Any values specified in SQL stmts must be defined here so            
+ * available to SQL prE_compiler */                                     
+ DCL 1 DB2_IN_INTEGERS,                                                 
+      3 DB2_CUSTOMERNUM_INT       FIXED BIN(31),                        
+      3 DB2_POLICYNUM_INT         FIXED BIN(31),                        
+      3 DB2_BROKERID_INT          FIXED BIN(31),                        
+      3 DB2_PAYMENT_INT           FIXED BIN(31),                        
+      3 DB2_E_TERM_SINT           FIXED BIN(15),                        
+      3 DB2_E_SUMASSURED_INT      FIXED BIN(31),                        
+      3 DB2_H_BEDROOMS_SINT       FIXED BIN(15),                        
+      3 DB2_H_VALUE_INT           FIXED BIN(31),                        
+      3 DB2_M_VALUE_INT           FIXED BIN(31),                        
+      3 DB2_M_CC_SINT             FIXED BIN(15),                        
+      3 DB2_M_PREMIUM_INT         FIXED BIN(31),                        
+      3 DB2_M_ACCIDENTS_INT       FIXED BIN(31);                        
+ /*  Host variables to store result of DB2 Fetch                        
+ *  Must be an SQL INCLUDE so available to SQL prE_compiler */          
+  /* EXEC SQL   */                                                          
+     %INCLUDE LGPOLICY;                                                  
+ /* Indicator variables for columns which could return nulls            
+ *   if these are not specified and SQL FETCH tries to return           
+ *   null value for a listed column it will FAIL with SQLCODE= */       
+  DCL  IND_BROKERID                FIXED BIN(15);                       
+  DCL  IND_BROKERSREF              FIXED BIN(15);                       
+  DCL  IND_PAYMENT                 FIXED BIN(15);                       
+  DCL  LGUPVS1                    CHAR(8) INIT('LGUPVS1');              
+ /*----------------------------------------------------------------*    
+ *    DB2 CONTROL                                                       
+ *----------------------------------------------------------------*/    
+ /* SQLCA DB2 communications area */                                    
+  /*EXEC SQL   */                                                           
+     %INCLUDE SQLCA;                                                     
+ /*----------------------------------------------------------------*    
+ * Declare Cursors                                                      
+ *----------------------------------------------------------------*/    
+ /* Cursor to select details from policy table (with lock)              
+ * will NOT update payment or commission fields */                      
+   EXEC SQL                                                             
+     DECLARE POLICY_CURSOR CURSOR WITH HOLD FOR                         
+       SELECT ISSUEDATE,                                                
+              EXPIRYDATE,                                               
+              LASTCHANGED,                                              
+              BROKERID,                                                 
+              BROKERSREFERENCE                                          
+       FROM POLICY                                                      
+       WHERE ( CUSTOMERNUMBER = :DB2_CUSTOMERNUM_INT AND                
+               POLICYNUMBER = :DB2_POLICYNUM_INT )                      
+       FOR UPDATE OF ISSUEDATE,                                         
+                     EXPIRYDATE,                                        
+                     LASTCHANGED,                                       
+                     BROKERID,                                          
+                     BROKERSREFERENCE;                                  
+  /*EXEC SQL  */                                                            
+     %INCLUDE LGCMAREA;                                                  
+  /*  %INCLUDE LGCMAREA; */                                             
+ /* set up general variable */                                          
+   WS_TRANSID = EIBTRNID;                                               
+   WS_TERMID  = EIBTRMID;                                               
+   WS_TASKNUM = EIBTASKN;                                               
+   WS_RETRY   = ' ';                                                    
+ /* initialize DB2 host variables */                                    
+   DB2_POLICY = ' ';                                                    
+   DB2_IN_INTEGERS = 0;                                                 
+ /*----------------------------------------------------------------*    
+ * Check commarea and obtain required details                     *     
+ *----------------------------------------------------------------*/    
+ /* If NO commarea received issue an ABEND */                           
+   IF ( EIBCALEN = 0 ) THEN DO;                                         
+      EM_MSG_TEXT = ' NO COMMAREA RECEIVED';                            
+      CALL WRITE_ERROR_MESSAGE;                                         
+      EXEC CICS ABEND ABCODE('LGCA') NODUMP;                            
+   END;                                                                 
+ /* initialize Commarea return code to zero */                          
+   CA_RETURN_CODE = '00';                                               
+   WS_CALEN       = EIBCALEN;                                                   
+   WS_ADDR_DFHCOMMAREA = COMM_AREA_PTR;                                 
+ /* Convert commarea customer & policy nums to DB2 integer format */    
+  DB2_CUSTOMERNUM_INT = CA_CUSTOMER_NUM;                                
+  DB2_POLICYNUM_INT   = CA_POLICY_NUM;                                  
+ /* and save in error msg field incase required */                      
+  EM_CUSNUM = CA_CUSTOMER_NUM;                                          
+  EM_POLNUM = CA_POLICY_NUM;                                            
+ /*----------------------------------------------------------------*    
+ * Check which policy type is being requested                     *     
+ *   and chec commarea length                                     *     
+ *----------------------------------------------------------------*/    
+ /*    Call procedure to update required tables */                      
+  CALL UPDATE_POLICY_DB2_INFO;                                          
+  EXEC CICS LINK Program('LGUPVS01')                                    
+       Commarea(COMM_AREA)                                              
+       LENGTH(225);                                                     
+ /* Return to caller */                                                 
+  EXEC CICS RETURN;                                                     
+ RETURN;                                                                
+ /*================================================================*    
+ * Fetch a row from Policy tables using POLICY_CURSOR             *     
+ *   Host variables specified on INTO statement must correspond   *     
+ *   in order and size to columns specified on SELECT statement   *     
+ *   in CURSOR defintion.                                         *     
+ *================================================================*/    
+ FETCH_DB2_POLICY_ROW: PROCEDURE;                                       
+   EM_SQLREQ = ' FETCH  ROW   ';                                        
+   EXEC SQL                                                             
+     FETCH POLICY_CURSOR                                                
+     INTO  :DB2_ISSUEDATE,                                              
+           :DB2_EXPIRYDATE,                                             
+           :DB2_LASTCHANGED,                                            
+           :DB2_BROKERID_INT INDICATOR :IND_BROKERID,                   
+           :DB2_BROKERSREF INDICATOR :IND_BROKERSREF,                   
+           :DB2_PAYMENT_INT INDICATOR :IND_PAYMENT;                     
+ END FETCH_DB2_POLICY_ROW;                                              
+ /*================================================================*    
+ * 1) Use SELECT FOR UPDATE to obtain a lock on the row in the    *     
+ *    policy table, check that Timestamp in database matches that *     
+ *    received in commarea:                                       *     
+ * 2a) if not: unlock DB2 record, abandon update & return to user *     
+ * 2b) if match: update policy specific table with data from      *     
+ *     commarea                                                   *     
+ * 3) update policy table with data from commarea and new         *     
+ *    timestamp (which releases row lock on policy table)         *     
+ *================================================================*/    
+ UPDATE_POLICY_DB2_INFO: PROCEDURE;                                             
+ /*    Open the cursor. */                                              
+  EM_SQLREQ = ' OPEN   PCURSOR ';                                       
+  EXEC SQL                                                              
+    OPEN POLICY_CURSOR;                                                         
+  SELECT ( SQLCODE );                                                   
+    WHEN (0) DO;                                                        
+      CA_RETURN_CODE = '00';                                            
+    END;                                                                
+    WHEN (-913) DO;                                                     
+      CA_RETURN_CODE = '90';                                            
+      CALL WRITE_ERROR_MESSAGE;                                         
+      EXEC CICS RETURN;                                                 
+    END;                                                                
+    OTHERWISE DO;                                                       
+      CA_RETURN_CODE = '90';                                            
+      CALL WRITE_ERROR_MESSAGE;                                         
+      EXEC CICS RETURN;                                                 
+    END;                                                                
+  END; /* SELECT SQLCODE */                                             
+ /*    Fetch the first row (we only expect one matching row) */         
+  CALL FETCH_DB2_POLICY_ROW;                                            
+  IF ( SQLCODE = 0 ) THEN DO;                                           
+ /*   Fetch was successful                                              
+ *   Compare timestamp in commarea with that in DB2 */                  
+    IF ( CA_LASTCHANGED = DB2_LASTCHANGED ) THEN DO;                    
+ /*----------------------------------------------------------------*    
+ *      Select for Update and Update specific policy type table   *     
+ *----------------------------------------------------------------*/    
+      SELECT ( CA_REQUEST_ID );                                         
+        /*** Endowment ***/                                             
+        WHEN ('01UEND') DO;                                             
+          /* Call routine to update Endowment table */                  
+          CALL UPDATE_ENDOW_DB2_INFO;                                   
+        END;                                                            
+        /*** House ***/                                                 
+        WHEN ('01UHOU') DO;                                             
+          /* Call routine to update Housetable */                       
+          CALL UPDATE_HOUSE_DB2_INFO;                                   
+        END;                                                            
+        /*** Motor ***/                                                 
+        WHEN ('01UMOT') DO;                                             
+          /* Call routine to update Motor table */                      
+          CALL UPDATE_MOTOR_DB2_INFO;                                   
+        END;                                                            
+      END; /* SELECT CA_REQUEST_ID */                                           
+      IF ( CA_RETURN_CODE <> '00' ) THEN DO;                            
+        /*     Update policy type specific table has failed             
+        *     So close cursor and return */                             
+        CALL CLOSE_PCURSOR;                                             
+        EXEC CICS RETURN;                                               
+      END;                                                              
+ /*----------------------------------------------------------------*    
+ *        Now update Policy table and set new timestamp           *     
+ *----------------------------------------------------------------*/    
+ /*        Move numeric commarea fields to integer format */            
+      DB2_BROKERID_INT = CA_BROKERID;                                   
+      DB2_PAYMENT_INT  = CA_PAYMENT;                                            
+ /*        Update policy table details */                               
+      EM_SQLREQ = ' UPDATE POLICY  ';                                   
+      EXEC SQL                                                          
+       UPDATE POLICY                                                    
+         SET ISSUEDATE        = :CA_ISSUE_DATE,                         
+             EXPIRYDATE       = :CA_EXPIRY_DATE,                        
+             LASTCHANGED      = CURRENT TIMESTAMP ,                     
+             BROKERID         = :DB2_BROKERID_INT,                      
+             BROKERSREFERENCE = :CA_BROKERSREF                          
+         WHERE CURRENT OF POLICY_CURSOR;                                        
+ /*        get value of assigned Timestamp for return in commarea */    
+       EXEC SQL                                                         
+         SELECT LASTCHANGED                                             
+           INTO :CA_LASTCHANGED                                         
+           FROM POLICY                                                  
+           WHERE POLICYNUMBER = :DB2_POLICYNUM_INT;                     
+       IF ( SQLCODE <> 0 ) THEN DO;                                     
+ /*          Non-zero SQLCODE from Update of policy table */            
+           EXEC CICS SYNCPOINT ROLLBACK;                                
+           CA_RETURN_CODE = '90';                                       
+ /*            Write error message to TD QUEUE(CSMT) */                 
+           CALL WRITE_ERROR_MESSAGE;                                    
+       END;                                                             
+    END;  /* CA_LASTCHANGED = DB2_LASTCHANGED */                        
+    ELSE DO;                                                            
+       /* Timestamps do not match (policy table v commarea) */          
+       CA_RETURN_CODE = '02';                                           
+    END;                                                                
+  END;                                                                  
+  ELSE DO;                                                              
+ /*      Non-zero SQLCODE from first SQL FETCH statement */             
+     IF ( SQLCODE = 100 ) THEN DO;                                      
+       CA_RETURN_CODE = '01';                                           
+     END;                                                               
+     ELSE DO;                                                           
+       CA_RETURN_CODE = '90';                                           
+ /*        Write error message to TD QUEUE(CSMT) */                     
+       CALL WRITE_ERROR_MESSAGE;                                        
+     END;                                                               
+  END;                                                                  
+ /*    Now close the Cursor and we're done! */                          
+  CALL CLOSE_PCURSOR;                                                   
+ END UPDATE_POLICY_DB2_INFO;                                            
+ CLOSE_PCURSOR: PROCEDURE;                                              
+ /*    Now close the Cursor and we're done! */                          
+   EM_SQLREQ = ' CLOSE  PCURSOR';                                       
+   EXEC SQL                                                             
+     CLOSE POLICY_CURSOR;                                                       
+   SELECT ( SQLCODE );                                                  
+     WHEN (0) DO;                                                       
+       CA_RETURN_CODE = '00';                                           
+     END;                                                               
+     WHEN (-501) DO;                                                    
+       CA_RETURN_CODE = '00';                                           
+       EM_SQLREQ = '-501 detected c';                                   
+       EXEC CICS RETURN;                                                
+     END;                                                               
+     OTHERWISE DO;                                                      
+       CA_RETURN_CODE = '90';                                           
+       CALL WRITE_ERROR_MESSAGE;                                        
+       EXEC CICS RETURN;                                                
+     END;                                                               
+   END;                                                                 
+ END CLOSE_PCURSOR;                                                     
+ /*================================================================*    
+ * Update row in Endowment table which matches customer and       *     
+ * policy number requested.                                       *     
+ *================================================================*/    
+ UPDATE_ENDOW_DB2_INFO: PROCEDURE;                                      
+ /*    Move numeric commarea fields to DB2 Integer formats */           
+   DB2_E_TERM_SINT      = CA_E_TERM;                                    
+   DB2_E_SUMASSURED_INT = CA_E_SUM_ASSURED;                             
+ /*----------------------------------------------------------------*    
+ *    There are 2 versions of UPDATE...                           *     
+ *      one which updates all fields including Varchar            *     
+ *      one which updates all fields Except Varchar               *     
+ *----------------------------------------------------------------*/    
+   EM_SQLREQ = ' UPDATE ENDOW ';                                        
+ /*    Calculate length of varchar if any                               
+ *    this will be eibcalen minus required CA_length */                 
+   WS_VARY_LEN = EIBCALEN - WS_REQUIRED_CA_LEN;                                 
+   IF ( WS_VARY_LEN > 0 ) THEN DO;                                      
+ /*      Commarea contains data for Varchar field */                    
+     SUBSTR(WS_VARY_CHAR,1,WS_VARY_LEN) = CA_E_PADDING_DATA;            
+     EXEC SQL                                                           
+       UPDATE ENDOWMENT                                                 
+         SET                                                            
+           WITHPROFITS   = :CA_E_WITH_PROFITS,                          
+             EQUITIES    = :CA_E_EQUITIES,                              
+             MANAGEDFUND = :CA_E_MANAGED_FUND,                          
+             FUNDNAME    = :CA_E_FUND_NAME,                             
+             TERM        = :DB2_E_TERM_SINT,                            
+             SUMASSURED  = :DB2_E_SUMASSURED_INT,                       
+             LIFEASSURED = :CA_E_LIFE_ASSURED                           
+         WHERE                                                          
+             POLICYNUMBER = :DB2_POLICYNUM_INT;                         
+   END;                                                                 
+   ELSE DO;                                                             
+     EXEC SQL                                                           
+       UPDATE ENDOWMENT                                                 
+         SET                                                            
+           WITHPROFITS   = :CA_E_WITH_PROFITS,                          
+             EQUITIES    = :CA_E_EQUITIES,                              
+             MANAGEDFUND = :CA_E_MANAGED_FUND,                          
+             FUNDNAME    = :CA_E_FUND_NAME,                             
+             TERM        = :DB2_E_TERM_SINT,                            
+             SUMASSURED  = :DB2_E_SUMASSURED_INT,                       
+             LIFEASSURED = :CA_E_LIFE_ASSURED                           
+         WHERE                                                          
+             POLICYNUMBER = :DB2_POLICYNUM_INT;                         
+     IF ( SQLCODE <> 0 ) THEN DO;                                       
+ /*        Non-zero SQLCODE from UPDATE statement */                    
+       IF ( SQLCODE = 100 ) THEN DO;                                    
+         CA_RETURN_CODE = '01';                                         
+       END;                                                             
+       ELSE DO;                                                         
+         CA_RETURN_CODE = '90';                                         
+ /*       Write error message to TD QUEUE(CSMT) */                      
+         CALL WRITE_ERROR_MESSAGE;                                      
+       END;                                                             
+     END; /* SQLCODE <> 0 */                                            
+   END; /*WS_VARY_LEN > */                                              
+ END UPDATE_ENDOW_DB2_INFO;                                             
+ /*================================================================*    
+ * Update row in House table which matches customer and           *     
+ * policy number requested.                                       *     
+ *================================================================*/    
+ UPDATE_HOUSE_DB2_INFO: PROCEDURE;                                              
+ /*    Move numeric commarea fields to DB2 Integer formats */           
+   DB2_H_BEDROOMS_SINT = CA_H_BEDROOMS;                                 
+   DB2_H_VALUE_INT = CA_H_VALUE;                                        
+   EM_SQLREQ = ' UPDATE HOUSE ';                                        
+   EXEC SQL                                                             
+     UPDATE HOUSE                                                       
+       SET                                                              
+            PROPERTYTYPE = :CA_H_PROPERTY_TYPE,                         
+            BEDROOMS     = :DB2_H_BEDROOMS_SINT,                        
+            VALUE        = :DB2_H_VALUE_INT,                            
+            HOUSENAME    = :CA_H_HOUSE_NAME,                            
+            HOUSENUMBER  = :CA_H_HOUSE_NUMBER,                          
+            POSTCODE     = :CA_H_POSTCODE                               
+       WHERE                                                            
+            POLICYNUMBER = :DB2_POLICYNUM_INT;                                  
+   IF ( SQLCODE <> 0 ) THEN DO;                                         
+ /*      Non-zero SQLCODE from UPDATE statement */                      
+     IF ( SQLCODE = 100 ) THEN DO;                                      
+       CA_RETURN_CODE = '01';                                           
+     END;                                                               
+     ELSE DO;                                                           
+       CA_RETURN_CODE = '01';                                           
+ /*        Write error message to TD QUEUE(CSMT) */                     
+       CALL WRITE_ERROR_MESSAGE;                                        
+     END;                                                               
+   END;                                                                 
+ END UPDATE_HOUSE_DB2_INFO;                                             
+ /*================================================================*    
+ * Update row in Motor table which matches customer and           *     
+ * policy number requested.                                       *     
+ *================================================================*/    
+ UPDATE_MOTOR_DB2_INFO: PROCEDURE;                                              
+ /*    Move numeric commarea fields to DB2 Integer formats */           
+   DB2_M_CC_SINT       = CA_M_CC;                                       
+   DB2_M_VALUE_INT     = CA_M_VALUE;                                    
+   DB2_M_PREMIUM_INT   = CA_M_PREMIUM;                                  
+   DB2_M_ACCIDENTS_INT = CA_M_ACCIDENTS;                                        
+   EM_SQLREQ = ' UPDATE MOTOR ';                                        
+   EXEC SQL                                                             
+     UPDATE MOTOR                                                       
+       SET                                                              
+            MAKE              = :CA_M_MAKE,                             
+            MODEL             = :CA_M_MODEL,                            
+            VALUE             = :DB2_M_VALUE_INT,                       
+            REGNUMBER         = :CA_M_REGNUMBER,                        
+            COLOUR            = :CA_M_COLOUR,                           
+            CC                = :DB2_M_CC_SINT,                         
+            YEAROFMANUFACTURE = :CA_M_MANUFACTURED,                     
+            PREMIUM           = :DB2_M_PREMIUM_INT,                     
+            ACCIDENTS         = :DB2_M_ACCIDENTS_INT                    
+       WHERE                                                            
+            POLICYNUMBER      = :DB2_POLICYNUM_INT;                             
+   IF ( SQLCODE <> 0 ) THEN DO;                                         
+ /*      Non-zero SQLCODE from UPDATE statement */                      
+     IF ( SQLCODE = 100 ) THEN DO;                                      
+       CA_RETURN_CODE = '01';                                           
+     END;                                                               
+     ELSE DO;                                                           
+       CA_RETURN_CODE = '90';                                           
+ /*        Write error message to TD QUEUE(CSMT) */                     
+      CALL WRITE_ERROR_MESSAGE;                                         
+     END;                                                               
+   END;                                                                 
+ END UPDATE_MOTOR_DB2_INFO;                                             
+ /*================================================================*    
+  * Procedure to write error message to Queues                     *    
+  *   message will include Date, Time, Program Name, Customer      *    
+  *   Number, Policy Number and SQLCODE.                           *    
+  *================================================================*/   
+ WRITE_ERROR_MESSAGE: PROCEDURE;                                        
+ /* Save SQLCODE in message                                             
+ * Obtain and format current time and date */                           
+   EXEC CICS ASKTIME ABSTIME(WS_ABSTIME);                                       
+   EXEC CICS FORMATTIME ABSTIME(WS_ABSTIME)                             
+             MMDDYYYY(WS_DATE)                                          
+             TIME(WS_TIME);                                                     
+   EM_DATE = WS_DATE;                                                   
+   EM_TIME = WS_TIME;                                                   
+ /* Write output message to TDQ */                                      
+   EXEC CICS LINK PROGRAM('LGSTSQ')                                     
+             COMMAREA(ERROR_MSG)                                        
+             LENGTH(STG(ERROR_MSG));                                            
+ /* Write 90 bytes or as much as we have of commarea to TDQ */          
+      IF ( EIBCALEN > 0 ) THEN DO;                                      
+        IF ( EIBCALEN < 91 ) THEN DO;                                   
+          CA_DATA = LEFT(COMM_AREA_RAW,EIBCALEN);                       
+          EXEC CICS LINK PROGRAM('LGSTSQ')                              
+                    COMMAREA(CA_ERROR_MSG)                              
+                    LENGTH(STG(ERROR_MSG));                             
+        END;                                                            
+        ELSE DO;                                                        
+          CA_DATA = LEFT(COMM_AREA_RAW,90);                             
+          EXEC CICS LINK PROGRAM('LGSTSQ')                              
+                    COMMAREA(CA_ERROR_MSG)                              
+                    LENGTH(STG(ERROR_MSG));                             
+        END;                                                            
+      END;                                                              
+ RETURN;                                                                
+ END WRITE_ERROR_MESSAGE;                                               
+ END LGUPDB01;                                                          

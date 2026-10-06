@@ -1,0 +1,166 @@
+ /*****************************************************************     00010000
+ *                    DELETE Policy                               *     00020000
+ *                                                                *     00030000
+ *  Appropriate row will be deleted from DB2 Policy and the       *     00040000
+ *  Endowment/House/Motor/Commercial table.                       *     00050000
+ *                                                                *     00060000
+ *                                                                *     00070000
+ ******************************************************************/    00080000
+ LGDPOL01: Proc(COMM_AREA_PTR) Options(Main);                           00090011
+ /*----------------------------------------------------------------*    00100000
+  * Common defintions                                              *    00110000
+  *----------------------------------------------------------------*/   00120000
+ /* Run time (debug) infomation for this invocation */                  00130000
+  DCL 1  WS_HEADER,                                                     00140000
+       3 WS_EYECATCHER            CHAR(16)                              00150000
+                                  INIT('LGDPOL01------WS'),             00160010
+       3 WS_TRANSID               CHAR(4) INIT(''),                     00170000
+       3 WS_TERMID                CHAR(4) INIT(''),                     00180000
+       3 WS_TASKNUM               PIC '(7)9'INIT(0),                    00190000
+       3 WS_FILLER                CHAR INIT(''),                        00200000
+       3 WS_ADDR_DFHCOMMAREA      PTR INIT(SYSNULL()),                  00210000
+       3 WS_CALEN                 FIXED BIN(15) INIT(0);                00220000
+                                                                        00230000
+ /* Variables for time/date processing  */                              00240000
+  DCL 1  WS_ABSTIME               FIXED DECIMAL(15) INIT(+0);           00250000
+  DCL 1  WS_TIME                  CHAR(8)  INIT(' ');                   00260000
+  DCL 1  WS_DATE                  CHAR(10) INIT(' ');                   00270000
+                                                                        00280000
+ /* Error Message structure */                                          00290000
+  DCL 1  ERROR_MSG,                                                     00300000
+       3 EM_DATE                  CHAR(10) INIT(''),                    00310000
+       3 *                        CHAR     INIT(' '),                   00320000
+       3 EM_TIME                  CHAR(8) INIT(''),                     00330000
+       3 *                        CHAR(9)  INIT(' LGDPOL01'),           00340000
+       3 EM_VARIABLE UNION,                                             00350001
+         5 EM_MSG_TEXT            CHAR(63),                             00360001
+         5 *,                                                           00370006
+          7 *                     CHAR(6)  INIT(' CNUM='),              00380006
+          7 EM_CUSNUM             CHAR(10) INIT((10)' '),               00381006
+          7 *                     CHAR(6)  INIT(' PNUM='),              00390006
+          7 EM_POLNUM             CHAR(10) INIT(' '),                   00400006
+          7 EM_SQLREQ             CHAR(16) INIT(' '),                   00410006
+          7 *                     CHAR(9)  INIT(' SQLCODE='),           00420006
+          7 EM_SQLRC              PIC '+(5)9';                          00430006
+                                                                        00440000
+  DCL 1  CA_ERROR_MSG,                                                  00450000
+       3 *                        CHAR(9)  INIT('COMMAREA='),           00460000
+       3 CA_DATA                  CHAR(90) INIT(' ');                   00470000
+ /*----------------------------------------------------------------*/   00480000
+                                                                        00490000
+ /*----------------------------------------------------------------*    00510000
+  * Definitions required for data manipulation                     *    00520000
+  *----------------------------------------------------------------*/   00530000
+ /* Fields to be used to calculate minimum commarea length required     00540000
+  * (for Endowment this does not allow for VARCHAR) */                  00550000
+  DCL 1  WS_COMMAREA_LENGTHS,                                           00560000
+       3 WS_CA_HEADER_LEN         FIXED BIN(15) INIT(28);               00570007
+                                                                        00580000
+  DCL 1  LGDPDB01                 CHAR(8) INIT('LGDPDB01');             00590012
+  DCL 1  LGDPVS01                 CHAR(8) INIT('LGDPVS01');             00591012
+                                                                        00730000
+ %INCLUDE LGCMAREA;                                                     00740009
+                                                                        00750000
+ /* set up general variable */                                          00780000
+   WS_TRANSID = EIBTRNID;                                               00790000
+   WS_TERMID  = EIBTRMID;                                               00800000
+   WS_TASKNUM = EIBTASKN;                                               00810000
+                                                                        00820000
+ /*----------------------------------------------------------------*    00830012
+  * Check commarea and obtain required details                          00840012
+  *----------------------------------------------------------------*/   00841012
+   IF ( EIBCALEN = 0 ) THEN DO;                                         00860000
+      EM_MSG_TEXT = ' NO COMMAREA RECEIVED';                            00870013
+      CALL WRITE_ERROR_MESSAGE;                                         00880000
+      EXEC CICS ABEND ABCODE('LGCA') NODUMP;                            00890000
+   END;                                                                 00900000
+                                                                        00910000
+ /* initialize Commarea return code to zero */                          00920000
+   CA_RETURN_CODE = '00';                                               00930000
+   WS_CALEN       = EIBCALEN;                                           00940000
+   WS_ADDR_DFHCOMMAREA = COMM_AREA_PTR;                                 00950000
+                                                                        00960000
+ /* Check commarea is large enough */                                   00970000
+      IF ( EIBCALEN < WS_CA_HEADER_LEN ) THEN DO;                       00980000
+        CA_RETURN_CODE = '98';                                          00990000
+        EXEC CICS RETURN;                                               01000000
+      END;                                                              01010000
+                                                                        01020000
+ /* and save in error msg field incase required */                      01060000
+      EM_CUSNUM = CA_CUSTOMER_NUM;                                      01070000
+      EM_POLNUM = CA_POLICY_NUM;                                        01080000
+                                                                        01090000
+ /*----------------------------------------------------------------*    01100000
+  * Check request_ID in commarea and if recognised ...             *    01110000
+  * Call routine to delete row from policy table                   *    01120000
+  *----------------------------------------------------------------*/   01130000
+      CA_REQUEST_ID = UPPERCASE(CA_REQUEST_ID);                         01140014
+                                                                        01141012
+      SELECT (CA_REQUEST_ID);                                           01150001
+        WHEN ('01DEND','01DHOU','01DCOM','01DMOT') DO;                  01160001
+          CALL DELETE_POLICY_DB2_INFO;                                  01170001
+          IF ( CA_RETURN_CODE > 0 ) THEN DO;                            01171014
+            EXEC CICS RETURN;                                           01180012
+          END;                                                          01210012
+        END;                                                            01211012
+        OTHERWISE DO;                                                   01220001
+          CA_RETURN_CODE = '99';                                        01230014
+        END;                                                            01240001
+      END;                                                              01250001
+                                                                        01410000
+ /* Return to caller */                                                 01420000
+      EXEC CICS RETURN;                                                 01430000
+                                                                        01440000
+  RETURN;                                                               01450005
+                                                                        01460000
+ /*================================================================*    01470000
+  * Delete appropriate row from policy table                       *    01480000
+  *  because of FOREIGN KEY definitions the delete should be       *    01490000
+  *  propagated to the appropriate 'policy type' table             *    01500000
+  *================================================================*/   01510000
+ DELETE_POLICY_DB2_INFO: PROCEDURE;                                     01520000
+   EXEC CICS LINK PROGRAM(LGDPDB01)                                     01530015
+             COMMAREA(COMM_AREA)                                        01531012
+             LENGTH(32500);                                             01532012
+ END DELETE_POLICY_DB2_INFO;                                            01533012
+                                                                        01700000
+ /*================================================================*    01710000
+  * Procedure to write error message to TD QUEUE(CSMT)             *    01720012
+  *   message will include Date, Time, Program Name, Customer      *    01730000
+  *   Number, Policy Number and SQLCODE.                           *    01740000
+  *================================================================*/   01750000
+ WRITE_ERROR_MESSAGE: PROCEDURE;                                        01760000
+ /* Obtain and format current time and date */                          01800000
+   EXEC CICS ASKTIME ABSTIME(WS_ABSTIME);                               01810000
+                                                                        01820000
+   EXEC CICS FORMATTIME ABSTIME(WS_ABSTIME)                             01830000
+             MMDDYYYY(WS_DATE)                                          01840000
+             TIME(WS_TIME);                                             01850000
+                                                                        01860000
+   EM_DATE = WS_DATE;                                                   01870000
+   EM_TIME = WS_TIME;                                                   01880000
+                                                                        01890000
+ /* Write output message to TDQ */                                      01900000
+   EXEC CICS LINK PROGRAM('LGSTSQ')                                     01910000
+             COMMAREA(ERROR_MSG)                                        01920000
+             LENGTH(STG(CA_ERROR_MSG));                                 01930001
+                                                                        01940000
+ /* Write 90 bytes or as much as we have of commarea to TDQ */          01950000
+      IF ( EIBCALEN > 0 ) THEN DO;                                      01960000
+        IF ( EIBCALEN < 91 ) THEN DO;                                   01970000
+          CA_DATA = LEFT(COMM_AREA_RAW,EIBCALEN);                       01980000
+          EXEC CICS LINK PROGRAM('LGSTSQ')                              01990000
+                    COMMAREA(CA_ERROR_MSG)                              02000000
+                    LENGTH(STG(CA_ERROR_MSG));                          02010001
+        END;                                                            02020000
+        ELSE DO;                                                        02030000
+          CA_DATA = LEFT(COMM_AREA_RAW,90);                             02040000
+          EXEC CICS LINK PROGRAM('LGSTSQ')                              02050000
+                    COMMAREA(CA_ERROR_MSG)                              02060000
+                    LENGTH(STG(CA_ERROR_MSG));                          02070001
+        END;                                                            02080000
+      END;                                                              02090000
+  RETURN;                                                               02100005
+ END WRITE_ERROR_MESSAGE;                                               02110000
+                                                                        02120000
+ END LGDPOL01;                                                          02140010

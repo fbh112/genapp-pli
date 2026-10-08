@@ -1,0 +1,402 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LGIPOL01-overview</title>
+    <link rel="stylesheet" href="../../../assets/style.css">
+    <script src="../../../assets/mermaid.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: { useMaxWidth: true }
+        });
+    </script>
+
+    <!-- Prism.js for syntax highlighting (bundled — no CDN required) -->
+    <link rel="stylesheet" href="../../../assets/prism-tomorrow.css">
+    <script src="../../../assets/prism-core.js"></script>
+    <script src="../../../assets/prism-languages.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <span class="header-app-name"><a href="../../../../index.html" style="color: inherit; text-decoration: none;">GenApp PLI Insurance Application</a></span>
+        </div>
+        <div class="header-right">
+        </div>
+    </header>
+    <div class="shell">
+        <aside class="sidebar" id="wiki-sidebar">
+            <nav>
+                
+        <div class="nav-home-wrap">
+            <a href="../../../../index.html" class="nav-home">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 6.5L8 2l6 4.5V14a1 1 0 01-1 1H3a1 1 0 01-1-1V6.5z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M6 15V9h4v6" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                Home
+            </a>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Application Documentation</div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">Overview</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../../../pages/project-overview.html" class="nav-link" data-page-id="project-overview">Project Overview</a>
+                <a href="../../../pages/architecture-overview.html" class="nav-link" data-page-id="architecture-overview">Application Architecture</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">Program Inventory</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../../../pages/inventory-summary.html" class="nav-link" data-page-id="inventory-summary">Program Inventory Summary</a>
+                <a href="../../../pages/impact-analysis.html" class="nav-link" data-page-id="impact-analysis">Impact Analysis: Motor Policy EEPOS Migration</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">Policy Management Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../../../pages/policy-inquiry.html" class="nav-link" data-page-id="policy-inquiry">Policy Inquiry Program (LGIPOL01)</a>
+                <a href="../../../pages/policy-add.html" class="nav-link" data-page-id="policy-add">Policy Add Program (LGAPOL01)</a>
+                <a href="../../../pages/policy-update.html" class="nav-link" data-page-id="policy-update">Policy Update Program (LGUPOL01)</a>
+            </div>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Program Documentation</div>
+    <div class="nav-section">
+        <button class="nav-section-toggle" type="button">
+            <span class="nav-toggle-text">program</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items">
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../../../sources/program/PLI Programs/LGUPOL01.html" class="nav-link">LGUPOL01</a>
+                <a href="../../../sources/program/PLI Programs/LGIPOL01.html" class="nav-link">LGIPOL01</a>
+                <a href="../../../sources/program/PLI Programs/LGAPOL01.html" class="nav-link">LGAPOL01</a>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="nav-section">
+        <button class="nav-section-toggle open" type="button">
+            <span class="nav-toggle-text">business-rule</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items open">
+        <div class="nav-section">
+            <button class="nav-section-toggle open" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items open">
+                <a href="../../../sources/business-rule/PLI Programs/LGIPOL01-overview.html" class="nav-link active">LGIPOL01-overview</a>
+                <a href="../../../sources/business-rule/PLI Programs/LGIPOL01-inventory.html" class="nav-link">LGIPOL01-inventory</a>
+            </div>
+        </div>
+        </div>
+    </div>
+            </nav>
+        </aside>
+        <main class="main">
+            <div class="prog-container">
+                <div id="wiki-breadcrumb"></div>
+                <div class="content-layout">
+                    <article class="prose">
+                        <h1 id="business-rules-overview" tabindex="-1">Business rules: Overview</h1>
+<p><strong>Program:</strong> LGIPOL01</p>
+<h2 id="1-purpose" tabindex="-1">1. Purpose</h2>
+<p>This document presents a program-level functional view of the business logic in LGIPOL01. Business rules are organised into a Function → SubFunction → Business Rule hierarchy representing the business functions performed in the program. Semantically related rules are consolidated into named SubFunctions that group related business capabilities, and purely technical or setup logic is excluded. Each rule documents its purpose, ordered execution steps with conditions, actions, and outcomes, references to the contributing source paragraphs, and the business significance of each rule.</p>
+<h2 id="2-function-policy-inquiry-processing" tabindex="-1">2. Function: Policy Inquiry Processing</h2>
+<h3 id="21-subfunction-policy-data-retrieval" tabindex="-1">2.1 SubFunction: Policy Data Retrieval</h3>
+<h4 id="211-business-rule-retrieve-insurance-policy-record" tabindex="-1">2.1.1 Business Rule: Retrieve Insurance Policy Record</h4>
+<h5 id="2111-purpose" tabindex="-1">2.1.1.1 Purpose</h5>
+<p>When a policy inquiry is initiated, the system establishes a default successful status and delegates the actual data retrieval to the back-end database program (LGIPDB01) via a CICS LINK call. The customer number and policy number are passed through the communication area to uniquely identify and fetch the requested policy record from DB2.</p>
+<h5 id="2112-rule-steps" tabindex="-1">2.1.1.2 Rule Steps</h5>
+<ol>
+<li>
+<p><strong>Initialize inquiry return code to success</strong></p>
+<ul>
+<li>Conditions: Executed unconditionally at the start of every policy inquiry request.</li>
+<li>Actions: Set <code>CA_RETURN_CODE</code> to <code>'00'</code>, indicating a successful initial state.</li>
+<li>Outcomes: The calling program receives an optimistic success signal that will be overwritten only if a subsequent error is detected.</li>
+<li>Relevant Procedures: <code>LGIPOL01</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Delegate policy retrieval to database program</strong></p>
+<ul>
+<li>Conditions: Always executed following initialization; the communication area must contain valid <code>CA_CUSTOMER_NUM</code> and <code>CA_POLICY_NUM</code> values.</li>
+<li>Actions: Issue a CICS LINK to program <code>LGIPDB01</code>, passing the full communication area including <code>CA_CUSTOMER_NUM</code> and <code>CA_POLICY_NUM</code> to drive the DB2 policy lookup.</li>
+<li>Outcomes: The requested policy record is retrieved from DB2 and populated back into the communication area for the calling program; <code>CA_RETURN_CODE</code> is updated by <code>LGIPDB01</code> if retrieval fails.</li>
+<li>Relevant Procedures: <code>LGIPOL01</code>, <code>LGIPDB01</code></li>
+</ul>
+</li>
+</ol>
+<h5 id="2113-business-significance" tabindex="-1">2.1.1.3 Business Significance</h5>
+<p>If the delegation to <code>LGIPDB01</code> is incorrectly invoked, or the communication area does not carry the correct customer and policy identifiers, the wrong policy record — or no record at all — will be returned to the requester. This undermines the integrity of all downstream policy servicing, billing, and coverage decisions that depend on accurate policy data retrieval.</p>
+<hr>
+<h3 id="22-subfunction-policy-coverage-rules-application" tabindex="-1">2.2 SubFunction: Policy Coverage Rules Application</h3>
+<h4 id="221-business-rule-extended-expiry-date-override-for-honda-motor-vehicles" tabindex="-1">2.2.1 Business Rule: Extended Expiry Date Override for Honda Motor Vehicles</h4>
+<h5 id="2211-purpose" tabindex="-1">2.2.1.1 Purpose</h5>
+<p>After policy data is retrieved, a special coverage rule is evaluated: if the insured motor vehicle’s make is <code>'HONDA'</code>, the policy expiry date is unconditionally overridden to <code>2099-01-01</code>, regardless of the expiry date stored in the database. This grants effectively indefinite coverage duration to Honda motor vehicle policies, representing a distinct business underwriting exception.</p>
+<h5 id="2212-rule-steps" tabindex="-1">2.2.1.2 Rule Steps</h5>
+<ol>
+<li><strong>Evaluate vehicle make for Honda exception</strong>
+<ul>
+<li>Conditions: Applies only to motor vehicle policies where the retrieved value of <code>CA_M_MAKE</code> equals <code>'HONDA'</code>.</li>
+<li>Actions: Override <code>CA_EXPIRY_DATE</code> to <code>'2099-01-01'</code>.</li>
+<li>Outcomes: The policy expiry date returned to the calling program reflects the extended far-future date rather than the originally stored expiry date, granting indefinitely extended coverage for the policy.</li>
+<li>Relevant Procedures: <code>LGIPOL01</code></li>
+</ul>
+</li>
+</ol>
+<h5 id="2213-business-significance" tabindex="-1">2.2.1.3 Business Significance</h5>
+<p>Incorrect application or omission of this rule directly affects coverage validity determinations. If the override is not applied, Honda motor vehicle policyholders may be incorrectly flagged as having lapsed or expired coverage. Conversely, if the rule fires erroneously for non-Honda vehicles, unauthorized coverage extensions would be granted, creating underwriting liability exposure and potential financial loss for the insurer.</p>
+
+                    </article>
+                    <nav class="toc-panel" aria-label="On this page">
+  <span class="toc-panel-label">On this page</span>
+  <ul class="toc-list">
+<li class="toc-level-2"><a href="#1-purpose">1. Purpose</a></li>
+<li class="toc-level-2"><a href="#2-function-policy-inquiry-processing">2. Function: Policy Inquiry Processing</a>
+<ul>
+<li class="toc-level-3"><a href="#21-subfunction-policy-data-retrieval">2.1 SubFunction: Policy Data Retrieval</a>
+<ul>
+<li class="toc-level-4"><a href="#211-business-rule-retrieve-insurance-policy-record">2.1.1 Business Rule: Retrieve Insurance Policy Record</a></li>
+</ul>
+</li>
+<li class="toc-level-3"><a href="#22-subfunction-policy-coverage-rules-application">2.2 SubFunction: Policy Coverage Rules Application</a>
+<ul>
+<li class="toc-level-4"><a href="#221-business-rule-extended-expiry-date-override-for-honda-motor-vehicles">2.2.1 Business Rule: Extended Expiry Date Override for Honda Motor Vehicles</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</nav>
+                </div>
+            </div>
+        </main>
+    </div>
+    <footer class="wiki-footer">Made by IBM Bob Premium Package for Z</footer>
+    <script>
+    /* toc-spy.js — highlights the active heading in the TOC panel on scroll */
+    (function () {
+      function init() {
+        var panel = document.querySelector('.toc-panel');
+        if (!panel) return;
+        var links = Array.prototype.slice.call(panel.querySelectorAll('a[href^="#"]'));
+        if (!links.length) return;
+
+        var headingIds = links.map(function (a) { return a.getAttribute('href').slice(1); });
+        var headings = headingIds.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+
+        function clearActive() {
+          panel.querySelectorAll('.toc-active').forEach(function (el) { el.classList.remove('toc-active'); });
+          panel.querySelectorAll('.toc-parent-active').forEach(function (el) { el.classList.remove('toc-parent-active'); });
+        }
+
+        function setActive(id) {
+          clearActive();
+          var link = panel.querySelector('a[href="#' + id + '"]');
+          if (!link) return;
+          link.classList.add('toc-active');
+          var li = link.closest('li');
+          if (li) {
+            var parentLi = li.parentElement && li.parentElement.closest('li');
+            if (parentLi) parentLi.classList.add('toc-parent-active');
+          }
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              setActive(entry.target.id);
+            }
+          });
+        }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+        headings.forEach(function (h) { observer.observe(h); });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+    </script>
+    <script>
+    /* breadcrumb.js — reads sessionStorage['wiki_referrer'] and renders breadcrumb.
+       Only fires when the referrer was set by clicking a link inside the Source Files
+       disclosure on a wiki page; clears after rendering so stale state never lingers. */
+    (function () {
+      var raw;
+      try { raw = sessionStorage.getItem('wiki_referrer'); } catch (_e) {}
+      if (!raw) return;
+      /* Consume immediately — prevents the breadcrumb re-appearing on the next visit. */
+      try { sessionStorage.removeItem('wiki_referrer'); } catch (_e) {}
+      var ref;
+      try { ref = JSON.parse(raw); } catch (_e) { return; }
+      if (!ref || !ref.href) return;
+      var bc = document.getElementById('wiki-breadcrumb');
+      if (!bc) return;
+      bc.className = 'wiki-breadcrumb';
+      bc.innerHTML =
+        '<a href="' + ref.href + '">' + (ref.title || 'Back') + '</a>' +
+        '<span class="wiki-breadcrumb-sep"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
+        '<span class="wiki-breadcrumb-current">LGIPOL01-overview</span>';
+    })();
+    </script>
+    <script>
+    /* sidebar toggle — same as main wiki pages */
+    (function () {
+
+      var STORAGE_KEY = 'sb_open';
+
+      function getOpenSet() {
+        try {
+          var raw = sessionStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+      }
+
+      function saveOpenSet(set) {
+        try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(set)); } catch (e) {}
+      }
+
+      function findItems(toggle) {
+        var node = toggle.nextSibling;
+        while (node) {
+          if (node.nodeType === 1 && node.classList.contains('nav-section-items'))
+            return node;
+          node = node.nextSibling;
+        }
+        return null;
+      }
+
+      function toggleKey(toggle, index) {
+        var label = (toggle.querySelector('.nav-toggle-text') || toggle).textContent.trim().replace(/\s+/g, ' ');
+        return index + ':' + label;
+      }
+
+      function openSection(toggle, items, key, set) {
+        toggle.classList.add('open');
+        items.classList.add('open');
+        if (set) set[key] = true;
+      }
+
+      function closeSection(toggle, items, key, set) {
+        toggle.classList.remove('open');
+        items.classList.remove('open');
+        if (set) set[key] = false;
+      }
+
+      function init() {
+        var sidebar = document.getElementById('wiki-sidebar');
+        var toggles = Array.prototype.slice.call(
+          document.querySelectorAll('.nav-section-toggle')
+        );
+
+        var savedSet = getOpenSet();
+        var openSet = savedSet || {};
+
+        toggles.forEach(function (toggle, idx) {
+          var items = findItems(toggle);
+          if (!items) return;
+
+          var key = toggleKey(toggle, idx);
+          var shouldOpen = openSet[key] === true;
+
+          if (shouldOpen) {
+            toggle.classList.add('open');
+            items.classList.add('open');
+          }
+
+          toggle.addEventListener('click', function () {
+            var nowOpen = toggle.classList.contains('open');
+            if (nowOpen) {
+              closeSection(toggle, items, key, openSet);
+            } else {
+              openSection(toggle, items, key, openSet);
+            }
+            saveOpenSet(openSet);
+          });
+        });
+
+        saveOpenSet(openSet);
+
+        /* Restore sidebar scroll position after sections are expanded so the
+           scroll height is correct when we apply scrollTop. */
+        if (sidebar) {
+          try {
+            var savedScroll = sessionStorage.getItem('sb_scroll');
+            if (savedScroll !== null) { sidebar.scrollTop = parseInt(savedScroll, 10) || 0; }
+          } catch (_e) {}
+        }
+
+        window.addEventListener('pagehide', function () {
+          saveOpenSet(openSet);
+          if (sidebar) {
+            try { sessionStorage.setItem('sb_scroll', String(sidebar.scrollTop)); } catch (_e) {}
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+    })();
+    </script>
+</body>
+</html>

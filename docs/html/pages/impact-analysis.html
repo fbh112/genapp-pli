@@ -1,0 +1,877 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impact Analysis: Motor Policy EEPOS Migration - GenApp PLI Insurance Application</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <script src="../assets/mermaid.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: { useMaxWidth: true }
+        });
+    </script>
+
+    <!-- Prism.js for syntax highlighting (bundled — no CDN required) -->
+    <link rel="stylesheet" href="../assets/prism-tomorrow.css">
+    <script src="../assets/prism-core.js"></script>
+    <script src="../assets/prism-languages.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <span class="header-app-name"><a href="../../index.html" style="color: inherit; text-decoration: none;">GenApp PLI Insurance Application</a></span>
+        </div>
+        <div class="header-right">
+        </div>
+    </header>
+    <div class="shell">
+        <aside class="sidebar" id="wiki-sidebar">
+            <nav>
+                
+        <div class="nav-home-wrap">
+            <a href="../../index.html" class="nav-home">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 6.5L8 2l6 4.5V14a1 1 0 01-1 1H3a1 1 0 01-1-1V6.5z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M6 15V9h4v6" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                Home
+            </a>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Application Documentation</div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">Overview</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="project-overview.html" class="nav-link" data-page-id="project-overview">Project Overview</a>
+                <a href="architecture-overview.html" class="nav-link" data-page-id="architecture-overview">Application Architecture</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle open" type="button">
+                <span class="nav-toggle-text">Program Inventory</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items open">
+                <a href="inventory-summary.html" class="nav-link" data-page-id="inventory-summary">Program Inventory Summary</a>
+                <a href="impact-analysis.html" class="nav-link active" data-page-id="impact-analysis">Impact Analysis: Motor Policy EEPOS Migration</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">Policy Management Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="policy-inquiry.html" class="nav-link" data-page-id="policy-inquiry">Policy Inquiry Program (LGIPOL01)</a>
+                <a href="policy-add.html" class="nav-link" data-page-id="policy-add">Policy Add Program (LGAPOL01)</a>
+                <a href="policy-update.html" class="nav-link" data-page-id="policy-update">Policy Update Program (LGUPOL01)</a>
+            </div>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Program Documentation</div>
+    <div class="nav-section">
+        <button class="nav-section-toggle" type="button">
+            <span class="nav-toggle-text">program</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items">
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../sources/program/PLI Programs/LGUPOL01.html" class="nav-link">LGUPOL01</a>
+                <a href="../sources/program/PLI Programs/LGIPOL01.html" class="nav-link">LGIPOL01</a>
+                <a href="../sources/program/PLI Programs/LGAPOL01.html" class="nav-link">LGAPOL01</a>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="nav-section">
+        <button class="nav-section-toggle" type="button">
+            <span class="nav-toggle-text">business-rule</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items">
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../sources/business-rule/PLI Programs/LGIPOL01-overview.html" class="nav-link">LGIPOL01-overview</a>
+                <a href="../sources/business-rule/PLI Programs/LGIPOL01-inventory.html" class="nav-link">LGIPOL01-inventory</a>
+            </div>
+        </div>
+        </div>
+    </div>
+            </nav>
+        </aside>
+        <main class="main">
+            <div class="page-container">
+                <div class="content-layout">
+                    <div class="prose">
+                        
+                        <h1 id="impact-analysis-motor-policy-eepos-migration" tabindex="-1">Impact Analysis: Motor Policy EEPOS Migration</h1>
+<p>This technical document provides a comprehensive impact analysis for migrating Motor Policy lifecycle operations and persistence from the mainframe z/OS DB2 and VSAM tiers to an external distributed platform called <strong>EEPOS</strong>, accessed via RESTful APIs. It evaluates the architectural changes, code modifications, database restructuring, hidden dependencies, risk factors, and migration phases across the GenApp application.</p>
+<hr>
+<h2 id="1-overview" tabindex="-1">1. Overview</h2>
+<p>The primary objective of this modernization initiative is to decouple high-volume motor insurance workflows from legacy mainframe processing. By offloading DB2 and VSAM storage and MIPS consumption for motor lines of business, the organization enables agile microservice development in EEPOS while maintaining 3270 terminal compatibility during and after the transition.</p>
+<h3 id="11-change-specification" tabindex="-1">1.1 Change Specification</h3>
+<ul>
+<li><strong>Title</strong>: Migration of Motor Policy Management and Relational Data to Distributed System (EEPOS) via REST API</li>
+<li><strong>Type</strong>: Migration / Modernization / Decomposition</li>
+<li><strong>Application Context</strong>: GenApp General Insurance Application (CICS / PL/I / DB2 / VSAM / BMS)</li>
+<li><strong>Entry Points</strong>:
+<ul>
+<li>Terminal 3270 BMS Map: Transaction <code>SSP1</code> driving <code>LGTESTP1.pli</code></li>
+<li>Business Layer Programs: <code>LGIPOL01.pli</code>, <code>LGAPOL01.pli</code>, <code>LGUPOL01.pli</code>, <code>LGDPOL01.pli</code></li>
+<li>Data Layer Programs: <code>LGIPDB01.pli</code>, <code>LGAPDB01.pli</code>, <code>LGUPDB01.pli</code>, <code>LGDPDB01.pli</code>, <code>LGAPVS01.pli</code>, <code>LGUPVS01.pli</code>, <code>LGDPVS01.pli</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="12-scope-definition" tabindex="-1">1.2 Scope Definition</h3>
+<h4 id="in-scope-items" tabindex="-1">In-Scope Items</h4>
+<ol>
+<li><strong>BMS Menu &amp; UI Layer</strong>: Refactoring <code>LGTESTP1.pli</code> to invoke EEPOS REST APIs using <code>EXEC CICS WEB</code> or outbound HTTP facilities rather than linking internally to <code>LGxPOL01</code> modules.</li>
+<li><strong>Business &amp; Persistence Layers</strong>:
+<ul>
+<li>Deprecating or modifying request routing (<code>01IMOT</code>, <code>01AMOT</code>, <code>01UMOT</code>, <code>01DMOT</code>) in business modules (<code>LGAPOL01</code>, <code>LGIPOL01</code>, <code>LGUPOL01</code>, <code>LGDPOL01</code>).</li>
+<li>Decommissioning DB2 motor SQL routines (<code>INSERT_MOTOR</code>, <code>GET_MOTOR_DB2_INFO</code>, <code>UPDATE_MOTOR_DB2_INFO</code>) in data modules (<code>LGAPDB01</code>, <code>LGIPDB01</code>, <code>LGUPDB01</code>, <code>LGDPDB01</code>).</li>
+<li>Deprecating motor branch processing (<code>'M'</code>) in VSAM mirror programs (<code>LGAPVS01</code>, <code>LGUPVS01</code>, <code>LGDPVS01</code>).</li>
+</ul>
+</li>
+<li><strong>Database &amp; Data Tier</strong>:
+<ul>
+<li>Dropping DB2 table <code>&lt;DB2DBID&gt;.MOTOR</code> and index <code>&lt;DB2DBID&gt;.iMotor</code>.</li>
+<li>Migrating existing motor policy data from DB2 <code>MOTOR</code>, DB2 <code>POLICY</code> (where <code>POLICYTYPE = 'M'</code>), and VSAM <code>KSDSPOLY</code> records into EEPOS.</li>
+</ul>
+</li>
+<li><strong>Copybooks / Shared Includes</strong>: Auditing <code>LGCMAREA.inc</code> (<code>CA_MOTOR</code> overlay) and <code>LGPOLICY.inc</code> (<code>DB2_MOTOR</code> definitions and lengths).</li>
+</ol>
+<h4 id="out-of-scope-items" tabindex="-1">Out-of-Scope Items</h4>
+<ul>
+<li>Non-motor policy types: Endowment (<code>01xEND</code>), House (<code>01xHOU</code>), Commercial (<code>01xCOM</code>), and Claims (<code>01xCLM</code>).</li>
+<li>Customer Master management (<code>LGACDB01</code> and DB2 table <code>&lt;DB2DBID&gt;.CUSTOMER</code>).</li>
+<li>Common infrastructure utilities such as the Temporary Storage Queue logger (<code>LGSTSQ</code>).</li>
+</ul>
+<hr>
+<h2 id="2-system-architecture--context" tabindex="-1">2. System Architecture &amp; Context</h2>
+<h3 id="21-current-vs-target-architecture" tabindex="-1">2.1 Current vs. Target Architecture</h3>
+<p>In the legacy architecture, 3270 terminal users run transaction <code>SSP1</code>, invoking <code>LGTESTP1.pli</code>. This program issues <code>EXEC CICS LINK</code> calls to the policy business logic tier (<code>LGxPOL01</code>), which in turn calls both DB2 data programs (<code>LGxPDB01</code>) and VSAM mirror programs (<code>LGxPVS01</code>) in a dual-persistence pattern.</p>
+<p>In the target architecture, <code>LGTESTP1.pli</code> acts as a direct REST client using CICS Web services to interact with the EEPOS platform over HTTPS. Motor data persistence and business logic are entirely externalized to the EEPOS distributed cloud platform.</p>
+<div class="mermaid">
+graph TB
+    subgraph "Current Architecture"
+        USER3270[3270 Terminal] -->|SSP1| P1[LGTESTP1.pli]
+        P1 -->|EXEC CICS LINK| OL[LGxPOL01 Tier]
+        OL -->|EXEC CICS LINK| DB[LGxPDB01 Tier]
+        OL -->|EXEC CICS LINK| VS[LGxPVS01 Tier]
+        DB -->|EXEC SQL| DB2[(DB2: MOTOR & POLICY)]
+        VS -->|EXEC CICS WRITE/REWRITE| KSDS[(VSAM: KSDSPOLY)]
+    end
+
+    subgraph "Target Architecture"
+        TARGET_USER[3270 Terminal] -->|SSP1| P1_MOD[LGTESTP1.pli - REST Client]
+        P1_MOD -->|HTTPS / REST API| EEPOS[EEPOS Distributed API Platform]
+        EEPOS -->|CRUD Operations| EEPOS_DB[(EEPOS Modern Cloud DB)]
+    end
+
+    style P1 fill:#ff9999
+    style OL fill:#ffcc99
+    style DB fill:#ffcc99
+    style VS fill:#ffcc99
+    style DB2 fill:#e6b800
+    style KSDS fill:#e6b800
+    style P1_MOD fill:#99ff99
+    style EEPOS fill:#66ccff
+    style EEPOS_DB fill:#66ccff
+</div>
+<h3 id="22-target-operational-sequence" tabindex="-1">2.2 Target Operational Sequence</h3>
+<p>When an inquiry, insert, update, or delete request is submitted via the <code>SSP1</code> 3270 screen, the updated <code>LGTESTP1</code> program translates the BMS map fields to a JSON payload, communicates with EEPOS using standard CICS HTTP primitives, and maps the REST response back to the terminal map.</p>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as 3270 User / Agent
+    participant Screen as BMS Screen (SSMAPP1)
+    participant UI as LGTESTP1.pli
+    participant EEPOS as EEPOS REST Gateway
+    participant CloudDB as EEPOS Database
+
+    User->>Screen: Enter Motor Policy Details (Inquire / Add / Update / Delete)
+    Screen->>UI: Transmit Screen Buffer (SSP1)
+    UI->>UI: Validate Map Fields & Build JSON Request
+    UI->>EEPOS: EXEC CICS WEB CONVERSE (HTTPS POST/GET/PUT/DELETE)
+    EEPOS->>CloudDB: Execute Business Rules & Database Operation
+    CloudDB-->>EEPOS: Return Result Data
+    EEPOS-->>UI: HTTP Status 200/201 + JSON Payload
+    UI->>UI: Parse JSON into BMS Output Variables
+    UI-->>Screen: EXEC CICS SEND MAP (Display Result/Confirmation)
+    Screen-->>User: View Policy Details / Status Message
+</div>
+<hr>
+<h2 id="3-affected-components-and-programs" tabindex="-1">3. Affected Components and Programs</h2>
+<h3 id="31-pli-programs-to-modify-or-decommission" tabindex="-1">3.1 PL/I Programs to Modify or Decommission</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Program / Component</th>
+<th style="text-align:left">Role / Description</th>
+<th style="text-align:left">Action Required</th>
+<th style="text-align:left">Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>LGTESTP1.pli</code></td>
+<td style="text-align:left">Motor 3270 Menu UI Driver</td>
+<td style="text-align:left"><strong>Modify</strong>: Replace internal <code>EXEC CICS LINK</code> calls with <code>EXEC CICS WEB</code> / REST client routines to EEPOS. Parse JSON/REST responses back to <code>SSMAPP1</code> BMS screen.</td>
+<td style="text-align:left">High</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LGIPOL01.pli</code></td>
+<td style="text-align:left">Policy Inquire Business Logic</td>
+<td style="text-align:left"><strong>Modify</strong>: Remove hardcoded Motor business rules or reject <code>01IMOT</code> requests with redirect code.</td>
+<td style="text-align:left">Low</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LGIPDB01.pli</code></td>
+<td style="text-align:left">Policy Inquire DB2 Tier</td>
+<td style="text-align:left"><strong>Modify</strong>: Remove <code>GET_MOTOR_DB2_INFO</code> procedure (lines 558–656), SQL query <code>SELECT FROM POLICY, MOTOR</code>, and <code>01IMOT</code> branch in <code>SELECT(WS_REQUEST_ID)</code>.</td>
+<td style="text-align:left">Medium</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LGAPOL01.pli</code></td>
+<td style="text-align:left">Policy Add Business Logic</td>
+<td style="text-align:left"><strong>Modify</strong>: Reject <code>01AMOT</code> request ID or decommission entry.</td>
+<td style="text-align:left">Low</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LGAPDB01.pli</code></td>
+<td style="text-align:left">Policy Add DB2 Tier</td>
+<td style="text-align:left"><strong>Modify</strong>: Remove <code>INSERT_MOTOR</code> procedure (lines 420–460), <code>INSERT INTO MOTOR</code> SQL, and <code>01AMOT</code> handling.</td>
+<td style="text-align:left">Medium</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LGUPOL01.pli</code></td>
+<td style="text-align:left">Policy Update Business Logic</td>
+<td style="text-align:left"><strong>Modify</strong>: Remove <code>01UMOT</code> validation logic and commarea length check (<code>WS_FULL_MOTOR_LEN</code>).</td>
+<td style="text-align:left">Low</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LGUPDB01.pli</code></td>
+<td style="text-align:left">Policy Update DB2 Tier</td>
+<td style="text-align:left"><strong>Modify</strong>: Remove <code>UPDATE_MOTOR_DB2_INFO</code> (lines 405–437), <code>UPDATE MOTOR</code> SQL, and <code>01UMOT</code> branch in <code>SELECT(CA_REQUEST_ID)</code>.</td>
+<td style="text-align:left">Medium</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LGDPOL01.pli</code></td>
+<td style="text-align:left">Policy Delete Business Logic</td>
+<td style="text-align:left"><strong>Modify</strong>: Remove <code>01DMOT</code> handling from request selection.</td>
+<td style="text-align:left">Low</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LGDPDB01.pli</code></td>
+<td style="text-align:left">Policy Delete DB2 Tier</td>
+<td style="text-align:left"><strong>Modify</strong>: Remove <code>01DMOT</code> from <code>SELECT(CA_REQUEST_ID)</code> (line 123).</td>
+<td style="text-align:left">Low</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LGAPVS01.pli</code></td>
+<td style="text-align:left">Policy Add VSAM Mirror</td>
+<td style="text-align:left"><strong>Modify</strong>: Remove <code>WHEN ('M')</code> branch in line 111 and <code>WF_M_Policy_Data</code> mapping.</td>
+<td style="text-align:left">Low</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LGUPVS01.pli</code></td>
+<td style="text-align:left">Policy Update VSAM Mirror</td>
+<td style="text-align:left"><strong>Modify</strong>: Remove <code>WHEN ('M')</code> branch in line 127 and <code>WF_M_Policy_Data</code> mapping.</td>
+<td style="text-align:left">Low</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>LGDPVS01.pli</code></td>
+<td style="text-align:left">Policy Delete VSAM Mirror</td>
+<td style="text-align:left"><strong>Modify</strong>: Ensure no orphaned records or remove motor key deletes.</td>
+<td style="text-align:left">Low</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-copybooks-and-include-files" tabindex="-1">3.2 Copybooks and Include Files</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Include File</th>
+<th style="text-align:left">Purpose &amp; Usage</th>
+<th style="text-align:left">Recommended Action &amp; Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>Includes/LGCMAREA.inc</code></td>
+<td style="text-align:left">Shared universal COMMAREA structure (32,500 bytes). Defines <code>CA_MOTOR</code> overlay.</td>
+<td style="text-align:left"><strong>Retain / Comment</strong>: <code>CA_MOTOR</code> resides inside a <code>UNION</code> (<code>CA_POLICY_SPECIFIC</code>). Keeping it preserves binary compatibility and alignment with non-modified modules.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Includes/LGPOLICY.inc</code></td>
+<td style="text-align:left">DB2 host variables and length definitions.</td>
+<td style="text-align:left"><strong>Modify</strong>: Remove or deprecate <code>WS_MOTOR_LEN</code>, <code>WS_FULL_MOTOR_LEN</code>, and <code>DCL 1 DB2_MOTOR UNION</code> (lines 73–85) after DB2 programs are refactored.</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>Maps/SSMAP.bms</code> &amp; <code>Includes/SSMAP.inc</code></td>
+<td style="text-align:left">3270 BMS Map for Motor Policy Screen <code>SSMAPP1</code>.</td>
+<td style="text-align:left"><strong>Retain</strong>: Keep intact to ensure 3270 terminal operations remain functional when interacting with the rewritten <code>LGTESTP1.pli</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-database-and-csd-resource-artifacts" tabindex="-1">3.3 Database and CSD Resource Artifacts</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Artifact</th>
+<th style="text-align:left">Location</th>
+<th style="text-align:left">Impact Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Db2 Table <code>MOTOR</code></strong></td>
+<td style="text-align:left"><code>DDL/db2cre.jcl</code> (Line 267)</td>
+<td style="text-align:left">Drop table and foreign key constraint referencing <code>POLICY</code>. Drop index <code>iMotor</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Db2 Table <code>POLICY</code></strong></td>
+<td style="text-align:left"><code>DDL/db2cre.jcl</code> (Line 180)</td>
+<td style="text-align:left">Policy rows with <code>POLICYTYPE = 'M'</code> will no longer be generated on DB2. Historical rows migrated to EEPOS.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>VSAM Dataset <code>KSDSPOLY</code></strong></td>
+<td style="text-align:left">Mainframe Catalog / CICS FCT</td>
+<td style="text-align:left">Records with key prefix <code>'M'</code> retired/migrated.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>CSD Definitions</strong></td>
+<td style="text-align:left"><code>Resources/DFHCSDUP.csd</code> / <code>GenApp.CSD</code></td>
+<td style="text-align:left">Configure <code>URIMAP</code>, <code>WEB</code>, and <code>TCPIPSERVICE</code> definitions for outbound REST communication from <code>LGTESTP1</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="4-deep-architectural-findings--hidden-dependencies" tabindex="-1">4. Deep Architectural Findings &amp; Hidden Dependencies</h2>
+<p>Analysis of the PL/I source and database definitions revealed several critical dependencies that must be accounted for during the migration:</p>
+<h3 id="41-hardcoded-motor-business-logic-in-generic-programs" tabindex="-1">4.1 Hardcoded Motor Business Logic in Generic Programs</h3>
+<p>In <code>LGIPOL01.pli</code>, hardcoded motor business rules modify policy attributes dynamically. When motor processing is extracted to EEPOS, these business rules must be ported to the EEPOS service:</p>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">PLI</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-pli">IF CA_M_MAKE = &#039;HONDA&#039; THEN
+   CA_EXPIRY_DATE = &#039;2099-01-01&#039;;</code></pre>
+</div>
+<h3 id="42-db2-foreign-key-cascade-deletes" tabindex="-1">4.2 DB2 Foreign Key Cascade Deletes</h3>
+<p>In <code>DDL/db2cre.jcl</code>, the <code>MOTOR</code> table is defined with a cascading foreign key:</p>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">SQL</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-sql">FOREIGN KEY(policyNumber) REFERENCES &lt;DB2DBID&gt;.policy (policyNumber) ON DELETE CASCADE</code></pre>
+</div>
+<p>Because <code>LGDPDB01.pli</code> deleted policies directly from <code>POLICY</code> and relied on DB2’s cascade delete to purge <code>MOTOR</code>:</p>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">SQL</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-sql">DELETE FROM POLICY WHERE CUSTOMERNUMBER = :DB2_CUSTOMERNUM_INT AND POLICYNUMBER = :DB2_POLICYNUM_INT;</code></pre>
+</div>
+<p>Once the database structures are decoupled, mainframe policy deletions will no longer cascade to motor tables in EEPOS. Deletions must be handled explicitly through EEPOS APIs.</p>
+<h3 id="43-dual-persistence-mirroring-db2--vsam" tabindex="-1">4.3 Dual-Persistence Mirroring (DB2 + VSAM)</h3>
+<p>The legacy architecture updates DB2 via <code>LGxPDB01</code> and immediately calls <code>LGxPVS01</code> to mirror writes to the VSAM dataset <code>KSDSPOLY</code>. Migration to EEPOS requires decommissioning both the DB2 tables and the VSAM record routines to avoid data drift.</p>
+<h3 id="44-commarea-union-overlays-and-length-calculations" tabindex="-1">4.4 COMMAREA Union Overlays and Length Calculations</h3>
+<p>The shared communication structure (<code>LGCMAREA</code>) uses a 32,500-byte buffer with union overlays for policy types. Programs such as <code>LGAPOL01.pli</code> calculate buffer lengths dynamically:</p>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">PLI</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-pli">WS_REQUIRED_CA_LEN = WS_CA_HEADER_LEN + WS_FULL_MOTOR_LEN;</code></pre>
+</div>
+<p>Modifying offsets or removing members within <code>LGPOLICY.inc</code> without recompiling dependent modules could cause return code <code>98</code> (Commarea length too short) across non-motor policy types (Endowment, House, Commercial).</p>
+<h3 id="45-distributed-transactions-and-cics-syncpoints" tabindex="-1">4.5 Distributed Transactions and CICS Syncpoints</h3>
+<p><code>LGTESTP1.pli</code> uses local CICS syncpoints:</p>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">PLI</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-pli">EXEC CICS Syncpoint Rollback;</code></pre>
+</div>
+<p>Calling external REST services means a local CICS rollback will not roll back changes in EEPOS. An idempotent API design and compensating transaction pattern must be implemented in EEPOS.</p>
+<hr>
+<h2 id="5-change-propagation-and-data-flow" tabindex="-1">5. Change Propagation and Data Flow</h2>
+<p>The decommissioning of motor operations impacts the entire processing chain from API definition to UI refactoring and database teardown:</p>
+<div class="mermaid">
+graph TD
+    MIG[Decision: Move Motor Policy to EEPOS] --> API[Define EEPOS REST API Contracts]
+    MIG --> DATA[Data Migration: DB2 & VSAM to EEPOS]
+    
+    API --> CICS_WEB[Implement CICS Outbound REST in LGTESTP1]
+    API --> EEPOS_SRV[Build EEPOS Microservices & DB]
+    
+    CICS_WEB --> MOD_UI[Update LGTESTP1.pli to call EEPOS]
+    
+    MOD_UI --> DECOM_OL[Deprecate Motor Request IDs in LGxPOL01]
+    DECOM_OL --> DECOM_DB[Remove Motor SQL Routines in LGxPDB01]
+    DECOM_OL --> DECOM_VS[Remove Motor Logic in LGxPVS01]
+    
+    DATA --> DROP_DB2[Drop DB2 MOTOR Table & Index iMotor]
+    DATA --> CLEAN_VSAM[Purge 'M' Records from KSDSPOLY]
+    
+    DECOM_DB --> CLEAN_INC[Audit LGPOLICY.inc & LGCMAREA.inc]
+    CLEAN_INC --> RECOMPILE[Recompile Policy Suite & Test]
+</div>
+<p>Accompanying the diagram above, the technical migration path follows these dependencies:</p>
+<ol>
+<li><strong>Contract Definition</strong>: Establishing OpenAPI specs unblocks both EEPOS microservice creation and CICS client enablement in <code>LGTESTP1.pli</code>.</li>
+<li><strong>Mainframe Decoupling</strong>: Once the UI routes to EEPOS directly, the internal business (<code>LGxPOL01</code>), DB2 (<code>LGxPDB01</code>), and VSAM (<code>LGxPVS01</code>) paths are deprecated.</li>
+<li><strong>Storage Teardown</strong>: After delta data migration, the DB2 <code>MOTOR</code> table and VSAM <code>'M'</code> keys are purged, followed by copybook cleanups and full test recompilation.</li>
+</ol>
+<hr>
+<h2 id="6-risk-assessment-and-mitigation-strategies" tabindex="-1">6. Risk Assessment and Mitigation Strategies</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Risk</th>
+<th style="text-align:left">Likelihood</th>
+<th style="text-align:left">Impact</th>
+<th style="text-align:left">Category</th>
+<th style="text-align:left">Mitigation Strategy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Network Latency &amp; Timeout in 3270 Session</strong></td>
+<td style="text-align:left">High</td>
+<td style="text-align:left">High</td>
+<td style="text-align:left">Performance / UX</td>
+<td style="text-align:left">Configure non-blocking HTTP timeouts on <code>EXEC CICS WEB CONVERSE</code>; implement graceful error handling with user-friendly messages on BMS map <code>SSMAPP1</code>.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Data Integrity / Incomplete Dual-Write Migration</strong></td>
+<td style="text-align:left">High</td>
+<td style="text-align:left">High</td>
+<td style="text-align:left">Data Integrity</td>
+<td style="text-align:left">Execute bulk historical data migration during a maintenance window; employ data validation reconciliation scripts between DB2/VSAM and EEPOS.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Lack of Distributed Transaction Rollback</strong></td>
+<td style="text-align:left">Medium</td>
+<td style="text-align:left">High</td>
+<td style="text-align:left">Operational / Integrity</td>
+<td style="text-align:left">Implement idempotent APIs in EEPOS; design compensating REST calls in <code>LGTESTP1</code> if subsequent CICS operations fail.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>CICS Outbound Security &amp; Certificate Management</strong></td>
+<td style="text-align:left">Medium</td>
+<td style="text-align:left">Medium</td>
+<td style="text-align:left">Security / Auth</td>
+<td style="text-align:left">Install EEPOS TLS/SSL CA certificates in the z/OS RACF / TopSecret keyring; configure CICS URIMAP with appropriate Basic/Bearer token credentials.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Regression in Other Policy Types (Endow, House, Comm)</strong></td>
+<td style="text-align:left">Low</td>
+<td style="text-align:left">High</td>
+<td style="text-align:left">Regression</td>
+<td style="text-align:left">Isolate changes in <code>LGCMAREA.inc</code> / <code>LGPOLICY.inc</code>; run comprehensive regression test suites for Endowment, House, and Commercial transactions.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="7-migration-roadmap-and-effort-estimation" tabindex="-1">7. Migration Roadmap and Effort Estimation</h2>
+<h3 id="71-estimated-effort-breakdown" tabindex="-1">7.1 Estimated Effort Breakdown</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Phase / Task</th>
+<th style="text-align:left">Description</th>
+<th style="text-align:left">Estimated Person-Days</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>1. API Contract &amp; Architecture Design</strong></td>
+<td style="text-align:left">Define OpenAPI/Swagger specs for Motor CRUD, authentication, and error codes.</td>
+<td style="text-align:left">5 days</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>2. EEPOS Backend Implementation</strong></td>
+<td style="text-align:left">Build distributed services, data storage, and business logic in EEPOS.</td>
+<td style="text-align:left">15 days</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>3. Mainframe REST Client (<code>LGTESTP1.pli</code>)</strong></td>
+<td style="text-align:left">Re-engineer <code>LGTESTP1.pli</code> with <code>EXEC CICS WEB</code> API, JSON parsing, and BMS mapping.</td>
+<td style="text-align:left">8 days</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>4. Mainframe Cleanup &amp; Decoupling</strong></td>
+<td style="text-align:left">Modify <code>LGxPOL01</code>, <code>LGxPDB01</code>, <code>LGxPVS01</code>, <code>LGPOLICY.inc</code> to remove legacy motor code.</td>
+<td style="text-align:left">7 days</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>5. Data Migration &amp; Validation Tooling</strong></td>
+<td style="text-align:left">Extraction JCL/programs from DB2/VSAM, transform, load into EEPOS, validation scripts.</td>
+<td style="text-align:left">6 days</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>6. Testing &amp; Quality Assurance</strong></td>
+<td style="text-align:left">Unit testing, integration testing, latency/stress testing, regression of other policies.</td>
+<td style="text-align:left">10 days</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>7. Cutover &amp; Operational Deployment</strong></td>
+<td style="text-align:left">Production dry-runs, RACF keyring configuration, CICS URIMAP setup, DDL drop.</td>
+<td style="text-align:left">4 days</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Total Estimated Effort</strong></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><strong>55 Person-Days (~11 Weeks)</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-five-phase-transition--execution-plan" tabindex="-1">7.2 Five-Phase Transition &amp; Execution Plan</h3>
+<ul>
+<li><strong>Phase 1: Preparation &amp; API Foundation (Weeks 1–3)</strong>
+<ul>
+<li>Finalize EEPOS REST API contracts for Inquire, Add, Update, and Delete Motor Policy operations.</li>
+<li>Stand up EEPOS services in non-production environments with required schemas.</li>
+<li>Configure z/OS Communications Server, CICS TCPIPSERVICE, URIMAP, and RACF TLS keyrings for outbound CICS HTTP calls.</li>
+</ul>
+</li>
+<li><strong>Phase 2: Dual-Read &amp; Prototype Client (Weeks 4–6)</strong>
+<ul>
+<li>Develop and prototype REST outbound client routines in <code>LGTESTP1.pli</code>.</li>
+<li>Perform an initial data snapshot from DB2 <code>MOTOR</code> and <code>POLICY</code> tables to EEPOS.</li>
+<li>Validate EEPOS API responses against <code>LGIPDB01</code> outputs.</li>
+</ul>
+</li>
+<li><strong>Phase 3: Mainframe Refactoring &amp; Decoupling (Weeks 7–8)</strong>
+<ul>
+<li>Refactor <code>LGTESTP1.pli</code> to switch completely to EEPOS REST APIs for Option 1 (Inquire), Option 2 (Add), Option 3 (Delete), and Option 4 (Update).</li>
+<li>Remove motor-specific procedures (<code>INSERT_MOTOR</code>, <code>GET_MOTOR_DB2_INFO</code>, <code>UPDATE_MOTOR_DB2_INFO</code>) in <code>LGAPDB01</code>, <code>LGIPDB01</code>, <code>LGUPDB01</code>, and <code>LGDPDB01</code>.</li>
+<li>Update <code>LGAPVS01</code>, <code>LGUPVS01</code>, and <code>LGDPVS01</code> to bypass VSAM writes for <code>'M'</code> policy records.</li>
+</ul>
+</li>
+<li><strong>Phase 4: Data Cutover &amp; Full Integration Testing (Weeks 9–10)</strong>
+<ul>
+<li>Execute final delta data migration from DB2 <code>MOTOR</code> to EEPOS database.</li>
+<li>Run full regression testing of 3270 screens (<code>SSP1</code>, <code>SSMAPP1</code>) and non-motor policy types (Endowment, House, Commercial).</li>
+<li>Verify end-to-end exception scenarios including network timeouts, service errors, and invalid inputs.</li>
+</ul>
+</li>
+<li><strong>Phase 5: Decommissioning &amp; Cleanup (Week 11)</strong>
+<ul>
+<li>Drop DB2 Table <code>&lt;DB2DBID&gt;.MOTOR</code> and Index <code>&lt;DB2DBID&gt;.iMotor</code> via DDL.</li>
+<li>Clean up unused constants and host structures in <code>Includes/LGPOLICY.inc</code>.</li>
+<li>Archive legacy motor batch jobs and backup artifacts.</li>
+</ul>
+</li>
+</ul>
+
+                        <div class="related-pages">
+                            <p class="related-pages-title">Related Pages</p>
+                            <div class="card-grid">
+                                
+            <a href="policy-update.html" class="card">
+                <span class="card-title">Policy Update Program (LGUPOL01)</span>
+                <span class="card-description">Documentation for the LGUPOL01 business logic program responsible for updating existing insurance policy records, including COMMAREA validation, supported policy types (endowment, house, motor), error handling with LGSTSQ logging, and delegation to LGUPDB01.</span>
+            </a>
+            <a href="policy-inquiry.html" class="card">
+                <span class="card-title">Policy Inquiry Program (LGIPOL01)</span>
+                <span class="card-description">Detailed documentation for the LGIPOL01 business logic program, which handles insurance policy inquiry operations for endowment, house, and motor policies, including its validation logic, DB2 delegation via LGIPDB01, and business rules such as motor vehicle expiration date overrides.</span>
+            </a>
+            <a href="inventory-summary.html" class="card">
+                <span class="card-title">Program Inventory Summary</span>
+                <span class="card-description">Catalogue of all PLI programs in the GenApp application, their roles, and how they relate to one another across the business logic and data access tiers.</span>
+            </a>
+                            </div>
+                        </div>
+                    </div>
+                    <nav class="toc-panel" aria-label="On this page">
+  <span class="toc-panel-label">On this page</span>
+  <ul class="toc-list">
+<li class="toc-level-2"><a href="#1-overview">1. Overview</a>
+<ul>
+<li class="toc-level-3"><a href="#11-change-specification">1.1 Change Specification</a></li>
+<li class="toc-level-3"><a href="#12-scope-definition">1.2 Scope Definition</a>
+<ul>
+<li class="toc-level-4"><a href="#in-scope-items">In-Scope Items</a></li>
+<li class="toc-level-4"><a href="#out-of-scope-items">Out-of-Scope Items</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#2-system-architecture--context">2. System Architecture &amp;amp; Context</a>
+<ul>
+<li class="toc-level-3"><a href="#21-current-vs-target-architecture">2.1 Current vs. Target Architecture</a></li>
+<li class="toc-level-3"><a href="#22-target-operational-sequence">2.2 Target Operational Sequence</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#3-affected-components-and-programs">3. Affected Components and Programs</a>
+<ul>
+<li class="toc-level-3"><a href="#31-pli-programs-to-modify-or-decommission">3.1 PL/I Programs to Modify or Decommission</a></li>
+<li class="toc-level-3"><a href="#32-copybooks-and-include-files">3.2 Copybooks and Include Files</a></li>
+<li class="toc-level-3"><a href="#33-database-and-csd-resource-artifacts">3.3 Database and CSD Resource Artifacts</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#4-deep-architectural-findings--hidden-dependencies">4. Deep Architectural Findings &amp;amp; Hidden Dependencies</a>
+<ul>
+<li class="toc-level-3"><a href="#41-hardcoded-motor-business-logic-in-generic-programs">4.1 Hardcoded Motor Business Logic in Generic Programs</a></li>
+<li class="toc-level-3"><a href="#42-db2-foreign-key-cascade-deletes">4.2 DB2 Foreign Key Cascade Deletes</a></li>
+<li class="toc-level-3"><a href="#43-dual-persistence-mirroring-db2--vsam">4.3 Dual-Persistence Mirroring (DB2 + VSAM)</a></li>
+<li class="toc-level-3"><a href="#44-commarea-union-overlays-and-length-calculations">4.4 COMMAREA Union Overlays and Length Calculations</a></li>
+<li class="toc-level-3"><a href="#45-distributed-transactions-and-cics-syncpoints">4.5 Distributed Transactions and CICS Syncpoints</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#5-change-propagation-and-data-flow">5. Change Propagation and Data Flow</a></li>
+<li class="toc-level-2"><a href="#6-risk-assessment-and-mitigation-strategies">6. Risk Assessment and Mitigation Strategies</a></li>
+<li class="toc-level-2"><a href="#7-migration-roadmap-and-effort-estimation">7. Migration Roadmap and Effort Estimation</a>
+<ul>
+<li class="toc-level-3"><a href="#71-estimated-effort-breakdown">7.1 Estimated Effort Breakdown</a></li>
+<li class="toc-level-3"><a href="#72-five-phase-transition--execution-plan">7.2 Five-Phase Transition &amp;amp; Execution Plan</a></li>
+</ul>
+</li>
+</ul>
+
+</nav>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+    /* toc-spy.js — highlights the active heading in the TOC panel on scroll */
+    (function () {
+      function init() {
+        var panel = document.querySelector('.toc-panel');
+        if (!panel) return;
+        var links = Array.prototype.slice.call(panel.querySelectorAll('a[href^="#"]'));
+        if (!links.length) return;
+
+        var headingIds = links.map(function (a) { return a.getAttribute('href').slice(1); });
+        var headings = headingIds.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+
+        function clearActive() {
+          panel.querySelectorAll('.toc-active').forEach(function (el) { el.classList.remove('toc-active'); });
+          panel.querySelectorAll('.toc-parent-active').forEach(function (el) { el.classList.remove('toc-parent-active'); });
+        }
+
+        function setActive(id) {
+          clearActive();
+          var link = panel.querySelector('a[href="#' + id + '"]');
+          if (!link) return;
+          link.classList.add('toc-active');
+          var li = link.closest('li');
+          if (li) {
+            var parentLi = li.parentElement && li.parentElement.closest('li');
+            if (parentLi) parentLi.classList.add('toc-parent-active');
+          }
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              setActive(entry.target.id);
+            }
+          });
+        }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+        headings.forEach(function (h) { observer.observe(h); });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+    </script>
+    <script>
+    /* sidebar-toggle.js — persists open/closed state across navigation */
+    (function () {
+
+      var STORAGE_KEY = 'sb_open';
+
+      function getOpenSet() {
+        try {
+          var raw = sessionStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+      }
+
+      function saveOpenSet(set) {
+        try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(set)); } catch (e) {}
+      }
+
+      function findItems(toggle) {
+        var node = toggle.nextSibling;
+        while (node) {
+          if (node.nodeType === 1 && node.classList.contains('nav-section-items'))
+            return node;
+          node = node.nextSibling;
+        }
+        return null;
+      }
+
+      function toggleKey(toggle, index) {
+        var label = (toggle.querySelector('.nav-toggle-text') || toggle).textContent.trim().replace(/\s+/g, ' ');
+        return index + ':' + label;
+      }
+
+      function openSection(toggle, items, key, set) {
+        toggle.classList.add('open');
+        items.classList.add('open');
+        if (set) set[key] = true;
+      }
+
+      function closeSection(toggle, items, key, set) {
+        toggle.classList.remove('open');
+        items.classList.remove('open');
+        if (set) set[key] = false;
+      }
+
+      function init() {
+        var sidebar = document.getElementById('wiki-sidebar');
+        var toggles = Array.prototype.slice.call(
+          document.querySelectorAll('.nav-section-toggle')
+        );
+
+        var activeIdx = -1;
+        toggles.forEach(function (toggle, idx) {
+          var items = findItems(toggle);
+          if (!items) return;
+          if (items.querySelector('.nav-link.active')) {
+            activeIdx = idx;
+          }
+        });
+
+        var savedSet = getOpenSet();
+        var openSet = savedSet || {};
+
+        if (activeIdx !== -1) {
+          openSet[toggleKey(toggles[activeIdx], activeIdx)] = true;
+        }
+
+        toggles.forEach(function (toggle, idx) {
+          var items = findItems(toggle);
+          if (!items) return;
+
+          var key = toggleKey(toggle, idx);
+          var shouldOpen = openSet[key] === true;
+
+          if (shouldOpen) {
+            toggle.classList.add('open');
+            items.classList.add('open');
+          }
+
+          toggle.addEventListener('click', function () {
+            var nowOpen = toggle.classList.contains('open');
+            if (nowOpen) {
+              closeSection(toggle, items, key, openSet);
+            } else {
+              openSection(toggle, items, key, openSet);
+            }
+            saveOpenSet(openSet);
+          });
+        });
+
+        saveOpenSet(openSet);
+
+        /* Restore sidebar scroll position after sections are expanded so the
+           scroll height is correct when we apply scrollTop. */
+        if (sidebar) {
+          try {
+            var savedScroll = sessionStorage.getItem('sb_scroll');
+            if (savedScroll !== null) { sidebar.scrollTop = parseInt(savedScroll, 10) || 0; }
+          } catch (_e) {}
+        }
+
+        window.addEventListener('pagehide', function () {
+          saveOpenSet(openSet);
+          if (sidebar) {
+            try { sessionStorage.setItem('sb_scroll', String(sidebar.scrollTop)); } catch (_e) {}
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+    })();
+    </script>
+    <script>
+    /* nav-tracking.js — only stamps sessionStorage when clicking a source-file link
+       that lives inside the "Source Files" disclosure section, not from sidebar or cards. */
+    (function () {
+      document.addEventListener('click', function (e) {
+        var link = e.target.closest('a[href]');
+        if (!link) return;
+        var href = link.getAttribute('href');
+        if (!href || href.indexOf('sources/') === -1) return;
+        /* Only set referrer when the click originates from inside the Source Files
+           disclosure (.source-files-disclosure). Any other path — sidebar, cards,
+           direct navigation — must not set a referrer. */
+        if (!link.closest('.source-files-disclosure')) return;
+        try {
+          sessionStorage.setItem('wiki_referrer', JSON.stringify({
+            href: location.href,
+            title: document.title,
+            file: location.pathname.split('/').pop()
+          }));
+        } catch (_e) {}
+      });
+    })();
+    </script>
+    <footer class="wiki-footer">Made by IBM Bob Premium Package for Z</footer>
+</body>
+</html>

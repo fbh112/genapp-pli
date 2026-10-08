@@ -1,0 +1,979 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Inquiry Program (LGIPOL01) - GenApp PLI Insurance Application</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <script src="../assets/mermaid.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: { useMaxWidth: true }
+        });
+    </script>
+
+    <!-- Prism.js for syntax highlighting (bundled — no CDN required) -->
+    <link rel="stylesheet" href="../assets/prism-tomorrow.css">
+    <script src="../assets/prism-core.js"></script>
+    <script src="../assets/prism-languages.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <span class="header-app-name"><a href="../../index.html" style="color: inherit; text-decoration: none;">GenApp PLI Insurance Application</a></span>
+        </div>
+        <div class="header-right">
+        </div>
+    </header>
+    <div class="shell">
+        <aside class="sidebar" id="wiki-sidebar">
+            <nav>
+                
+        <div class="nav-home-wrap">
+            <a href="../../index.html" class="nav-home">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 6.5L8 2l6 4.5V14a1 1 0 01-1 1H3a1 1 0 01-1-1V6.5z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M6 15V9h4v6" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                Home
+            </a>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Application Documentation</div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">Overview</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="project-overview.html" class="nav-link" data-page-id="project-overview">Project Overview</a>
+                <a href="architecture-overview.html" class="nav-link" data-page-id="architecture-overview">Application Architecture</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">Program Inventory</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="inventory-summary.html" class="nav-link" data-page-id="inventory-summary">Program Inventory Summary</a>
+                <a href="impact-analysis.html" class="nav-link" data-page-id="impact-analysis">Impact Analysis: Motor Policy EEPOS Migration</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle open" type="button">
+                <span class="nav-toggle-text">Policy Management Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items open">
+                <a href="policy-inquiry.html" class="nav-link active" data-page-id="policy-inquiry">Policy Inquiry Program (LGIPOL01)</a>
+                <a href="policy-add.html" class="nav-link" data-page-id="policy-add">Policy Add Program (LGAPOL01)</a>
+                <a href="policy-update.html" class="nav-link" data-page-id="policy-update">Policy Update Program (LGUPOL01)</a>
+            </div>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Program Documentation</div>
+    <div class="nav-section">
+        <button class="nav-section-toggle" type="button">
+            <span class="nav-toggle-text">program</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items">
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../sources/program/PLI Programs/LGUPOL01.html" class="nav-link">LGUPOL01</a>
+                <a href="../sources/program/PLI Programs/LGIPOL01.html" class="nav-link">LGIPOL01</a>
+                <a href="../sources/program/PLI Programs/LGAPOL01.html" class="nav-link">LGAPOL01</a>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="nav-section">
+        <button class="nav-section-toggle" type="button">
+            <span class="nav-toggle-text">business-rule</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items">
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../sources/business-rule/PLI Programs/LGIPOL01-overview.html" class="nav-link">LGIPOL01-overview</a>
+                <a href="../sources/business-rule/PLI Programs/LGIPOL01-inventory.html" class="nav-link">LGIPOL01-inventory</a>
+            </div>
+        </div>
+        </div>
+    </div>
+            </nav>
+        </aside>
+        <main class="main">
+            <div class="page-container">
+                <div class="content-layout">
+                    <div class="prose">
+                        <details class="source-files-disclosure">
+            <summary>
+                <svg class="sf-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Source Files
+                <span style="margin-left:4px;font-size:11px;color:var(--fg-subtle)">(3)</span>
+            </summary>
+            <div class="source-files-body">
+                <ul class="source-files-list">
+            <li><a href="../sources/program/PLI Programs/LGIPOL01.html">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+                    <path d="M4 2h6l4 4v8a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M10 2v4h4" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                LGIPOL01
+            </a></li>
+            <li><a href="../sources/business-rule/PLI Programs/LGIPOL01-overview.html">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+                    <path d="M4 2h6l4 4v8a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M10 2v4h4" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                LGIPOL01-overview
+            </a></li>
+            <li><a href="../sources/business-rule/PLI Programs/LGIPOL01-inventory.html">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+                    <path d="M4 2h6l4 4v8a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M10 2v4h4" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                LGIPOL01-inventory
+            </a></li>
+                </ul>
+            </div>
+        </details>
+                        <h1 id="policy-inquiry-program-lgipol01" tabindex="-1">Policy Inquiry Program (LGIPOL01)</h1>
+<p>The <code>LGIPOL01</code> program serves as the core business logic controller for insurance policy inquiry operations within the GenApp CICS application suite. It retrieves and formats comprehensive contract details across multiple policy categories—including Endowment, House, Motor, Commercial, and Claims. The program acts as an intermediary layer: it validates the caller’s communication area, delegates relational database retrieval to the DB2-tier access program <code>LGIPDB01</code>, applies custom business rules (such as overriding policy expiration dates for specific motor vehicle makes), and coordinates error diagnostics and logging via the transient data queue writer <code>LGSTSQ</code>.</p>
+<hr>
+<h2 id="1-overview" tabindex="-1">1. Overview</h2>
+<p>The primary function of <code>LGIPOL01</code> is to expose a unified policy inquiry interface to calling programs (such as presentation-tier handlers, web services, or batch adapters). It ensures that incoming requests provide a valid communication buffer, initializes state, triggers the back-end database access module, and enforces application-level underwriting rules before handing response data back to the client.</p>
+<p>Key capabilities of <code>LGIPOL01</code> include:</p>
+<ul>
+<li><strong>Commarea Validation and Guarding:</strong> Validates the presence of the CICS Communication Area (<code>EIBCALEN &gt; 0</code>), triggering structured error logging and an abnormal termination (<code>ABEND LGCA</code>) if missing.</li>
+<li><strong>Data Access Delegation:</strong> Dispatches policy and customer data lookups to <code>LGIPDB01</code> via <code>EXEC CICS LINK</code>, passing a 32,000-byte communication structure.</li>
+<li><strong>Multi-Type Policy Support:</strong> Supports multiple policy domain structures overlaying a single commarea union (<code>CA_ENDOWMENT</code>, <code>CA_HOUSE</code>, <code>CA_MOTOR</code>, <code>CA_COMMERCIAL</code>, <code>CA_CLAIM</code>).</li>
+<li><strong>Underwriting Exception Handling:</strong> Implements an inline motor insurance business rule that extends the expiry date for <code>'HONDA'</code> vehicles to <code>'2099-01-01'</code>.</li>
+<li><strong>Diagnostic Logging:</strong> Formats execution metadata, SQL request markers, and commarea hex dumps to CICS Transient Data Queues (TDQ) via <code>LGSTSQ</code>.</li>
+</ul>
+<hr>
+<h2 id="2-system-architecture" tabindex="-1">2. System Architecture</h2>
+<p><code>LGIPOL01</code> operates at the business logic layer in the multi-tier GenApp CICS architecture. It sits between calling front-end/service programs and the back-end DB2 data access layer (<code>LGIPDB01</code>).</p>
+<div class="mermaid">
+graph TD
+    classDef client fill:#e1f5fe,stroke:#0288d1,color:#000
+    classDef bizLogic fill:#c5cae9,stroke:#3f51b5,color:#000
+    classDef dataTier fill:#d1c4e9,stroke:#512da8,color:#000
+    classDef db fill:#fff9c4,stroke:#fbc02d,color:#000
+    classDef logging fill:#ffccbc,stroke:#d84315,color:#000
+
+    Client[Calling Program / Client Tier]:::client
+    LGIPOL01[LGIPOL01<br>Business Logic Tier]:::bizLogic
+    LGIPDB01[LGIPDB01<br>DB2 Access Program]:::dataTier
+    DB2[(DB2 Database<br>Customer & Policy Tables)]:::db
+    LGSTSQ[LGSTSQ<br>TDQ Error Logger]:::logging
+    TDQ[(CICS Transient<br>Data Queue)]:::logging
+
+    Client -- "EXEC CICS LINK<br>(COMM_AREA)" --> LGIPOL01
+    LGIPOL01 -- "Missing Commarea<br>(EIBCALEN = 0)" --> LGSTSQ
+    LGSTSQ --> TDQ
+    LGIPOL01 -- "EXEC CICS LINK<br>(Length: 32000)" --> LGIPDB01
+    LGIPDB01 -- "EXEC SQL Queries" --> DB2
+    DB2 -- "Result Sets" --> LGIPDB01
+    LGIPDB01 -- "Populated COMM_AREA" --> LGIPOL01
+    LGIPOL01 -- "Applies Business Rules<br>(e.g. Honda Expiry)" --> LGIPOL01
+    LGIPOL01 -- "EXEC CICS RETURN" --> Client
+</div>
+<p>The diagram illustrates how control and data flow from the caller into <code>LGIPOL01</code>. If validation fails, <code>LGSTSQ</code> logs the error before a CICS abend occurs. On successful commarea validation, <code>LGIPOL01</code> links to <code>LGIPDB01</code>, which queries DB2 tables, maps data back into the commarea, and returns control to <code>LGIPOL01</code> for business rule execution.</p>
+<hr>
+<h2 id="3-communication-area--data-structures" tabindex="-1">3. Communication Area &amp; Data Structures</h2>
+<p><code>LGIPOL01</code> exchanges data through a fixed-size 32,500-byte communication area defined in the <code>LGCMAREA.inc</code> copybook and host variable layouts from <code>LGPOLICY.inc</code>.</p>
+<h3 id="31-input--output-commarea-structure" tabindex="-1">3.1 Input / Output Commarea Structure</h3>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">CODE</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code>COMM_AREA (Total: 32,500 bytes)
+├── CA_REQUEST_ID        (CHAR(6))          - Identifies transaction request type
+├── CA_RETURN_CODE       (PIC &#039;99&#039;)         - Return status code (00 = Success)
+├── CA_CUSTOMER_NUM      (PIC &#039;9999999999&#039;) - 10-digit Customer ID
+├── CA_POLICY_NUM        (PIC &#039;9999999999&#039;) - 10-digit Policy ID
+├── CA_POLICY_COMMON                        - Core common contract metadata
+│   ├── CA_ISSUE_DATE    (CHAR(10))         - Policy issue date (YYYY-MM-DD)
+│   ├── CA_EXPIRY_DATE   (CHAR(10))         - Policy expiry date (Subject to overrides)
+│   ├── CA_BROKERID      (PIC &#039;9999999999&#039;) - Broker identification number
+│   └── CA_PAYMENT       (PIC &#039;999999&#039;)     - Policy premium payment amount
+└── CA_POLICY_SPECIFIC (UNION, 32,400 bytes)
+    ├── CA_ENDOWMENT     (Endowment-specific fields + 32,348 filler)
+    ├── CA_HOUSE         (Property/house fields + 32,342 filler)
+    ├── CA_MOTOR         (Motor details, CA_M_MAKE + 32,323 filler)
+    ├── CA_COMMERCIAL    (Commercial perils + 31,298 filler)
+    └── CA_CLAIM         (Claim history details + 31,854 filler)</code></pre>
+</div>
+<h3 id="32-commarea-field-specifications" tabindex="-1">3.2 Commarea Field Specifications</h3>
+<table>
+<thead>
+<tr>
+<th>Field Name</th>
+<th>Type</th>
+<th>Direction</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CA_REQUEST_ID</code></td>
+<td><code>CHAR(6)</code></td>
+<td>Input / Output</td>
+<td>Identifies request type (e.g., <code>'IPOLCY'</code>). Echoed back to caller.</td>
+</tr>
+<tr>
+<td><code>CA_RETURN_CODE</code></td>
+<td><code>PIC '99'</code></td>
+<td>Output</td>
+<td>Status code. Initialized to <code>'00'</code>, modified if back-end lookup fails.</td>
+</tr>
+<tr>
+<td><code>CA_CUSTOMER_NUM</code></td>
+<td><code>PIC '9999999999'</code></td>
+<td>Input / Output</td>
+<td>Unique 10-digit customer identifier.</td>
+</tr>
+<tr>
+<td><code>CA_POLICY_NUM</code></td>
+<td><code>PIC '9999999999'</code></td>
+<td>Input / Output</td>
+<td>Unique 10-digit policy identifier.</td>
+</tr>
+<tr>
+<td><code>CA_ISSUE_DATE</code></td>
+<td><code>CHAR(10)</code></td>
+<td>Output</td>
+<td>Date the policy was originally issued.</td>
+</tr>
+<tr>
+<td><code>CA_EXPIRY_DATE</code></td>
+<td><code>CHAR(10)</code></td>
+<td>Output</td>
+<td>Expiration date of the policy; modified by business rules.</td>
+</tr>
+<tr>
+<td><code>CA_BROKERID</code></td>
+<td><code>PIC '9999999999'</code></td>
+<td>Output</td>
+<td>Unique identifier of the associated broker.</td>
+</tr>
+<tr>
+<td><code>CA_PAYMENT</code></td>
+<td><code>PIC '999999'</code></td>
+<td>Output</td>
+<td>Installment or premium payment amount.</td>
+</tr>
+<tr>
+<td><code>CA_M_MAKE</code></td>
+<td><code>CHAR(15)</code></td>
+<td>Output / Evaluated</td>
+<td>Vehicle make in <code>CA_MOTOR</code>. Triggers rule override if <code>'HONDA'</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="4-database-entities-and-relationships" tabindex="-1">4. Database Entities and Relationships</h2>
+<p><code>LGIPDB01</code> populates the commarea from several DB2 tables representing the core insurance domain.</p>
+<div class="mermaid">
+erDiagram
+    CUSTOMER {
+        string FIRSTNAME "First name"
+        string LASTNAME "Last name"
+        date DATEOFBIRTH "Date of birth"
+        string HOUSENAME "House name"
+        string HOUSENUMBER "House number"
+        string POSTCODE "Postal code"
+        string PHONE_MOBILE "Mobile phone"
+        string PHONE_HOME "Home phone"
+        string EMAIL_ADDRESS "Email address"
+    }
+
+    POLICY {
+        string POLICYTYPE "E, H, M, B, C"
+        decimal POLICYNUMBER "Unique policy identifier"
+        date ISSUEDATE "Date policy was issued"
+        date EXPIRYDATE "Date policy expires"
+        string LASTCHANGED "Timestamp of last change"
+        decimal BROKERID "Broker identifier"
+        string BROKERSREF "Broker reference"
+        decimal PAYMENT "Premium payment amount"
+    }
+
+    ENDOWMENT {
+        string E_WITHPROFITS "With-profits flag"
+        string E_EQUITIES "Equities flag"
+        string E_MANAGEDFUND "Managed fund flag"
+        string E_FUNDNAME "Fund name"
+        decimal E_TERM "Policy term in years"
+        decimal E_SUMASSURED "Sum assured amount"
+        string E_LIFEASSURED "Name of life assured"
+    }
+
+    HOUSE {
+        string H_PROPERTYTYPE "Type of property"
+        decimal H_BEDROOMS "Number of bedrooms"
+        decimal H_VALUE "Property value"
+        string H_HOUSENAME "House name"
+        string H_HOUSENUMBER "House number"
+        string H_POSTCODE "Postal code"
+    }
+
+    MOTOR {
+        string M_MAKE "Vehicle manufacturer"
+        string M_MODEL "Vehicle model"
+        decimal M_VALUE "Vehicle value"
+        string M_REGNUMBER "Registration number"
+        string M_COLOUR "Vehicle colour"
+        decimal M_CC "Engine displacement (cc)"
+        date M_MANUFACTURED "Manufacture date"
+        decimal M_PREMIUM "Motor premium"
+        decimal M_ACCIDENTS "Accident count"
+    }
+
+    COMMERCIAL {
+        string B_ADDRESS "Business address"
+        string B_POSTCODE "Business postcode"
+        string B_LATITUDE "Latitude"
+        string B_LONGITUDE "Longitude"
+        string B_CUSTOMER "Customer descriptor"
+        string B_PROPTYPE "Property type"
+        decimal B_FIREPERIL "Fire peril level"
+        decimal B_CRIMEPERIL "Crime peril level"
+        decimal B_FLOODPERIL "Flood peril level"
+        decimal B_WEATHERPERIL "Weather peril level"
+        decimal B_STATUS "Policy status code"
+        string B_REJECTREASON "Rejection reason"
+    }
+
+    CLAIM {
+        decimal C_NUM "Claim number"
+        date C_DATE "Claim date"
+        decimal C_PAID "Amount paid"
+        decimal C_VALUE "Claim value"
+        string C_CAUSE "Cause of claim"
+        string C_OBSERVATIONS "Claim observations"
+    }
+
+    CUSTOMER ||--o{ POLICY : "holds"
+    POLICY ||--o| ENDOWMENT : "typed as (E)"
+    POLICY ||--o| HOUSE : "typed as (H)"
+    POLICY ||--o| MOTOR : "typed as (M)"
+    POLICY ||--o| COMMERCIAL : "typed as (B)"
+    POLICY ||--o{ CLAIM : "has (C)"
+</div>
+<hr>
+<h2 id="5-program-processing-logic" tabindex="-1">5. Program Processing Logic</h2>
+<h3 id="51-process-flow-diagram" tabindex="-1">5.1 Process Flow Diagram</h3>
+<p>The following flowchart depicts the operational sequence from transaction entry to exit:</p>
+<div class="mermaid">
+graph TD
+    classDef startEnd fill:#b5ead7,stroke:#4caf8a,color:#000
+    classDef process fill:#c5cae9,stroke:#5c6bc0,color:#000
+    classDef decision fill:#fff9c4,stroke:#f9a825,color:#000
+    classDef error fill:#ffccbc,stroke:#e64a19,color:#000
+    classDef external fill:#d1c4e9,stroke:#7e57c2,color:#000
+
+    Start([Program Entry: LGIPOL01]):::startEnd --> CaptureEnv[Capture EIB Identifiers<br>EIBTRNID, EIBTRMID, EIBTASKN]:::process
+    CaptureEnv --> CheckLen{EIBCALEN = 0 ?}:::decision
+
+    CheckLen -- Yes (Missing) --> SetErrMsg[Set EM_MSG_TEXT =<br>' NO COMMAREA RECEIVED']:::error
+    SetErrMsg --> CallErrProc[Call WRITE_ERROR_MESSAGE]:::error
+    CallErrProc --> IssueAbend[EXEC CICS ABEND<br>ABCODE 'LGCA' NODUMP]:::error
+
+    CheckLen -- No (Valid) --> InitRC[Set CA_RETURN_CODE = '00'<br>Save Commarea Pointer & Length]:::process
+    InitRC --> SetDiagFields[Load Customer & Policy Number<br>into EM_CUSNUM & EM_POLNUM]:::process
+    SetDiagFields --> LinkDB2[EXEC CICS LINK Program LGIPDB01<br>Commarea COMM_AREA Length 32000]:::external
+    LinkDB2 --> CheckHonda{CA_M_MAKE = 'HONDA' ?}:::decision
+
+    CheckHonda -- Yes --> OverrideDate[Set CA_EXPIRY_DATE =<br>'2099-01-01']:::process
+    CheckHonda -- No --> ReturnCaller[EXEC CICS RETURN]:::startEnd
+    OverrideDate --> ReturnCaller
+
+    subgraph Error_Procedure [WRITE_ERROR_MESSAGE Procedure]
+        WE_Time[EXEC CICS ASKTIME & FORMATTIME]:::process
+        WE_Link1[EXEC CICS LINK LGSTSQ<br>Pass ERROR_MSG]:::external
+        WE_LenCheck{EIBCALEN > 0 ?}:::decision
+        WE_SizeCheck{EIBCALEN < 91 ?}:::decision
+        WE_DumpPartial[Copy EIBCALEN bytes<br>to CA_DATA]:::process
+        WE_Dump90[Copy first 90 bytes<br>to CA_DATA]:::process
+        WE_Link2[EXEC CICS LINK LGSTSQ<br>Pass CA_ERROR_MSG]:::external
+        WE_End([Return from Procedure]):::startEnd
+
+        WE_Time --> WE_Link1 --> WE_LenCheck
+        WE_LenCheck -- No --> WE_End
+        WE_LenCheck -- Yes --> WE_SizeCheck
+        WE_SizeCheck -- Yes --> WE_DumpPartial --> WE_Link2 --> WE_End
+        WE_SizeCheck -- No --> WE_Dump90 --> WE_Link2
+    end
+
+    CallErrProc -.-> Error_Procedure
+</div>
+<h3 id="52-step-by-step-execution-sequence" tabindex="-1">5.2 Step-by-Step Execution Sequence</h3>
+<ol>
+<li>
+<p><strong>Environment Capture:</strong>
+The program captures runtime identifiers (<code>EIBTRNID</code>, <code>EIBTRMID</code>, and <code>EIBTASKN</code>) into the working storage header structure <code>WS_HEADER</code> for diagnostic tracing.</p>
+</li>
+<li>
+<p><strong>Commarea Validation Guard:</strong>
+<code>EIBCALEN</code> is evaluated. If <code>EIBCALEN = 0</code>, the caller passed no data:</p>
+<ul>
+<li><code>EM_MSG_TEXT</code> is populated with <code>' NO COMMAREA RECEIVED'</code>.</li>
+<li><code>WRITE_ERROR_MESSAGE</code> is called to log the failure.</li>
+<li>The transaction terminates immediately with <code>EXEC CICS ABEND ABCODE('LGCA') NODUMP</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Status Initialization &amp; Diagnostic Staging:</strong></p>
+<ul>
+<li><code>CA_RETURN_CODE</code> is set to <code>'00'</code>.</li>
+<li>The commarea address and length are saved in <code>WS_ADDR_DFHCOMMAREA</code> and <code>WS_CALEN</code>.</li>
+<li><code>CA_CUSTOMER_NUM</code> and <code>CA_POLICY_NUM</code> are copied to diagnostic fields <code>EM_CUSNUM</code> and <code>EM_POLNUM</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Database Retrieval Delegation (<code>LGIPDB01</code>):</strong>
+<code>EXEC CICS LINK</code> calls program <code>LGIPDB01</code>, passing the <code>COMM_AREA</code> with a length of <code>32000</code>. <code>LGIPDB01</code> executes the necessary SQL statements against the DB2 Customer and Policy tables and maps the output into the corresponding commarea structures.</p>
+</li>
+<li>
+<p><strong>Business Rule Application (Honda Expiry Override):</strong>
+<code>LGIPOL01</code> evaluates <code>CA_M_MAKE</code>. If it matches <code>'HONDA'</code>, <code>CA_EXPIRY_DATE</code> is unconditionally overwritten with <code>'2099-01-01'</code>.</p>
+</li>
+<li>
+<p><strong>Return to Caller:</strong>
+<code>EXEC CICS RETURN</code> transfers control back to the invoking program with the populated commarea.</p>
+</li>
+</ol>
+<hr>
+<h2 id="6-business-rules--code-implementations" tabindex="-1">6. Business Rules &amp; Code Implementations</h2>
+<p>The program encapsulates three specific business rules during policy inquiry processing:</p>
+<div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Caller as Calling Program
+    participant LGIPOL01 as LGIPOL01 (Business Logic)
+    participant LGIPDB01 as LGIPDB01 (Database Tier)
+    participant DB2 as DB2 Database
+
+    Caller->>LGIPOL01: EXEC CICS LINK (COMM_AREA)
+    Note over LGIPOL01: Rule 1: Set CA_RETURN_CODE = '00'
+    LGIPOL01->>LGIPDB01: EXEC CICS LINK (COMM_AREA, Length=32000)
+    Note over LGIPDB01: Rule 2: Fetch Customer & Policy Data
+    LGIPDB01->>DB2: SELECT FROM CUSTOMER, POLICY, MOTOR...
+    DB2-->>LGIPDB01: Rows Returned
+    LGIPDB01-->>LGIPOL01: Commarea with Policy Details
+    Note over LGIPOL01: Rule 3: Check IF CA_M_MAKE == 'HONDA'<br/>Override CA_EXPIRY_DATE = '2099-01-01'
+    LGIPOL01-->>Caller: EXEC CICS RETURN (Final COMM_AREA)
+</div>
+<h3 id="61-rule-1-initialize-policy-inquiry-return-code" tabindex="-1">6.1 Rule 1: Initialize Policy Inquiry Return Code</h3>
+<p>Sets the return code to <code>'00'</code> before database retrieval, establishing an optimistic success state that downstream components can update upon error.</p>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">PL1</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-pl1">CA_RETURN_CODE = &#039;00&#039;;</code></pre>
+</div>
+<h3 id="62-rule-2-delegate-policy-retrieval-to-database-program" tabindex="-1">6.2 Rule 2: Delegate Policy Retrieval to Database Program</h3>
+<p>Transfers execution to <code>LGIPDB01</code> using <code>CA_CUSTOMER_NUM</code> and <code>CA_POLICY_NUM</code> to fetch policy details from DB2.</p>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">PL1</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-pl1">EXEC CICS LINK Program(LGIPDB01)
+           Commarea(COMM_AREA)
+           Length(32000);</code></pre>
+</div>
+<h3 id="63-rule-3-extended-expiry-date-override-for-honda-vehicles" tabindex="-1">6.3 Rule 3: Extended Expiry Date Override for Honda Vehicles</h3>
+<p>Enforces an underwriting exception where motor policies covering <code>'HONDA'</code> vehicles are granted an indefinite expiration date (<code>2099-01-01</code>).</p>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">PL1</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-pl1">IF CA_M_MAKE = &#039;HONDA&#039; THEN
+   CA_EXPIRY_DATE = &#039;2099-01-01&#039;;</code></pre>
+</div>
+<hr>
+<h2 id="7-error-handling--diagnostic-logging" tabindex="-1">7. Error Handling &amp; Diagnostic Logging</h2>
+<h3 id="71-missing-commarea-guard" tabindex="-1">7.1 Missing Commarea Guard</h3>
+<p>If invoked without a commarea (<code>EIBCALEN = 0</code>), <code>LGIPOL01</code> prevents unmapped memory access by logging the event and issuing a CICS abend:</p>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">PL1</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-pl1">IF EIBCALEN = 0 THEN
+  DO;
+    EM_MSG_TEXT = &#039; NO COMMAREA RECEIVED&#039;;
+    CALL WRITE_ERROR_MESSAGE;
+    EXEC CICS ABEND ABCODE(&#039;LGCA&#039;) NODUMP;
+  END;</code></pre>
+</div>
+<h3 id="72-centralized-logging-procedure-write_error_message" tabindex="-1">7.2 Centralized Logging Procedure (<code>WRITE_ERROR_MESSAGE</code>)</h3>
+<p>The <code>WRITE_ERROR_MESSAGE</code> procedure constructs structured log entries and dispatches them to a CICS Transient Data Queue via the utility <code>LGSTSQ</code>:</p>
+<ol>
+<li>Captures system timestamp via <code>EXEC CICS ASKTIME</code> and <code>EXEC CICS FORMATTIME</code>.</li>
+<li>Formats <code>ERROR_MSG</code> containing timestamp, program identifier (<code>LGIPOL01</code>), customer number, policy number, SQL request name, and SQLCODE.</li>
+<li>Issues <code>EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(ERROR_MSG)</code>.</li>
+<li>If <code>EIBCALEN &gt; 0</code>, extracts a snapshot of the commarea (up to 90 bytes) into <code>CA_ERROR_MSG</code> and issues a second link to <code>LGSTSQ</code> to capture the commarea state.</li>
+</ol>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">PL1</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-pl1">WRITE_ERROR_MESSAGE: PROC;
+    EXEC CICS ASKTIME ABSTIME(ABS_TIME);
+    EXEC CICS FORMATTIME ABSTIME(ABS_TIME)
+              YYYYMMDD(DATE1)
+              DATESEP(&#039;-&#039;)
+              TIME(TIME1)
+              TIMESEP(&#039;:&#039;);
+    EM_DATE = DATE1;
+    EM_TIME = TIME1;
+    EXEC CICS LINK PROGRAM(&#039;LGSTSQ&#039;)
+              COMMAREA(ERROR_MSG)
+              LENGTH(LENGTH(ERROR_MSG));
+
+    IF EIBCALEN &gt; 0 THEN
+      DO;
+        IF EIBCALEN &lt; 91 THEN
+          CA_DATA = SUBSTR(COMM_AREA_RAW, 1, EIBCALEN);
+        ELSE
+          CA_DATA = SUBSTR(COMM_AREA_RAW, 1, 90);
+        EXEC CICS LINK PROGRAM(&#039;LGSTSQ&#039;)
+                  COMMAREA(CA_ERROR_MSG)
+                  LENGTH(LENGTH(CA_ERROR_MSG));
+      END;
+END WRITE_ERROR_MESSAGE;</code></pre>
+</div>
+<hr>
+<h2 id="8-technical-constraints--dependencies" tabindex="-1">8. Technical Constraints &amp; Dependencies</h2>
+<h3 id="81-commarea-constraints" tabindex="-1">8.1 Commarea Constraints</h3>
+<ul>
+<li><strong>Total Commarea Length:</strong> Fixed at 32,500 bytes (<code>COMM_AREA_RAW</code>).</li>
+<li><strong>Downstream Call Window:</strong> <code>EXEC CICS LINK</code> to <code>LGIPDB01</code> uses <code>LENGTH(32000)</code>, restricting the DB2 retrieval program’s visibility to the first 32,000 bytes.</li>
+<li><strong>Diagnostic Dump Size:</strong> Commarea debug output in <code>WRITE_ERROR_MESSAGE</code> is capped at a maximum of 90 bytes.</li>
+</ul>
+<h3 id="82-external-program-dependencies" tabindex="-1">8.2 External Program Dependencies</h3>
+<ul>
+<li><strong><code>LGIPDB01</code>:</strong> DB2 data retrieval program. Hard-coded in <code>LGIPOL01</code> as the sole database delegate.</li>
+<li><strong><code>LGSTSQ</code>:</strong> CICS Transient Data Queue logging utility used for error and diagnostic reporting.</li>
+</ul>
+<h3 id="83-copybook-dependencies" tabindex="-1">8.3 Copybook Dependencies</h3>
+<ul>
+<li><strong><code>LGCMAREA.inc</code>:</strong> Defines the universal application commarea union and record layouts.</li>
+<li><strong><code>LGPOLICY.inc</code>:</strong> Defines DB2 host-variable structures (<code>DB2_CUSTOMER</code>, <code>DB2_POLICY</code>, <code>DB2_MOTOR</code>, etc.).</li>
+</ul>
+<hr>
+<h2 id="9-execution-examples" tabindex="-1">9. Execution Examples</h2>
+<h3 id="91-example-1-standard-motor-policy-inquiry-non-honda" tabindex="-1">9.1 Example 1: Standard Motor Policy Inquiry (Non-Honda)</h3>
+<h4 id="input-state" tabindex="-1">Input State</h4>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">CODE</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code>CA_REQUEST_ID   : &#039;IPOLCY&#039;
+CA_CUSTOMER_NUM : 0000000042
+CA_POLICY_NUM   : 0000000099</code></pre>
+</div>
+<h4 id="database-retrieval-via-lgipdb01" tabindex="-1">Database Retrieval via <code>LGIPDB01</code></h4>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">CODE</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code>DB2_POLICYTYPE  : &#039;M&#039;
+CA_ISSUE_DATE   : &#039;2020-03-15&#039;
+CA_EXPIRY_DATE  : &#039;2025-03-15&#039;
+CA_PAYMENT      : 001200
+CA_M_MAKE       : &#039;FORD&#039;
+CA_M_MODEL      : &#039;FIESTA&#039;</code></pre>
+</div>
+<h4 id="final-output-commarea" tabindex="-1">Final Output Commarea</h4>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">CODE</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code>CA_RETURN_CODE  : &#039;00&#039;
+CA_EXPIRY_DATE  : &#039;2025-03-15&#039;  (Unchanged: make is not HONDA)
+CA_M_MAKE       : &#039;FORD&#039;</code></pre>
+</div>
+<hr>
+<h3 id="92-example-2-motor-policy-inquiry-with-honda-override" tabindex="-1">9.2 Example 2: Motor Policy Inquiry with Honda Override</h3>
+<h4 id="input-state-1" tabindex="-1">Input State</h4>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">CODE</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code>CA_REQUEST_ID   : &#039;IPOLCY&#039;
+CA_CUSTOMER_NUM : 0000000101
+CA_POLICY_NUM   : 0000000250</code></pre>
+</div>
+<h4 id="database-retrieval-via-lgipdb01-1" tabindex="-1">Database Retrieval via <code>LGIPDB01</code></h4>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">CODE</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code>DB2_POLICYTYPE  : &#039;M&#039;
+CA_ISSUE_DATE   : &#039;2019-06-01&#039;
+CA_EXPIRY_DATE  : &#039;2024-06-01&#039;
+CA_PAYMENT      : 000950
+CA_M_MAKE       : &#039;HONDA&#039;
+CA_M_MODEL      : &#039;CIVIC&#039;</code></pre>
+</div>
+<h4 id="final-output-commarea-1" tabindex="-1">Final Output Commarea</h4>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">CODE</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code>CA_RETURN_CODE  : &#039;00&#039;
+CA_EXPIRY_DATE  : &#039;2099-01-01&#039;  (Overridden by business rule)
+CA_M_MAKE       : &#039;HONDA&#039;</code></pre>
+</div>
+<hr>
+<h3 id="93-example-3-missing-commarea-invocations" tabindex="-1">9.3 Example 3: Missing Commarea Invocations</h3>
+<h4 id="input-state-2" tabindex="-1">Input State</h4>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">CODE</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code>EIBCALEN = 0 (No commarea passed)</code></pre>
+</div>
+<h4 id="execution-outcome" tabindex="-1">Execution Outcome</h4>
+<ol>
+<li><code>EM_MSG_TEXT</code> is set to <code>' NO COMMAREA RECEIVED'</code>.</li>
+<li><code>WRITE_ERROR_MESSAGE</code> writes diagnostic records to the TDQ via <code>LGSTSQ</code>.</li>
+<li>Task terminates abnormally with abend code <code>LGCA</code> (<code>NODUMP</code>).</li>
+</ol>
+
+                        <div class="related-pages">
+                            <p class="related-pages-title">Related Pages</p>
+                            <div class="card-grid">
+                                
+            <a href="policy-add.html" class="card">
+                <span class="card-title">Policy Add Program (LGAPOL01)</span>
+                <span class="card-description">Documentation for the LGAPOL01 business logic program responsible for adding new insurance policies (endowment, house, motor, commercial, or claim), including COMMAREA validation, optional ODM business rules integration via LGAPBR01, and database delegation via LGAPDB01.</span>
+            </a>
+            <a href="policy-update.html" class="card">
+                <span class="card-title">Policy Update Program (LGUPOL01)</span>
+                <span class="card-description">Documentation for the LGUPOL01 business logic program responsible for updating existing insurance policy records, including COMMAREA validation, supported policy types (endowment, house, motor), error handling with LGSTSQ logging, and delegation to LGUPDB01.</span>
+            </a>
+            <a href="architecture-overview.html" class="card">
+                <span class="card-title">Application Architecture</span>
+                <span class="card-description">Overview of the layered architecture used in GenApp, including the separation between business logic tier programs and DB2 data access tier programs, and how CICS LINK is used for inter-program communication.</span>
+            </a>
+                            </div>
+                        </div>
+                    </div>
+                    <nav class="toc-panel" aria-label="On this page">
+  <span class="toc-panel-label">On this page</span>
+  <ul class="toc-list">
+<li class="toc-level-2"><a href="#1-overview">1. Overview</a></li>
+<li class="toc-level-2"><a href="#2-system-architecture">2. System Architecture</a></li>
+<li class="toc-level-2"><a href="#3-communication-area--data-structures">3. Communication Area &amp;amp; Data Structures</a>
+<ul>
+<li class="toc-level-3"><a href="#31-input--output-commarea-structure">3.1 Input / Output Commarea Structure</a></li>
+<li class="toc-level-3"><a href="#32-commarea-field-specifications">3.2 Commarea Field Specifications</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#4-database-entities-and-relationships">4. Database Entities and Relationships</a></li>
+<li class="toc-level-2"><a href="#5-program-processing-logic">5. Program Processing Logic</a>
+<ul>
+<li class="toc-level-3"><a href="#51-process-flow-diagram">5.1 Process Flow Diagram</a></li>
+<li class="toc-level-3"><a href="#52-step-by-step-execution-sequence">5.2 Step-by-Step Execution Sequence</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#6-business-rules--code-implementations">6. Business Rules &amp;amp; Code Implementations</a>
+<ul>
+<li class="toc-level-3"><a href="#61-rule-1-initialize-policy-inquiry-return-code">6.1 Rule 1: Initialize Policy Inquiry Return Code</a></li>
+<li class="toc-level-3"><a href="#62-rule-2-delegate-policy-retrieval-to-database-program">6.2 Rule 2: Delegate Policy Retrieval to Database Program</a></li>
+<li class="toc-level-3"><a href="#63-rule-3-extended-expiry-date-override-for-honda-vehicles">6.3 Rule 3: Extended Expiry Date Override for Honda Vehicles</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#7-error-handling--diagnostic-logging">7. Error Handling &amp;amp; Diagnostic Logging</a>
+<ul>
+<li class="toc-level-3"><a href="#71-missing-commarea-guard">7.1 Missing Commarea Guard</a></li>
+<li class="toc-level-3"><a href="#72-centralized-logging-procedure-write_error_message">7.2 Centralized Logging Procedure (WRITE_ERROR_MESSAGE)</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#8-technical-constraints--dependencies">8. Technical Constraints &amp;amp; Dependencies</a>
+<ul>
+<li class="toc-level-3"><a href="#81-commarea-constraints">8.1 Commarea Constraints</a></li>
+<li class="toc-level-3"><a href="#82-external-program-dependencies">8.2 External Program Dependencies</a></li>
+<li class="toc-level-3"><a href="#83-copybook-dependencies">8.3 Copybook Dependencies</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#9-execution-examples">9. Execution Examples</a>
+<ul>
+<li class="toc-level-3"><a href="#91-example-1-standard-motor-policy-inquiry-non-honda">9.1 Example 1: Standard Motor Policy Inquiry (Non-Honda)</a>
+<ul>
+<li class="toc-level-4"><a href="#input-state">Input State</a></li>
+<li class="toc-level-4"><a href="#database-retrieval-via-lgipdb01">Database Retrieval via LGIPDB01</a></li>
+<li class="toc-level-4"><a href="#final-output-commarea">Final Output Commarea</a></li>
+</ul>
+</li>
+<li class="toc-level-3"><a href="#92-example-2-motor-policy-inquiry-with-honda-override">9.2 Example 2: Motor Policy Inquiry with Honda Override</a>
+<ul>
+<li class="toc-level-4"><a href="#input-state-1">Input State</a></li>
+<li class="toc-level-4"><a href="#database-retrieval-via-lgipdb01-1">Database Retrieval via LGIPDB01</a></li>
+<li class="toc-level-4"><a href="#final-output-commarea-1">Final Output Commarea</a></li>
+</ul>
+</li>
+<li class="toc-level-3"><a href="#93-example-3-missing-commarea-invocations">9.3 Example 3: Missing Commarea Invocations</a>
+<ul>
+<li class="toc-level-4"><a href="#input-state-2">Input State</a></li>
+<li class="toc-level-4"><a href="#execution-outcome">Execution Outcome</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</nav>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+    /* toc-spy.js — highlights the active heading in the TOC panel on scroll */
+    (function () {
+      function init() {
+        var panel = document.querySelector('.toc-panel');
+        if (!panel) return;
+        var links = Array.prototype.slice.call(panel.querySelectorAll('a[href^="#"]'));
+        if (!links.length) return;
+
+        var headingIds = links.map(function (a) { return a.getAttribute('href').slice(1); });
+        var headings = headingIds.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+
+        function clearActive() {
+          panel.querySelectorAll('.toc-active').forEach(function (el) { el.classList.remove('toc-active'); });
+          panel.querySelectorAll('.toc-parent-active').forEach(function (el) { el.classList.remove('toc-parent-active'); });
+        }
+
+        function setActive(id) {
+          clearActive();
+          var link = panel.querySelector('a[href="#' + id + '"]');
+          if (!link) return;
+          link.classList.add('toc-active');
+          var li = link.closest('li');
+          if (li) {
+            var parentLi = li.parentElement && li.parentElement.closest('li');
+            if (parentLi) parentLi.classList.add('toc-parent-active');
+          }
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              setActive(entry.target.id);
+            }
+          });
+        }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+        headings.forEach(function (h) { observer.observe(h); });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+    </script>
+    <script>
+    /* sidebar-toggle.js — persists open/closed state across navigation */
+    (function () {
+
+      var STORAGE_KEY = 'sb_open';
+
+      function getOpenSet() {
+        try {
+          var raw = sessionStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+      }
+
+      function saveOpenSet(set) {
+        try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(set)); } catch (e) {}
+      }
+
+      function findItems(toggle) {
+        var node = toggle.nextSibling;
+        while (node) {
+          if (node.nodeType === 1 && node.classList.contains('nav-section-items'))
+            return node;
+          node = node.nextSibling;
+        }
+        return null;
+      }
+
+      function toggleKey(toggle, index) {
+        var label = (toggle.querySelector('.nav-toggle-text') || toggle).textContent.trim().replace(/\s+/g, ' ');
+        return index + ':' + label;
+      }
+
+      function openSection(toggle, items, key, set) {
+        toggle.classList.add('open');
+        items.classList.add('open');
+        if (set) set[key] = true;
+      }
+
+      function closeSection(toggle, items, key, set) {
+        toggle.classList.remove('open');
+        items.classList.remove('open');
+        if (set) set[key] = false;
+      }
+
+      function init() {
+        var sidebar = document.getElementById('wiki-sidebar');
+        var toggles = Array.prototype.slice.call(
+          document.querySelectorAll('.nav-section-toggle')
+        );
+
+        var activeIdx = -1;
+        toggles.forEach(function (toggle, idx) {
+          var items = findItems(toggle);
+          if (!items) return;
+          if (items.querySelector('.nav-link.active')) {
+            activeIdx = idx;
+          }
+        });
+
+        var savedSet = getOpenSet();
+        var openSet = savedSet || {};
+
+        if (activeIdx !== -1) {
+          openSet[toggleKey(toggles[activeIdx], activeIdx)] = true;
+        }
+
+        toggles.forEach(function (toggle, idx) {
+          var items = findItems(toggle);
+          if (!items) return;
+
+          var key = toggleKey(toggle, idx);
+          var shouldOpen = openSet[key] === true;
+
+          if (shouldOpen) {
+            toggle.classList.add('open');
+            items.classList.add('open');
+          }
+
+          toggle.addEventListener('click', function () {
+            var nowOpen = toggle.classList.contains('open');
+            if (nowOpen) {
+              closeSection(toggle, items, key, openSet);
+            } else {
+              openSection(toggle, items, key, openSet);
+            }
+            saveOpenSet(openSet);
+          });
+        });
+
+        saveOpenSet(openSet);
+
+        /* Restore sidebar scroll position after sections are expanded so the
+           scroll height is correct when we apply scrollTop. */
+        if (sidebar) {
+          try {
+            var savedScroll = sessionStorage.getItem('sb_scroll');
+            if (savedScroll !== null) { sidebar.scrollTop = parseInt(savedScroll, 10) || 0; }
+          } catch (_e) {}
+        }
+
+        window.addEventListener('pagehide', function () {
+          saveOpenSet(openSet);
+          if (sidebar) {
+            try { sessionStorage.setItem('sb_scroll', String(sidebar.scrollTop)); } catch (_e) {}
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+    })();
+    </script>
+    <script>
+    /* nav-tracking.js — only stamps sessionStorage when clicking a source-file link
+       that lives inside the "Source Files" disclosure section, not from sidebar or cards. */
+    (function () {
+      document.addEventListener('click', function (e) {
+        var link = e.target.closest('a[href]');
+        if (!link) return;
+        var href = link.getAttribute('href');
+        if (!href || href.indexOf('sources/') === -1) return;
+        /* Only set referrer when the click originates from inside the Source Files
+           disclosure (.source-files-disclosure). Any other path — sidebar, cards,
+           direct navigation — must not set a referrer. */
+        if (!link.closest('.source-files-disclosure')) return;
+        try {
+          sessionStorage.setItem('wiki_referrer', JSON.stringify({
+            href: location.href,
+            title: document.title,
+            file: location.pathname.split('/').pop()
+          }));
+        } catch (_e) {}
+      });
+    })();
+    </script>
+    <footer class="wiki-footer">Made by IBM Bob Premium Package for Z</footer>
+</body>
+</html>

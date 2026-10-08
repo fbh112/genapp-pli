@@ -1,0 +1,1004 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LGUPOL01</title>
+    <link rel="stylesheet" href="../../../assets/style.css">
+    <script src="../../../assets/mermaid.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: { useMaxWidth: true }
+        });
+    </script>
+
+    <!-- Prism.js for syntax highlighting (bundled — no CDN required) -->
+    <link rel="stylesheet" href="../../../assets/prism-tomorrow.css">
+    <script src="../../../assets/prism-core.js"></script>
+    <script src="../../../assets/prism-languages.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <span class="header-app-name"><a href="../../../../index.html" style="color: inherit; text-decoration: none;">GenApp PLI Insurance Application</a></span>
+        </div>
+        <div class="header-right">
+        </div>
+    </header>
+    <div class="shell">
+        <aside class="sidebar" id="wiki-sidebar">
+            <nav>
+                
+        <div class="nav-home-wrap">
+            <a href="../../../../index.html" class="nav-home">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 6.5L8 2l6 4.5V14a1 1 0 01-1 1H3a1 1 0 01-1-1V6.5z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M6 15V9h4v6" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                Home
+            </a>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Application Documentation</div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">Overview</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../../../pages/project-overview.html" class="nav-link" data-page-id="project-overview">Project Overview</a>
+                <a href="../../../pages/architecture-overview.html" class="nav-link" data-page-id="architecture-overview">Application Architecture</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">Program Inventory</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../../../pages/inventory-summary.html" class="nav-link" data-page-id="inventory-summary">Program Inventory Summary</a>
+                <a href="../../../pages/impact-analysis.html" class="nav-link" data-page-id="impact-analysis">Impact Analysis: Motor Policy EEPOS Migration</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">Policy Management Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../../../pages/policy-inquiry.html" class="nav-link" data-page-id="policy-inquiry">Policy Inquiry Program (LGIPOL01)</a>
+                <a href="../../../pages/policy-add.html" class="nav-link" data-page-id="policy-add">Policy Add Program (LGAPOL01)</a>
+                <a href="../../../pages/policy-update.html" class="nav-link" data-page-id="policy-update">Policy Update Program (LGUPOL01)</a>
+            </div>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Program Documentation</div>
+    <div class="nav-section">
+        <button class="nav-section-toggle open" type="button">
+            <span class="nav-toggle-text">program</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items open">
+        <div class="nav-section">
+            <button class="nav-section-toggle open" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items open">
+                <a href="../../../sources/program/PLI Programs/LGUPOL01.html" class="nav-link active">LGUPOL01</a>
+                <a href="../../../sources/program/PLI Programs/LGIPOL01.html" class="nav-link">LGIPOL01</a>
+                <a href="../../../sources/program/PLI Programs/LGAPOL01.html" class="nav-link">LGAPOL01</a>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="nav-section">
+        <button class="nav-section-toggle" type="button">
+            <span class="nav-toggle-text">business-rule</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items">
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../../../sources/business-rule/PLI Programs/LGIPOL01-overview.html" class="nav-link">LGIPOL01-overview</a>
+                <a href="../../../sources/business-rule/PLI Programs/LGIPOL01-inventory.html" class="nav-link">LGIPOL01-inventory</a>
+            </div>
+        </div>
+        </div>
+    </div>
+            </nav>
+        </aside>
+        <main class="main">
+            <div class="prog-container">
+                <div id="wiki-breadcrumb"></div>
+                <div class="content-layout">
+                    <article class="prose">
+                        <h2 id="1-purpose" tabindex="-1">1. Purpose</h2>
+<p><code>LGUPOL01</code> is the business logic tier program responsible for updating existing insurance policy records within the GenApp CICS application. It receives a communications area (COMMAREA) containing a customer number, policy number, and a request code that identifies the policy type to be updated — endowment (<code>01UEND</code>), house (<code>01UHOU</code>), or motor (<code>01UMOT</code>). Before delegating any database work, the program validates the incoming request by confirming that a COMMAREA was provided (aborting with code <code>LGCA</code> if not), and then verifying that its length meets the minimum required size for the specified policy type; an insufficient length results in a return code of <code>98</code> being set back to the caller. Once input validation passes, the program forwards the full COMMAREA to the DB2 data access tier program <code>LGUPDB01</code> via a CICS LINK call to perform the actual database update. Throughout execution, any errors are timestamped using CICS time services and logged to a transient data queue via the shared utility program <code>LGSTSQ</code>, capturing the date, time, customer number, policy number, and a snapshot of the COMMAREA content for diagnostic purposes.</p>
+<h2 id="2-inputs" tabindex="-1">2. Inputs</h2>
+<h3 id="21-cics-communications-area-commarea--primary-input" tabindex="-1">2.1 CICS Communications Area (COMMAREA) — Primary Input</h3>
+<p>The program is invoked via <code>EXEC CICS LINK</code> and receives all its input through a single pointer parameter (<code>COMM_AREA_PTR</code>) that maps onto the shared <code>LGCMAREA</code> copybook structure. Every field below is an inbound value supplied by the calling program.</p>
+<ul>
+<li>
+<p><strong>Request Control Fields</strong> (<code>CA_REQUEST_ID</code>, <code>CA_RETURN_CODE</code>)</p>
+<ul>
+<li><code>CA_REQUEST_ID</code> — 6-byte code identifying the policy type and operation to perform; drives the main <code>SELECT</code> branching logic. Valid values are <code>'01UEND'</code> (endowment), <code>'01UHOU'</code> (house), and <code>'01UMOT'</code> (motor).</li>
+<li><code>CA_RETURN_CODE</code> — 2-digit numeric picture field; initialised to <code>'00'</code> on entry and set to <code>'98'</code> (COMMAREA too short) or <code>'99'</code> (unrecognised request ID) by the program before returning to the caller.</li>
+</ul>
+</li>
+<li>
+<p><strong>Customer Identification</strong></p>
+<ul>
+<li><code>CA_CUSTOMER_NUM</code> — 10-digit numeric customer identifier, carried in the COMMAREA header; used to identify the customer whose policy is being updated and copied into the error message for diagnostic logging.</li>
+</ul>
+</li>
+<li>
+<p><strong>Policy Identification and Common Policy Fields</strong> (within <code>CA_POLICY_REQUEST</code>)</p>
+<ul>
+<li><code>CA_POLICY_NUM</code> — 10-digit numeric policy number; identifies the specific policy record to update and is copied into the error message for diagnostic logging.</li>
+<li><code>CA_ISSUE_DATE</code> — 10-byte character date representing the policy issue date, passed through to the DB2 tier for update.</li>
+<li><code>CA_EXPIRY_DATE</code> — 10-byte character date representing the policy expiry date, passed through to the DB2 tier for update.</li>
+<li><code>CA_LASTCHANGED</code> — 26-byte character timestamp of the last change to the policy, passed through to the DB2 tier for update.</li>
+<li><code>CA_BROKERID</code> — 10-digit numeric broker identifier; a nullable column, guarded by the <code>IND_BROKERID</code> indicator variable during DB2 operations.</li>
+<li><code>CA_BROKERSREF</code> — 10-byte character broker’s own reference for the policy; a nullable column, guarded by the <code>IND_BROKERSREF</code> indicator variable during DB2 operations.</li>
+<li><code>CA_PAYMENT</code> — 6-digit numeric payment amount associated with the policy; a nullable column, guarded by the <code>IND_PAYMENT</code> indicator variable during DB2 operations.</li>
+</ul>
+</li>
+<li>
+<p><strong>Policy-Type-Specific Data</strong> (mutually exclusive overlays within <code>CA_POLICY_SPECIFIC</code>)</p>
+<ul>
+<li>
+<p><strong>Endowment policy fields</strong> (<code>CA_ENDOWMENT</code>) — supplied when <code>CA_REQUEST_ID = '01UEND'</code>; the full endowment block must be at least 124 bytes:</p>
+<ul>
+<li><code>CA_E_WITH_PROFITS</code> — single-character flag indicating with-profits participation.</li>
+<li><code>CA_E_EQUITIES</code> — single-character flag indicating equities investment.</li>
+<li><code>CA_E_MANAGED_FUND</code> — single-character flag indicating managed-fund investment.</li>
+<li><code>CA_E_FUND_NAME</code> — 10-byte name of the investment fund.</li>
+<li><code>CA_E_TERM</code> — 2-digit numeric policy term.</li>
+<li><code>CA_E_SUM_ASSURED</code> — 6-digit numeric sum assured.</li>
+<li><code>CA_E_LIFE_ASSURED</code> — 31-byte name of the life assured.</li>
+<li><code>CA_E_PADDING_DATA</code> — variable-length padding data passed to DB2 as a VARCHAR column.</li>
+</ul>
+</li>
+<li>
+<p><strong>House policy fields</strong> (<code>CA_HOUSE</code>) — supplied when <code>CA_REQUEST_ID = '01UHOU'</code>; the full house block must be at least 130 bytes:</p>
+<ul>
+<li><code>CA_H_PROPERTY_TYPE</code> — 15-byte property type description.</li>
+<li><code>CA_H_BEDROOMS</code> — 3-digit numeric bedroom count.</li>
+<li><code>CA_H_VALUE</code> — 8-digit numeric property value.</li>
+<li><code>CA_H_HOUSE_NAME</code> — 20-byte house name.</li>
+<li><code>CA_H_HOUSE_NUMBER</code> — 4-byte house number.</li>
+<li><code>CA_H_POSTCODE</code> — 8-byte postcode.</li>
+</ul>
+</li>
+<li>
+<p><strong>Motor policy fields</strong> (<code>CA_MOTOR</code>) — supplied when <code>CA_REQUEST_ID = '01UMOT'</code>; the full motor block must be at least 137 bytes:</p>
+<ul>
+<li><code>CA_M_MAKE</code> — 15-byte vehicle make.</li>
+<li><code>CA_M_MODEL</code> — 15-byte vehicle model.</li>
+<li><code>CA_M_VALUE</code> — 6-digit numeric vehicle value.</li>
+<li><code>CA_M_REGNUMBER</code> — 7-byte vehicle registration number.</li>
+<li><code>CA_M_COLOUR</code> — 8-byte vehicle colour.</li>
+<li><code>CA_M_CC</code> — 4-digit numeric engine cubic capacity.</li>
+<li><code>CA_M_MANUFACTURED</code> — 10-byte manufacture date.</li>
+<li><code>CA_M_PREMIUM</code> — 6-digit numeric premium amount.</li>
+<li><code>CA_M_ACCIDENTS</code> — 6-digit numeric accident count/history.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="22-cics-execution-interface-block-eib--runtime-environment-inputs" tabindex="-1">2.2 CICS Execution Interface Block (EIB) — Runtime Environment Inputs</h3>
+<p>These fields are automatically populated by CICS and are read by the program at runtime; they are not part of the COMMAREA but represent external context injected by the CICS runtime.</p>
+<ul>
+<li><code>EIBCALEN</code> — length of the COMMAREA passed by the caller; used to validate that sufficient data has been provided before any processing begins (abend <code>LGCA</code> if zero; return code <code>98</code> if shorter than the policy-type minimum).</li>
+<li><code>EIBTRNID</code> — 4-byte transaction identifier of the currently executing CICS transaction; captured into <code>WS_TRANSID</code> for diagnostic context.</li>
+<li><code>EIBTRMID</code> — 4-byte terminal identifier; captured into <code>WS_TERMID</code> for diagnostic context.</li>
+<li><code>EIBTASKN</code> — 7-digit task number of the current CICS task; captured into <code>WS_TASKNUM</code> for diagnostic context.</li>
+</ul>
+<h2 id="3-outputs" tabindex="-1">3. Outputs</h2>
+<h3 id="31-commarea-return-code-ca_return_code" tabindex="-1">3.1 COMMAREA Return Code (<code>CA_RETURN_CODE</code>)</h3>
+<ul>
+<li><strong><code>CA_RETURN_CODE</code></strong> — A 2-digit numeric picture field written back into the COMMAREA and returned to the caller via <code>EXEC CICS RETURN</code>. It is the primary status indicator of the update operation:
+<ul>
+<li>Set to <code>'00'</code> on successful initialisation, indicating processing can proceed</li>
+<li>Set to <code>'98'</code> when the COMMAREA length is insufficient for the requested policy type (endowment, house, or motor), signalling a bad-length error to the caller</li>
+<li>Set to <code>'99'</code> when the request ID (<code>CA_REQUEST_ID</code>) does not match any recognised policy update code, signalling an unrecognised request to the caller</li>
+</ul>
+</li>
+</ul>
+<h3 id="32-db2-update-via-linked-program-lgupdb01" tabindex="-1">3.2 DB2 Update via Linked Program (<code>LGUPDB01</code>)</h3>
+<ul>
+<li><strong><code>COMM_AREA_RAW</code></strong> — The full 32,500-byte raw COMMAREA is passed to the DB2-tier program <code>LGUPDB01</code> via <code>EXEC CICS LINK</code>. This is the mechanism by which the policy update is committed to the database; the result of the update (including any DB2 <code>CA_RETURN_CODE</code> written by <code>LGUPDB01</code>) is reflected back into the COMMAREA on return.</li>
+</ul>
+<h3 id="33-error--diagnostic-messages-written-to-tdq-via-lgstsq" tabindex="-1">3.3 Error / Diagnostic Messages Written to TDQ (via <code>LGSTSQ</code>)</h3>
+<ul>
+<li><strong><code>ERROR_MSG</code></strong> — A structured error message record linked to the transient data queue writer <code>LGSTSQ</code> when an error condition is detected. Contains:
+<ul>
+<li><code>EM_DATE</code> — formatted current date (MMDDYYYY), derived from <code>WS_DATE</code></li>
+<li><code>EM_TIME</code> — formatted current time (8 chars), derived from <code>WS_TIME</code></li>
+<li><code>EM_CUSNUM</code> — customer number at the time of the error, copied from <code>CA_CUSTOMER_NUM</code></li>
+<li><code>EM_POLNUM</code> — policy number at the time of the error, copied from <code>CA_POLICY_NUM</code></li>
+<li><code>EM_SQLREQ</code> — identifies the SQL operation in progress when the error occurred</li>
+<li><code>EM_SQLRC</code> — the DB2 SQLCODE at the time of the error</li>
+</ul>
+</li>
+<li><strong><code>CA_ERROR_MSG</code></strong> — A secondary diagnostic record also linked to <code>LGSTSQ</code>, written immediately after <code>ERROR_MSG</code>. Contains:
+<ul>
+<li><code>CA_DATA</code> — up to 90 bytes of raw COMMAREA content at the time of the error, providing a snapshot of the input data for diagnostic purposes</li>
+</ul>
+</li>
+</ul>
+<h3 id="34-cics-abend" tabindex="-1">3.4 CICS ABEND</h3>
+<ul>
+<li><strong><code>ABCODE('LGCA')</code></strong> — A CICS abend is issued (via <code>EXEC CICS ABEND ABCODE('LGCA') NODUMP</code>) when the program is invoked with no COMMAREA (<code>EIBCALEN = 0</code>). This is a terminal error output that halts task execution and signals a missing-commarea condition to the CICS environment.</li>
+</ul>
+<h2 id="4-processing-logic" tabindex="-1">4. Processing Logic</h2>
+<h3 id="41-mermaid-flow-diagram" tabindex="-1">4.1 Mermaid Flow Diagram</h3>
+<div class="mermaid">
+graph TD
+    classDef startEnd fill:#E8F0FE,stroke:#4285F4,stroke-width:2px,color:#000;
+    classDef process fill:#E6F4EA,stroke:#34A853,stroke-width:1px,color:#000;
+    classDef decision fill:#FEF7E0,stroke:#FBBC04,stroke-width:1px,color:#000;
+    classDef errorNode fill:#FCE8E6,stroke:#EA4335,stroke-width:1px,color:#000;
+
+    A([Start Program LGUPOL01]) :::startEnd
+    B[Capture CICS Task Details<br>EIBTRNID, EIBTRMID, EIBTASKN] :::process
+    C{{Is EIBCALEN Equal to 0?}} :::decision
+    D[Format Timestamp and TDQ Message<br>Write Error via LGSTSQ] :::errorNode
+    E[ABEND Transaction LGCA] :::errorNode
+    F[Initialize Return Code to 00<br>Save Customer and Policy Number] :::process
+    G{{Evaluate Request ID}} :::decision
+    
+    H[Calculate Required Length for Endowment<br>Header 28 + Endowment 124] :::process
+    I[Calculate Required Length for House<br>Header 28 + House 130] :::process
+    J[Calculate Required Length for Motor<br>Header 28 + Motor 137] :::process
+    K[Set Return Code to 99<br>Unknown Request ID] :::errorNode
+
+    L{{Is EIBCALEN Less than Required Length?}} :::decision
+    M{{Is EIBCALEN Less than Required Length?}} :::decision
+    N{{Is EIBCALEN Less than Required Length?}} :::decision
+
+    O[Set Return Code to 98<br>COMMAREA Too Short] :::errorNode
+    P[Link to DB2 Update Program LGUPDB01<br>Pass COMMAREA Length 32500] :::process
+    Q([Return to Caller]) :::startEnd
+
+    A --> B
+    B --> C
+    C -- Yes --> D
+    D --> E
+    C -- No --> F
+    F --> G
+    
+    G -- 01UEND --> H
+    G -- 01UHOU --> I
+    G -- 01UMOT --> J
+    G -- Invalid --> K
+
+    H --> L
+    L -- Yes --> O
+    L -- No --> P
+
+    I --> M
+    M -- Yes --> O
+    M -- No --> P
+
+    J --> N
+    N -- Yes --> O
+    N -- No --> P
+
+    K --> P
+    O --> Q
+    P --> Q
+</div>
+<hr>
+<h3 id="42-processing-logic-description" tabindex="-1">4.2 Processing Logic Description</h3>
+<h4 id="421-high-level-summary" tabindex="-1">4.2.1 High-level Summary</h4>
+<p><code>LGUPOL01</code> is a CICS PL/I business logic program responsible for orchestrating the update of insurance policy details in the General Insurance Application. It validates the incoming Communication Area (COMMAREA), identifies the specific policy type (Endowment, House, or Motor), verifies that the COMMAREA buffer meets the minimum required length for the requested policy type, and invokes the database update program (<code>LGUPDB01</code>) via <code>EXEC CICS LINK</code>.</p>
+<h4 id="422-execution-flow" tabindex="-1">4.2.2 Execution Flow</h4>
+<ol>
+<li><strong>Initialization and Context Capture</strong>:
+<ul>
+<li>The program receives the pointer to the COMMAREA and captures the CICS execution context (<code>EIBTRNID</code>, <code>EIBTRMID</code>, and <code>EIBTASKN</code>) into working storage.</li>
+</ul>
+</li>
+<li><strong>COMMAREA Presence Check</strong>:
+<ul>
+<li>The program checks <code>EIBCALEN</code>. If <code>EIBCALEN</code> is equal to 0, no data was passed:
+<ul>
+<li>Formats an error record with current system date and time (<code>EXEC CICS ASKTIME</code> and <code>EXEC CICS FORMATTIME</code>).</li>
+<li>Calls <code>WRITE_ERROR_MESSAGE</code>, which links to <code>LGSTSQ</code> to log the failure to a Transient Data Queue (TDQ).</li>
+<li>Issues <code>EXEC CICS ABEND</code> with abend code <code>'LGCA'</code> and terminates execution without a dump.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Parameter Setup</strong>:
+<ul>
+<li>If COMMAREA is present, initializes <code>CA_RETURN_CODE</code> to <code>'00'</code>.</li>
+<li>Saves <code>CA_CUSTOMER_NUM</code> and <code>CA_POLICY_NUM</code> to error message fields.</li>
+</ul>
+</li>
+<li><strong>Request Type Validation and Length Calculation</strong>:
+<ul>
+<li>Evaluates <code>CA_REQUEST_ID</code> through a <code>SELECT</code> construct:
+<ul>
+<li><strong><code>01UEND</code> (Endowment Policy Update)</strong>: Adds header length (28 bytes) and endowment length (124 bytes) to calculate a required COMMAREA size of 152 bytes. If <code>EIBCALEN</code> is less than 152 bytes, sets <code>CA_RETURN_CODE</code> to <code>'98'</code> and immediately issues <code>EXEC CICS RETURN</code>.</li>
+<li><strong><code>01UHOU</code> (House Policy Update)</strong>: Adds header length (28 bytes) and house length (130 bytes) to calculate a required COMMAREA size of 158 bytes. If <code>EIBCALEN</code> is less than 158 bytes, sets <code>CA_RETURN_CODE</code> to <code>'98'</code> and immediately issues <code>EXEC CICS RETURN</code>.</li>
+<li><strong><code>01UMOT</code> (Motor Policy Update)</strong>: Adds header length (28 bytes) and motor length (137 bytes) to calculate a required COMMAREA size of 165 bytes. If <code>EIBCALEN</code> is less than 165 bytes, sets <code>CA_RETURN_CODE</code> to <code>'98'</code> and immediately issues <code>EXEC CICS RETURN</code>.</li>
+<li><strong>OTHERWISE (Invalid/Unsupported Request)</strong>: Sets <code>CA_RETURN_CODE</code> to <code>'99'</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Database Update Dispatch</strong>:
+<ul>
+<li>Invokes <code>LGUPDB01</code> via <code>EXEC CICS LINK</code> passing the raw COMMAREA (<code>COMM_AREA_RAW</code>) with a fixed length of 32500 bytes to perform the database persistence operations.</li>
+</ul>
+</li>
+<li><strong>Program Termination</strong>:
+<ul>
+<li>Returns control back to the caller using <code>EXEC CICS RETURN</code>.</li>
+</ul>
+</li>
+</ol>
+<h4 id="423-external-interactions" tabindex="-1">4.2.3 External Interactions</h4>
+<ul>
+<li><strong><code>LGUPDB01</code> (Program Link)</strong>: Subordinate CICS program called via <code>EXEC CICS LINK</code> with the 32,500-byte COMMAREA to execute the DB2 SQL update statements against the relevant policy database tables.</li>
+<li><strong><code>LGSTSQ</code> (Error Logging Program)</strong>: Subordinate CICS logging utility called via <code>EXEC CICS LINK</code> when errors occur, recording structured error messages and COMMAREA snapshots into CICS Transient Data Queues (TDQs).</li>
+</ul>
+<h4 id="424-plain-language-summary" tabindex="-1">4.2.4 Plain Language Summary</h4>
+<p>When a user or client application requests an update to an existing insurance policy, <code>LGUPOL01</code> acts as a gatekeeper. It first checks that valid request data has been supplied. Next, it examines whether the request is for an Endowment, House, or Motor insurance policy and verifies that the provided data buffer contains enough bytes to hold that policy type’s information. If the request is invalid or incomplete, it sets an error code and exits or logs the error. If the validation passes, it forwards the request to the database update module (<code>LGUPDB01</code>) to save the updated policy information into the database.</p>
+<h2 id="5-paragraphs" tabindex="-1">5. Paragraphs</h2>
+<ul>
+<li>
+<p><strong>LGUPOL01 (Main Procedure / Mainline)</strong></p>
+<ul>
+<li>Entry point of the program, declared as <code>LGUPOL01: Proc(COMM_AREA_PTR) Options(Main)</code>.</li>
+<li>Contains all working storage declarations: diagnostic header fields (<code>WS_HEADER</code>), date/time fields (<code>WS_ABSTIME</code>, <code>WS_DATE</code>, <code>WS_TIME</code>), policy length constants (<code>WS_POLICY_LENGTHS</code>), COMMAREA length accumulators (<code>WS_COMMAREA_LENGTHS</code>), the <code>ERROR_MSG</code> and <code>CA_ERROR_MSG</code> error structures, the varying-length field <code>WS_VARY_FIELD</code>, the target DB2 program name <code>LGUPDB1</code>, and the null indicator variables (<code>IND_BROKERID</code>, <code>IND_BROKERSREF</code>, <code>IND_PAYMENT</code>).</li>
+<li>On entry, captures the current CICS transaction ID, terminal ID, and task number into <code>WS_HEADER</code> fields from the EIB.</li>
+<li><strong>COMMAREA presence check</strong>: If <code>EIBCALEN = 0</code>, sets <code>EM_MSG_TEXT</code> to a “NO COMMAREA RECEIVED” message, calls <code>WRITE_ERROR_MESSAGE</code>, then issues <code>EXEC CICS ABEND ABCODE('LGCA') NODUMP</code> to terminate abnormally.</li>
+<li>Initialises <code>CA_RETURN_CODE</code> to <code>'00'</code>, saves <code>EIBCALEN</code> in <code>WS_CALEN</code>, and sets <code>WS_ADDR_DFHCOMMAREA</code> to the received pointer.</li>
+<li>Pre-populates <code>EM_CUSNUM</code> and <code>EM_POLNUM</code> from <code>CA_CUSTOMER_NUM</code> and <code>CA_POLICY_NUM</code> for use in any subsequent error messages.</li>
+<li><strong>Policy-type dispatch and COMMAREA length validation</strong>: Uses a <code>SELECT (CA_REQUEST_ID)</code> construct (equivalent to a CASE statement) with three branches:
+<ul>
+<li><code>'01UEND'</code> (endowment): accumulates <code>WS_CA_HEADER_LEN</code> + <code>WS_FULL_ENDOW_LEN</code> (28 + 124 = 152) into <code>WS_REQUIRED_CA_LEN</code>; if <code>EIBCALEN &lt; WS_REQUIRED_CA_LEN</code>, sets <code>CA_RETURN_CODE = '98'</code> and returns immediately to the caller via <code>EXEC CICS RETURN</code>.</li>
+<li><code>'01UHOU'</code> (house): accumulates <code>WS_CA_HEADER_LEN</code> + <code>WS_FULL_HOUSE_LEN</code> (28 + 130 = 158); same short-circuit return on insufficient length.</li>
+<li><code>'01UMOT'</code> (motor): accumulates <code>WS_CA_HEADER_LEN</code> + <code>WS_FULL_MOTOR_LEN</code> (28 + 137 = 165); same short-circuit return on insufficient length.</li>
+<li><code>OTHERWISE</code>: sets <code>CA_RETURN_CODE = '99'</code> to signal an unrecognised request code; no return is issued here, allowing fall-through to the DB2 call (which the DB2 program is expected to handle gracefully).</li>
+</ul>
+</li>
+<li>After the <code>SELECT</code>, calls the internal procedure <code>UPDATE_POLICY_DB2_INFO</code>.</li>
+<li>Issues a final <code>EXEC CICS RETURN</code> to hand control back to CICS.</li>
+</ul>
+</li>
+<li>
+<p><strong>UPDATE_POLICY_DB2_INFO</strong></p>
+<ul>
+<li>A short internal procedure that delegates policy update processing to the DB2-tier program.</li>
+<li>Issues <code>EXEC CICS LINK Program('LGUPDB01') Commarea(COMM_AREA_RAW) LENGTH(32500)</code> to synchronously invoke the DB2 update program <code>LGUPDB01</code>, passing the full raw COMMAREA.</li>
+<li>No conditional logic is contained within this procedure; all branch decisions have been made in the mainline prior to the call.</li>
+<li>Interacts with the external CICS program <code>LGUPDB01</code> (the DB2 data access tier), which performs the actual SQL update against the insurance policy tables.</li>
+</ul>
+</li>
+<li>
+<p><strong>WRITE_ERROR_MESSAGE</strong></p>
+<ul>
+<li>A reusable internal procedure responsible for formatting and writing diagnostic error messages to the CICS transient data queue via the utility program <code>LGSTSQ</code>.</li>
+<li>Obtains the current absolute time with <code>EXEC CICS ASKTIME ABSTIME(WS_ABSTIME)</code>, then formats it into <code>WS_DATE</code> (MMDDYYYY) and <code>WS_TIME</code> using <code>EXEC CICS FORMATTIME</code>, copying those values into <code>EM_DATE</code> and <code>EM_TIME</code> in the <code>ERROR_MSG</code> structure.</li>
+<li>Issues a first <code>EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(ERROR_MSG)</code> to write the primary error message (containing date, time, program name, customer number, policy number, and SQLCODE) to the transient data queue.</li>
+<li>Contains conditional logic to write a COMMAREA dump:
+<ul>
+<li>If <code>EIBCALEN &gt; 0</code> and <code>EIBCALEN &lt; 91</code>: copies <code>EIBCALEN</code> bytes of <code>COMM_AREA_RAW</code> into <code>CA_DATA</code> using the <code>LEFT</code> built-in, then links <code>LGSTSQ</code> with <code>CA_ERROR_MSG</code> to write the partial COMMAREA.</li>
+<li>If <code>EIBCALEN &gt;= 91</code>: copies the first 90 bytes of <code>COMM_AREA_RAW</code> into <code>CA_DATA</code> and similarly links <code>LGSTSQ</code>.</li>
+<li>If <code>EIBCALEN = 0</code>, no COMMAREA dump is written.</li>
+</ul>
+</li>
+<li>Interacts with the external CICS program <code>LGSTSQ</code> (transient data queue writer utility) up to twice per invocation — once for the error message and once for the COMMAREA snapshot.</li>
+</ul>
+</li>
+</ul>
+<h2 id="6-dependencies" tabindex="-1">6. Dependencies</h2>
+<h3 id="61-cics-infrastructure-and-runtime-environment" tabindex="-1">6.1 CICS Infrastructure and Runtime Environment</h3>
+<ul>
+<li><strong>CICS Transaction Server</strong>: Provides the execution environment, transaction context, and API runtime services.
+<ul>
+<li><strong><code>EXEC CICS LINK</code></strong>: Used to invoke external programs synchronously, passing control and data via communications areas.</li>
+<li><strong><code>EXEC CICS RETURN</code></strong>: Used to terminate program execution and return control to the CICS runtime or invoking program.</li>
+<li><strong><code>EXEC CICS ABEND</code></strong>: Used to abnormally terminate the task with abend code <code>LGCA</code> when required input data is missing (<code>EIBCALEN = 0</code>).</li>
+<li><strong><code>EXEC CICS ASKTIME</code> &amp; <code>EXEC CICS FORMATTIME</code></strong>: Used to retrieve system absolute time and format it into human-readable date (<code>MMDDYYYY</code>) and time strings for error diagnostics.</li>
+<li><strong>Execute Interface Block (EIB)</strong>: Provides runtime execution context and parameters:
+<ul>
+<li><strong><code>EIBCALEN</code></strong>: Length of the passed communications area; evaluated to validate message integrity against required minimum lengths.</li>
+<li><strong><code>EIBTRNID</code></strong>: Current CICS transaction identifier.</li>
+<li><strong><code>EIBTRMID</code></strong>: CICS terminal identifier.</li>
+<li><strong><code>EIBTASKN</code></strong>: CICS task number.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="62-invoked-programs-and-modules" tabindex="-1">6.2 Invoked Programs and Modules</h3>
+<ul>
+<li><strong><code>LGUPDB01</code></strong>: DB2-tier policy update program. Invoked via <code>EXEC CICS LINK</code> passing <code>COMM_AREA_RAW</code> (32,500 bytes) to perform database updates across the supported policy types (Endowment, House, Motor).</li>
+<li><strong><code>LGSTSQ</code></strong>: Common error logging and transient data queue service. Invoked via <code>EXEC CICS LINK</code> during error conditions to log structured error details (<code>ERROR_MSG</code>) and raw communications area payloads (<code>CA_ERROR_MSG</code>).</li>
+</ul>
+<h3 id="63-input-parameters-and-data-structures" tabindex="-1">6.3 Input Parameters and Data Structures</h3>
+<ul>
+<li><strong><code>COMM_AREA</code> / <code>COMM_AREA_PTR</code></strong>: Universal 32,500-byte communications area passed as the main entry parameter, representing the request and response interface between the caller and the program:
+<ul>
+<li><strong><code>CA_REQUEST_ID</code></strong>: Operation code indicating the specific policy update requested (<code>01UEND</code> for Endowment, <code>01UHOU</code> for House, <code>01UMOT</code> for Motor).</li>
+<li><strong><code>CA_CUSTOMER_NUM</code></strong>: 10-digit customer identifier associated with the policy update.</li>
+<li><strong><code>CA_POLICY_NUM</code></strong>: 10-digit policy identifier to be updated.</li>
+<li><strong><code>CA_RETURN_CODE</code></strong>: 2-digit status code returned to the caller (<code>00</code> for success, <code>98</code> for insufficient length, <code>99</code> for invalid request ID).</li>
+<li><strong><code>COMM_AREA_RAW</code></strong>: 32,500-byte character view of the commarea forwarded to <code>LGUPDB01</code>.</li>
+</ul>
+</li>
+<li><strong><code>LGCMAREA</code> Copybook (<code>LGCMAREA.inc</code>)</strong>: Defines the shared layout, unions, and structures for the application-wide <code>COMM_AREA</code> used across the business logic tier.</li>
+</ul>
+<h2 id="7-constraints" tabindex="-1">7. Constraints</h2>
+<h3 id="71-commarea-presence-and-size-constraints" tabindex="-1">7.1 COMMAREA Presence and Size Constraints</h3>
+<ul>
+<li>
+<p><strong>COMMAREA must be present at entry</strong></p>
+<ul>
+<li>Enforced by checking <code>EIBCALEN = 0</code> immediately on program entry</li>
+<li>If no COMMAREA is passed, the error message <code>' NO COMMAREA RECEIVED'</code> is written to the transient data queue via <code>WRITE_ERROR_MESSAGE</code>, and the program issues <code>EXEC CICS ABEND ABCODE('LGCA') NODUMP</code> — a hard abend with no dump</li>
+<li>This is a mandatory prerequisite; no processing of any kind takes place without a COMMAREA</li>
+</ul>
+</li>
+<li>
+<p><strong>COMMAREA must meet a minimum length for the requested policy type</strong></p>
+<ul>
+<li>The minimum is computed at runtime as <code>WS_CA_HEADER_LEN</code> (fixed at 28 bytes) plus the full policy-type-specific length
+<ul>
+<li>For endowment (<code>'01UEND'</code>): minimum = 28 + 124 = <strong>152 bytes</strong> (<code>WS_FULL_ENDOW_LEN = 124</code>)</li>
+<li>For house (<code>'01UHOU'</code>): minimum = 28 + 130 = <strong>158 bytes</strong> (<code>WS_FULL_HOUSE_LEN = 130</code>)</li>
+<li>For motor (<code>'01UMOT'</code>): minimum = 28 + 137 = <strong>165 bytes</strong> (<code>WS_FULL_MOTOR_LEN = 137</code>)</li>
+</ul>
+</li>
+<li>If <code>EIBCALEN &lt; WS_REQUIRED_CA_LEN</code>, <code>CA_RETURN_CODE</code> is set to <code>'98'</code> and <code>EXEC CICS RETURN</code> is issued immediately — no DB2 update is attempted</li>
+<li>The maximum COMMAREA passable to the downstream DB2 program is hard-coded at <strong>32,500 bytes</strong> (the <code>LENGTH(32500)</code> parameter on <code>EXEC CICS LINK Program('LGUPDB01')</code>)</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="72-request-identifier-policy-type-constraints" tabindex="-1">7.2 Request Identifier (Policy Type) Constraints</h3>
+<ul>
+<li><strong><code>CA_REQUEST_ID</code> must be one of three recognised values</strong>
+<ul>
+<li>The <code>SELECT (CA_REQUEST_ID)</code> statement accepts only <code>'01UEND'</code>, <code>'01UHOU'</code>, or <code>'01UMOT'</code></li>
+<li>Any other value falls into the <code>OTHERWISE</code> branch, which sets <code>CA_RETURN_CODE = '99'</code> — indicating an invalid request — and implicitly bypasses the DB2 update call (<code>CALL UPDATE_POLICY_DB2_INFO</code> is still issued unconditionally after the SELECT, meaning even a <code>'99'</code> code proceeds to DB2; the DB2 tier is responsible for honouring that code)</li>
+<li>The three supported request codes map exactly to the three supported policy types: Endowment, House, and Motor</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="73-processing-sequencing-constraints" tabindex="-1">7.3 Processing Sequencing Constraints</h3>
+<ul>
+<li>
+<p><strong>COMMAREA validation must complete before the DB2 update is invoked</strong></p>
+<ul>
+<li>The <code>SELECT (CA_REQUEST_ID)</code> block — which validates the request code and COMMAREA length — is always executed before <code>CALL UPDATE_POLICY_DB2_INFO</code></li>
+<li>If a length violation (<code>'98'</code>) is detected, <code>EXEC CICS RETURN</code> exits the program entirely, preventing the DB2 call</li>
+<li>If no COMMAREA is present, the abend prevents any further processing</li>
+</ul>
+</li>
+<li>
+<p><strong>Error logging must obtain current time before writing</strong></p>
+<ul>
+<li>Within <code>WRITE_ERROR_MESSAGE</code>, <code>EXEC CICS ASKTIME</code> must execute before <code>EXEC CICS FORMATTIME</code>, which in turn must populate <code>WS_DATE</code>/<code>WS_TIME</code> before they are copied into <code>ERROR_MSG</code></li>
+<li>This sequential dependency is enforced by the linear code order inside the procedure</li>
+</ul>
+</li>
+<li>
+<p><strong>COMMAREA snapshot is written only after the primary error message</strong></p>
+<ul>
+<li>The <code>EXEC CICS LINK PROGRAM('LGSTSQ')</code> call for the main <code>ERROR_MSG</code> structure always precedes the conditional call that writes <code>CA_ERROR_MSG</code> (the raw COMMAREA dump)</li>
+<li>The COMMAREA dump is only written if <code>EIBCALEN &gt; 0</code>, preserving log coherence</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="74-null-handling-constraints-for-db2-columns" tabindex="-1">7.4 Null-Handling Constraints for DB2 Columns</h3>
+<ul>
+<li><strong>Nullable DB2 columns must have indicator variables declared</strong>
+<ul>
+<li>Three indicator variables are declared: <code>IND_BROKERID</code>, <code>IND_BROKERSREF</code>, and <code>IND_PAYMENT</code>, each <code>FIXED BIN(15)</code></li>
+<li>Without these indicators, any SQL FETCH returning a null value for these columns would cause an SQLCODE failure</li>
+<li>Their presence is a mandatory constraint on how these columns may be fetched or updated — the program will not tolerate unhandled nulls from the database</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="75-error-capture-and-logging-constraints" tabindex="-1">7.5 Error Capture and Logging Constraints</h3>
+<ul>
+<li>
+<p><strong>COMMAREA snapshot is capped at 90 bytes</strong></p>
+<ul>
+<li>If <code>EIBCALEN &lt; 91</code>, exactly <code>EIBCALEN</code> bytes of the COMMAREA are captured into <code>CA_DATA</code> (90-byte field)</li>
+<li>If <code>EIBCALEN &gt;= 91</code>, the first 90 bytes are captured — enforced by the conditional <code>IF ( EIBCALEN &lt; 91 )</code> inside <code>WRITE_ERROR_MESSAGE</code></li>
+<li>This prevents overflow of the fixed 90-byte <code>CA_DATA</code> field within <code>CA_ERROR_MSG</code></li>
+</ul>
+</li>
+<li>
+<p><strong><code>CA_RETURN_CODE</code> must be initialised before use</strong></p>
+<ul>
+<li>It is set to <code>'00'</code> immediately after the zero-length COMMAREA check and before any conditional processing, ensuring that a defined value is always present in the COMMAREA when control returns to the caller</li>
+</ul>
+</li>
+</ul>
+<h2 id="8-error-handling" tabindex="-1">8. Error Handling</h2>
+<h3 id="81-commarea-presence-validation" tabindex="-1">8.1 COMMAREA Presence Validation</h3>
+<ul>
+<li>On every invocation, the program checks whether <code>EIBCALEN</code> equals zero, indicating that no COMMAREA was passed by the caller
+<ul>
+<li>If no COMMAREA is present, an error message is prepared in the <code>ERROR_MSG</code> structure with the text <code>NO COMMAREA RECEIVED</code> and <code>WRITE_ERROR_MESSAGE</code> is invoked to log the condition</li>
+<li>After logging, <code>EXEC CICS ABEND</code> is issued with abend code <code>LGCA</code> and <code>NODUMP</code> to terminate the transaction abnormally in a controlled manner without producing a transaction dump</li>
+</ul>
+</li>
+</ul>
+<h3 id="82-commarea-length-validation-insufficient-data" tabindex="-1">8.2 COMMAREA Length Validation (Insufficient Data)</h3>
+<ul>
+<li>After confirming the COMMAREA exists, the program determines the minimum required length based on the specific policy type requested (<code>CA_REQUEST_ID</code>)
+<ul>
+<li>For each recognised request code (<code>01UEND</code>, <code>01UHOU</code>, <code>01UMOT</code>), <code>WS_REQUIRED_CA_LEN</code> is calculated by summing the fixed header length (<code>WS_CA_HEADER_LEN</code>, 28 bytes) with the full policy-type-specific data length (<code>WS_FULL_ENDOW_LEN</code> = 124, <code>WS_FULL_HOUSE_LEN</code> = 130, or <code>WS_FULL_MOTOR_LEN</code> = 137 respectively)</li>
+<li><code>EIBCALEN</code> is then compared against <code>WS_REQUIRED_CA_LEN</code>; if the actual COMMAREA is shorter than required, <code>CA_RETURN_CODE</code> is set to <code>'98'</code> and <code>EXEC CICS RETURN</code> is issued immediately, signalling an input data error to the caller without further processing</li>
+</ul>
+</li>
+</ul>
+<h3 id="83-invalid-request-code-handling" tabindex="-1">8.3 Invalid Request Code Handling</h3>
+<ul>
+<li>The <code>SELECT (CA_REQUEST_ID)</code> construct includes an <code>OTHERWISE</code> branch that handles any request code not matching the three known values (<code>01UEND</code>, <code>01UHOU</code>, <code>01UMOT</code>)
+<ul>
+<li>In this case <code>CA_RETURN_CODE</code> is set to <code>'99'</code>, indicating an unrecognised or invalid request type and allowing the caller to detect and respond to the error condition</li>
+</ul>
+</li>
+</ul>
+<h3 id="84-sql-null-indicator-variables" tabindex="-1">8.4 SQL Null Indicator Variables</h3>
+<ul>
+<li>Three null indicator variables — <code>IND_BROKERID</code>, <code>IND_BROKERSREF</code>, and <code>IND_PAYMENT</code> — are declared as <code>FIXED BIN(15)</code> to accompany SQL FETCH operations for columns that may legitimately contain null values in the database
+<ul>
+<li>Without these indicators, a null value returned by DB2 for any of these columns would cause an <code>SQLCODE</code> failure; their presence acts as a passive defensive mechanism to prevent unexpected SQL errors during policy data retrieval or update</li>
+</ul>
+</li>
+</ul>
+<h3 id="85-error-message-logging-write_error_message-procedure" tabindex="-1">8.5 Error Message Logging (WRITE_ERROR_MESSAGE Procedure)</h3>
+<ul>
+<li>A dedicated internal procedure <code>WRITE_ERROR_MESSAGE</code> centralises all error notification and logging activity
+<ul>
+<li><code>EXEC CICS ASKTIME</code> and <code>EXEC CICS FORMATTIME</code> are called to obtain and format the current date (<code>WS_DATE</code>) and time (<code>WS_TIME</code>), which are stamped into the <code>ERROR_MSG</code> structure to provide temporal context for the error</li>
+<li>The formatted <code>ERROR_MSG</code> (containing date, time, program name, customer number, policy number, and SQLCODE fields) is written to the transient data queue by linking to the utility program <code>LGSTSQ</code> via <code>EXEC CICS LINK</code></li>
+<li>A second pass writes up to 90 bytes of raw COMMAREA content to the same queue via <code>CA_ERROR_MSG</code>:
+<ul>
+<li>If <code>EIBCALEN</code> is between 1 and 90, the exact number of COMMAREA bytes is captured in <code>CA_DATA</code> and written</li>
+<li>If <code>EIBCALEN</code> exceeds 90, only the first 90 bytes are captured and written, preventing buffer overrun while still preserving the most relevant diagnostic data</li>
+</ul>
+</li>
+<li>Customer number (<code>CA_CUSTOMER_NUM</code>) and policy number (<code>CA_POLICY_NUM</code>) are proactively copied into <code>EM_CUSNUM</code> and <code>EM_POLNUM</code> at the start of processing so that they are available in the error message regardless of how early in execution an error occurs</li>
+</ul>
+</li>
+</ul>
+<h3 id="86-return-code-signalling-to-the-caller" tabindex="-1">8.6 Return Code Signalling to the Caller</h3>
+<ul>
+<li><code>CA_RETURN_CODE</code> is initialised to <code>'00'</code> at the start of processing to indicate a clean state
+<ul>
+<li>It is set to <code>'98'</code> when the COMMAREA is present but too short for the requested policy type, signalling a data-length error</li>
+<li>It is set to <code>'99'</code> when the request code is unrecognised, signalling an invalid request type</li>
+<li>These return codes are passed back through the COMMAREA to the calling program, which is responsible for interpreting and acting on them</li>
+</ul>
+</li>
+</ul>
+<h2 id="9-examples" tabindex="-1">9. Examples</h2>
+<h3 id="91-example-1--successful-motor-policy-update" tabindex="-1">9.1 Example 1 — Successful Motor Policy Update</h3>
+<p><strong>Input COMMAREA</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CA_REQUEST_ID</code></td>
+<td><code>01UMOT</code></td>
+</tr>
+<tr>
+<td><code>CA_CUSTOMER_NUM</code></td>
+<td><code>0000000042</code></td>
+</tr>
+<tr>
+<td><code>CA_POLICY_NUM</code></td>
+<td><code>0000000007</code></td>
+</tr>
+<tr>
+<td>COMMAREA total length</td>
+<td><code>165</code> bytes (≥ 28 header + 137 motor = 165)</td>
+</tr>
+<tr>
+<td>Motor policy fields</td>
+<td>Vehicle registration, make, model, premium, etc. (137 bytes)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Expected Output</strong></p>
+<ul>
+<li><code>CA_RETURN_CODE</code> is set to <code>'00'</code> (success).</li>
+<li>Program links to <code>LGUPDB01</code> (DB2 tier) via <code>EXEC CICS LINK</code>, passing the full 32 500-byte COMMAREA.</li>
+<li><code>LGUPDB01</code> performs the actual DB2 UPDATE; control returns to LGUPOL01, which then issues <code>EXEC CICS RETURN</code> to the caller.</li>
+</ul>
+<p><strong>How the input leads to the output</strong></p>
+<ol>
+<li><code>EIBCALEN</code> is non-zero, so the ABEND path (<code>LGCA</code>) is skipped.</li>
+<li><code>CA_RETURN_CODE</code> is initialised to <code>'00'</code>.</li>
+<li>The <code>SELECT</code> on <code>CA_REQUEST_ID = '01UMOT'</code> computes <code>WS_REQUIRED_CA_LEN = 28 + 137 = 165</code>. Because <code>EIBCALEN (165) &gt;= 165</code>, the short-COMMAREA path (<code>CA_RETURN_CODE = '98'</code>) is not taken.</li>
+<li><code>UPDATE_POLICY_DB2_INFO</code> is called, which links to <code>LGUPDB01</code> to persist the motor policy changes.</li>
+</ol>
+<hr>
+<h3 id="92-example-2--house-policy-update-rejected-due-to-short-commarea" tabindex="-1">9.2 Example 2 — House Policy Update Rejected Due to Short COMMAREA</h3>
+<p><strong>Input COMMAREA</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CA_REQUEST_ID</code></td>
+<td><code>01UHOU</code></td>
+</tr>
+<tr>
+<td><code>CA_CUSTOMER_NUM</code></td>
+<td><code>0000000015</code></td>
+</tr>
+<tr>
+<td><code>CA_POLICY_NUM</code></td>
+<td><code>0000000003</code></td>
+</tr>
+<tr>
+<td>COMMAREA total length</td>
+<td><code>100</code> bytes (&lt; 28 header + 130 house = 158 required)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Expected Output</strong></p>
+<ul>
+<li><code>CA_RETURN_CODE</code> is set to <code>'98'</code>.</li>
+<li><code>EXEC CICS RETURN</code> is issued immediately; <code>LGUPDB01</code> is <strong>never</strong> called.</li>
+<li>No DB2 update occurs; the caller receives the <code>'98'</code> error code indicating an insufficiently sized COMMAREA.</li>
+</ul>
+<p><strong>How the input leads to the output</strong></p>
+<ol>
+<li><code>EIBCALEN = 100</code>, which is non-zero, so no abend.</li>
+<li><code>CA_RETURN_CODE</code> initialised to <code>'00'</code>.</li>
+<li><code>SELECT</code> matches <code>'01UHOU'</code>; <code>WS_REQUIRED_CA_LEN = 28 + 130 = 158</code>.</li>
+<li><code>EIBCALEN (100) &lt; 158</code> is true, so <code>CA_RETURN_CODE = '98'</code> and the program returns immediately without calling the DB2 tier.</li>
+</ol>
+<hr>
+<h3 id="93-example-3--unrecognised-request-code" tabindex="-1">9.3 Example 3 — Unrecognised Request Code</h3>
+<p><strong>Input COMMAREA</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CA_REQUEST_ID</code></td>
+<td><code>01UXXX</code> (unknown code)</td>
+</tr>
+<tr>
+<td><code>CA_CUSTOMER_NUM</code></td>
+<td><code>0000000099</code></td>
+</tr>
+<tr>
+<td><code>CA_POLICY_NUM</code></td>
+<td><code>0000000001</code></td>
+</tr>
+<tr>
+<td>COMMAREA total length</td>
+<td><code>200</code> bytes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Expected Output</strong></p>
+<ul>
+<li><code>CA_RETURN_CODE</code> is set to <code>'99'</code>.</li>
+<li>Despite the error code being set, the <code>OTHERWISE</code> branch falls through and <code>UPDATE_POLICY_DB2_INFO</code> <strong>is still called</strong> (the <code>CALL</code> is unconditional after the <code>SELECT</code>).</li>
+<li><code>LGUPDB01</code> will receive the COMMAREA with the unrecognised request code and is expected to handle or reject it at the DB2 tier.</li>
+</ul>
+<p><strong>How the input leads to the output</strong></p>
+<ol>
+<li><code>EIBCALEN &gt; 0</code>, no abend.</li>
+<li>The <code>SELECT</code> exhausts all <code>WHEN</code> clauses (<code>01UEND</code>, <code>01UHOU</code>, <code>01UMOT</code>) without a match and falls into <code>OTHERWISE</code>, setting <code>CA_RETURN_CODE = '99'</code>.</li>
+<li>Execution continues past the <code>SELECT</code> and unconditionally calls <code>UPDATE_POLICY_DB2_INFO</code>, delegating further handling to <code>LGUPDB01</code>.</li>
+</ol>
+
+                    </article>
+                    <nav class="toc-panel" aria-label="On this page">
+  <span class="toc-panel-label">On this page</span>
+  <ul class="toc-list">
+<li class="toc-level-2"><a href="#1-purpose">1. Purpose</a></li>
+<li class="toc-level-2"><a href="#2-inputs">2. Inputs</a>
+<ul>
+<li class="toc-level-3"><a href="#21-cics-communications-area-commarea--primary-input">2.1 CICS Communications Area (COMMAREA) — Primary Input</a></li>
+<li class="toc-level-3"><a href="#22-cics-execution-interface-block-eib--runtime-environment-inputs">2.2 CICS Execution Interface Block (EIB) — Runtime Environment Inputs</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#3-outputs">3. Outputs</a>
+<ul>
+<li class="toc-level-3"><a href="#31-commarea-return-code-ca_return_code">3.1 COMMAREA Return Code (CA_RETURN_CODE)</a></li>
+<li class="toc-level-3"><a href="#32-db2-update-via-linked-program-lgupdb01">3.2 DB2 Update via Linked Program (LGUPDB01)</a></li>
+<li class="toc-level-3"><a href="#33-error--diagnostic-messages-written-to-tdq-via-lgstsq">3.3 Error / Diagnostic Messages Written to TDQ (via LGSTSQ)</a></li>
+<li class="toc-level-3"><a href="#34-cics-abend">3.4 CICS ABEND</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#4-processing-logic">4. Processing Logic</a>
+<ul>
+<li class="toc-level-3"><a href="#41-mermaid-flow-diagram">4.1 Mermaid Flow Diagram</a></li>
+<li class="toc-level-3"><a href="#42-processing-logic-description">4.2 Processing Logic Description</a>
+<ul>
+<li class="toc-level-4"><a href="#421-high-level-summary">4.2.1 High-level Summary</a></li>
+<li class="toc-level-4"><a href="#422-execution-flow">4.2.2 Execution Flow</a></li>
+<li class="toc-level-4"><a href="#423-external-interactions">4.2.3 External Interactions</a></li>
+<li class="toc-level-4"><a href="#424-plain-language-summary">4.2.4 Plain Language Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#5-paragraphs">5. Paragraphs</a></li>
+<li class="toc-level-2"><a href="#6-dependencies">6. Dependencies</a>
+<ul>
+<li class="toc-level-3"><a href="#61-cics-infrastructure-and-runtime-environment">6.1 CICS Infrastructure and Runtime Environment</a></li>
+<li class="toc-level-3"><a href="#62-invoked-programs-and-modules">6.2 Invoked Programs and Modules</a></li>
+<li class="toc-level-3"><a href="#63-input-parameters-and-data-structures">6.3 Input Parameters and Data Structures</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#7-constraints">7. Constraints</a>
+<ul>
+<li class="toc-level-3"><a href="#71-commarea-presence-and-size-constraints">7.1 COMMAREA Presence and Size Constraints</a></li>
+<li class="toc-level-3"><a href="#72-request-identifier-policy-type-constraints">7.2 Request Identifier (Policy Type) Constraints</a></li>
+<li class="toc-level-3"><a href="#73-processing-sequencing-constraints">7.3 Processing Sequencing Constraints</a></li>
+<li class="toc-level-3"><a href="#74-null-handling-constraints-for-db2-columns">7.4 Null-Handling Constraints for DB2 Columns</a></li>
+<li class="toc-level-3"><a href="#75-error-capture-and-logging-constraints">7.5 Error Capture and Logging Constraints</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#8-error-handling">8. Error Handling</a>
+<ul>
+<li class="toc-level-3"><a href="#81-commarea-presence-validation">8.1 COMMAREA Presence Validation</a></li>
+<li class="toc-level-3"><a href="#82-commarea-length-validation-insufficient-data">8.2 COMMAREA Length Validation (Insufficient Data)</a></li>
+<li class="toc-level-3"><a href="#83-invalid-request-code-handling">8.3 Invalid Request Code Handling</a></li>
+<li class="toc-level-3"><a href="#84-sql-null-indicator-variables">8.4 SQL Null Indicator Variables</a></li>
+<li class="toc-level-3"><a href="#85-error-message-logging-write_error_message-procedure">8.5 Error Message Logging (WRITE_ERROR_MESSAGE Procedure)</a></li>
+<li class="toc-level-3"><a href="#86-return-code-signalling-to-the-caller">8.6 Return Code Signalling to the Caller</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#9-examples">9. Examples</a>
+<ul>
+<li class="toc-level-3"><a href="#91-example-1--successful-motor-policy-update">9.1 Example 1 — Successful Motor Policy Update</a></li>
+<li class="toc-level-3"><a href="#92-example-2--house-policy-update-rejected-due-to-short-commarea">9.2 Example 2 — House Policy Update Rejected Due to Short COMMAREA</a></li>
+<li class="toc-level-3"><a href="#93-example-3--unrecognised-request-code">9.3 Example 3 — Unrecognised Request Code</a></li>
+</ul>
+</li>
+</ul>
+
+</nav>
+                </div>
+            </div>
+        </main>
+    </div>
+    <footer class="wiki-footer">Made by IBM Bob Premium Package for Z</footer>
+    <script>
+    /* toc-spy.js — highlights the active heading in the TOC panel on scroll */
+    (function () {
+      function init() {
+        var panel = document.querySelector('.toc-panel');
+        if (!panel) return;
+        var links = Array.prototype.slice.call(panel.querySelectorAll('a[href^="#"]'));
+        if (!links.length) return;
+
+        var headingIds = links.map(function (a) { return a.getAttribute('href').slice(1); });
+        var headings = headingIds.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+
+        function clearActive() {
+          panel.querySelectorAll('.toc-active').forEach(function (el) { el.classList.remove('toc-active'); });
+          panel.querySelectorAll('.toc-parent-active').forEach(function (el) { el.classList.remove('toc-parent-active'); });
+        }
+
+        function setActive(id) {
+          clearActive();
+          var link = panel.querySelector('a[href="#' + id + '"]');
+          if (!link) return;
+          link.classList.add('toc-active');
+          var li = link.closest('li');
+          if (li) {
+            var parentLi = li.parentElement && li.parentElement.closest('li');
+            if (parentLi) parentLi.classList.add('toc-parent-active');
+          }
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              setActive(entry.target.id);
+            }
+          });
+        }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+        headings.forEach(function (h) { observer.observe(h); });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+    </script>
+    <script>
+    /* breadcrumb.js — reads sessionStorage['wiki_referrer'] and renders breadcrumb.
+       Only fires when the referrer was set by clicking a link inside the Source Files
+       disclosure on a wiki page; clears after rendering so stale state never lingers. */
+    (function () {
+      var raw;
+      try { raw = sessionStorage.getItem('wiki_referrer'); } catch (_e) {}
+      if (!raw) return;
+      /* Consume immediately — prevents the breadcrumb re-appearing on the next visit. */
+      try { sessionStorage.removeItem('wiki_referrer'); } catch (_e) {}
+      var ref;
+      try { ref = JSON.parse(raw); } catch (_e) { return; }
+      if (!ref || !ref.href) return;
+      var bc = document.getElementById('wiki-breadcrumb');
+      if (!bc) return;
+      bc.className = 'wiki-breadcrumb';
+      bc.innerHTML =
+        '<a href="' + ref.href + '">' + (ref.title || 'Back') + '</a>' +
+        '<span class="wiki-breadcrumb-sep"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' +
+        '<span class="wiki-breadcrumb-current">LGUPOL01</span>';
+    })();
+    </script>
+    <script>
+    /* sidebar toggle — same as main wiki pages */
+    (function () {
+
+      var STORAGE_KEY = 'sb_open';
+
+      function getOpenSet() {
+        try {
+          var raw = sessionStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+      }
+
+      function saveOpenSet(set) {
+        try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(set)); } catch (e) {}
+      }
+
+      function findItems(toggle) {
+        var node = toggle.nextSibling;
+        while (node) {
+          if (node.nodeType === 1 && node.classList.contains('nav-section-items'))
+            return node;
+          node = node.nextSibling;
+        }
+        return null;
+      }
+
+      function toggleKey(toggle, index) {
+        var label = (toggle.querySelector('.nav-toggle-text') || toggle).textContent.trim().replace(/\s+/g, ' ');
+        return index + ':' + label;
+      }
+
+      function openSection(toggle, items, key, set) {
+        toggle.classList.add('open');
+        items.classList.add('open');
+        if (set) set[key] = true;
+      }
+
+      function closeSection(toggle, items, key, set) {
+        toggle.classList.remove('open');
+        items.classList.remove('open');
+        if (set) set[key] = false;
+      }
+
+      function init() {
+        var sidebar = document.getElementById('wiki-sidebar');
+        var toggles = Array.prototype.slice.call(
+          document.querySelectorAll('.nav-section-toggle')
+        );
+
+        var savedSet = getOpenSet();
+        var openSet = savedSet || {};
+
+        toggles.forEach(function (toggle, idx) {
+          var items = findItems(toggle);
+          if (!items) return;
+
+          var key = toggleKey(toggle, idx);
+          var shouldOpen = openSet[key] === true;
+
+          if (shouldOpen) {
+            toggle.classList.add('open');
+            items.classList.add('open');
+          }
+
+          toggle.addEventListener('click', function () {
+            var nowOpen = toggle.classList.contains('open');
+            if (nowOpen) {
+              closeSection(toggle, items, key, openSet);
+            } else {
+              openSection(toggle, items, key, openSet);
+            }
+            saveOpenSet(openSet);
+          });
+        });
+
+        saveOpenSet(openSet);
+
+        /* Restore sidebar scroll position after sections are expanded so the
+           scroll height is correct when we apply scrollTop. */
+        if (sidebar) {
+          try {
+            var savedScroll = sessionStorage.getItem('sb_scroll');
+            if (savedScroll !== null) { sidebar.scrollTop = parseInt(savedScroll, 10) || 0; }
+          } catch (_e) {}
+        }
+
+        window.addEventListener('pagehide', function () {
+          saveOpenSet(openSet);
+          if (sidebar) {
+            try { sessionStorage.setItem('sb_scroll', String(sidebar.scrollTop)); } catch (_e) {}
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+    })();
+    </script>
+</body>
+</html>

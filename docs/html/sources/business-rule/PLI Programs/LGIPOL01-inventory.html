@@ -23,7 +23,11 @@
 <body>
     <header class="header">
         <div class="header-left">
+<<<<<<< Updated upstream
             <span class="header-app-name"><a href="../../../../index.html" style="color: inherit; text-decoration: none;">GenApp PLI Insurance Application</a></span>
+=======
+            <span class="header-app-name"><a href="../../../../index.html" style="color: inherit; text-decoration: none;">GenApp PL/I Policy Inquiry Application</a></span>
+>>>>>>> Stashed changes
         </div>
         <div class="header-right">
         </div>
@@ -45,7 +49,11 @@
         <div class="nav-group-label">Application Documentation</div>
         <div class="nav-section">
             <button class="nav-section-toggle" type="button">
+<<<<<<< Updated upstream
                 <span class="nav-toggle-text">Overview</span>
+=======
+                <span class="nav-toggle-text">System Overview</span>
+>>>>>>> Stashed changes
                 <span class="nav-section-chevron">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -53,13 +61,22 @@
                 </span>
             </button>
             <div class="nav-section-items">
+<<<<<<< Updated upstream
                 <a href="../../../pages/project-overview.html" class="nav-link" data-page-id="project-overview">Project Overview</a>
                 <a href="../../../pages/architecture-overview.html" class="nav-link" data-page-id="architecture-overview">Application Architecture</a>
+=======
+                <a href="../../../pages/system-summary.html" class="nav-link" data-page-id="system-summary">Executive Summary &amp; Application Landscape</a>
+                <a href="../../../pages/policy-inquiry-overview.html" class="nav-link" data-page-id="policy-inquiry-overview">Policy Inquiry Functional Domain</a>
+>>>>>>> Stashed changes
             </div>
         </div>
         <div class="nav-section">
             <button class="nav-section-toggle" type="button">
+<<<<<<< Updated upstream
                 <span class="nav-toggle-text">Program Inventory</span>
+=======
+                <span class="nav-toggle-text">System Architecture</span>
+>>>>>>> Stashed changes
                 <span class="nav-section-chevron">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -67,13 +84,22 @@
                 </span>
             </button>
             <div class="nav-section-items">
+<<<<<<< Updated upstream
                 <a href="../../../pages/inventory-summary.html" class="nav-link" data-page-id="inventory-summary">Program Inventory Summary</a>
                 <a href="../../../pages/impact-analysis.html" class="nav-link" data-page-id="impact-analysis">Impact Analysis: Motor Policy EEPOS Migration</a>
+=======
+                <a href="../../../pages/application-boundaries.html" class="nav-link" data-page-id="application-boundaries">Application Boundaries &amp; Component Hierarchy</a>
+                <a href="../../../pages/integration-dependencies.html" class="nav-link" data-page-id="integration-dependencies">External Dependencies &amp; Integration Architecture</a>
+>>>>>>> Stashed changes
             </div>
         </div>
         <div class="nav-section">
             <button class="nav-section-toggle" type="button">
+<<<<<<< Updated upstream
                 <span class="nav-toggle-text">Policy Management Programs</span>
+=======
+                <span class="nav-toggle-text">Program Specifications</span>
+>>>>>>> Stashed changes
                 <span class="nav-section-chevron">
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -81,9 +107,14 @@
                 </span>
             </button>
             <div class="nav-section-items">
+<<<<<<< Updated upstream
                 <a href="../../../pages/policy-inquiry.html" class="nav-link" data-page-id="policy-inquiry">Policy Inquiry Program (LGIPOL01)</a>
                 <a href="../../../pages/policy-add.html" class="nav-link" data-page-id="policy-add">Policy Add Program (LGAPOL01)</a>
                 <a href="../../../pages/policy-update.html" class="nav-link" data-page-id="policy-update">Policy Update Program (LGUPOL01)</a>
+=======
+                <a href="../../../pages/lgipol01-program-spec.html" class="nav-link" data-page-id="lgipol01-program-spec">LGIPOL01 Module Reference</a>
+                <a href="../../../pages/diagnostics-error-handling.html" class="nav-link" data-page-id="diagnostics-error-handling">Error Handling &amp; Diagnostics Subsystem</a>
+>>>>>>> Stashed changes
             </div>
         </div>
         <div class="nav-divider"></div>
@@ -108,9 +139,13 @@
                 </span>
             </button>
             <div class="nav-section-items">
+<<<<<<< Updated upstream
                 <a href="../../../sources/program/PLI Programs/LGUPOL01.html" class="nav-link">LGUPOL01</a>
                 <a href="../../../sources/program/PLI Programs/LGIPOL01.html" class="nav-link">LGIPOL01</a>
                 <a href="../../../sources/program/PLI Programs/LGAPOL01.html" class="nav-link">LGAPOL01</a>
+=======
+                <a href="../../../sources/program/PLI Programs/LGIPOL01.html" class="nav-link">LGIPOL01</a>
+>>>>>>> Stashed changes
             </div>
         </div>
         </div>
@@ -156,10 +191,17 @@
 <h2 id="2-rule-inventory" tabindex="-1">2. Rule Inventory</h2>
 <h3 id="21-procedure-lgipol01" tabindex="-1">2.1 Procedure: LGIPOL01</h3>
 <h4 id="211-initialize-policy-inquiry-return-code" tabindex="-1">2.1.1 Initialize Policy Inquiry Return Code</h4>
+<<<<<<< Updated upstream
 <p><strong>Description:</strong> Sets the communication area return code to ‘00’ at the start of policy inquiry processing, indicating an initially successful status to the calling program.</p>
 <p><strong>Core decision logic:</strong></p>
 <ul>
 <li>The default outcome of a policy inquiry is success (‘00’) until an error is encountered</li>
+=======
+<p><strong>Description:</strong> Sets the communication area return code to ‘00’ at the start of processing, indicating a successful initial state for the policy inquiry transaction.</p>
+<p><strong>Core decision logic:</strong></p>
+<ul>
+<li>Return code is initialized to ‘00’ to signal a successful starting state before any processing occurs</li>
+>>>>>>> Stashed changes
 </ul>
 <p><strong>Code:</strong></p>
 <div class="code-block">
@@ -182,16 +224,28 @@
 <tr>
 <td><code>CA_RETURN_CODE</code></td>
 <td>output</td>
+<<<<<<< Updated upstream
 <td>Initialized to ‘00’ to signal a successful start of the policy inquiry operation to the calling program</td>
+=======
+<td>Receives the initial success value ‘00’ to indicate no errors have occurred at the start of policy inquiry processing</td>
+>>>>>>> Stashed changes
 </tr>
 </tbody>
 </table>
 <h4 id="212-link-to-policy-database-retrieval-program" tabindex="-1">2.1.2 Link to Policy Database Retrieval Program</h4>
+<<<<<<< Updated upstream
 <p><strong>Description:</strong> Invokes the back-end database program LGIPDB01 via a CICS LINK call, passing the full communication area, to retrieve the requested insurance policy record from DB2 based on the customer and policy numbers provided.</p>
 <p><strong>Core decision logic:</strong></p>
 <ul>
 <li>Policy data retrieval is delegated to the dedicated database program LGIPDB01</li>
 <li>The full communication area including customer number and policy number is passed to the database program for policy lookup</li>
+=======
+<p><strong>Description:</strong> Invokes the back-end database program LGIPDB01 via a CICS LINK command to retrieve the full policy details from DB2 for the customer and policy number provided in the communication area.</p>
+<p><strong>Core decision logic:</strong></p>
+<ul>
+<li>The back-end program LGIPDB01 is responsible for performing the actual DB2 policy inquiry</li>
+<li>The full communication area is passed to the database program to carry both request parameters and receive policy details</li>
+>>>>>>> Stashed changes
 </ul>
 <p><strong>Code:</strong></p>
 <div class="code-block">
@@ -216,16 +270,25 @@
 <tr>
 <td><code>LGIPDB01</code></td>
 <td>input</td>
+<<<<<<< Updated upstream
 <td>Identifies the back-end database program to be invoked via CICS LINK for performing the DB2 policy inquiry</td>
+=======
+<td>Provides the name of the back-end database program to be invoked via CICS LINK to perform the DB2 policy retrieval</td>
+>>>>>>> Stashed changes
 </tr>
 <tr>
 <td><code>CA_CUSTOMER_NUM</code></td>
 <td>input</td>
+<<<<<<< Updated upstream
 <td>Passed within the communication area to LGIPDB01 to identify the customer whose policy is being retrieved</td>
+=======
+<td>Carried within the communication area passed to LGIPDB01 to identify the customer whose policy is being inquired upon</td>
+>>>>>>> Stashed changes
 </tr>
 <tr>
 <td><code>CA_POLICY_NUM</code></td>
 <td>input</td>
+<<<<<<< Updated upstream
 <td>Passed within the communication area to LGIPDB01 to identify the specific policy to be retrieved</td>
 </tr>
 </tbody>
@@ -236,6 +299,18 @@
 <ul>
 <li>Motor policies for Honda vehicles receive a special extended expiry date of 2099-01-01 regardless of the originally stored expiry date</li>
 <li>The vehicle make ‘HONDA’ is the trigger condition for this expiry date override business rule</li>
+=======
+<td>Carried within the communication area passed to LGIPDB01 to identify the specific policy to be retrieved</td>
+</tr>
+</tbody>
+</table>
+<h4 id="213-honda-vehicle-policy-expiry-date-override" tabindex="-1">2.1.3 Honda Vehicle Policy Expiry Date Override</h4>
+<p><strong>Description:</strong> Applies a special business rule that overrides the policy expiry date to ‘2099-01-01’ when the insured motor vehicle make is ‘HONDA’, granting an effectively indefinite policy term for Honda vehicles.</p>
+<p><strong>Core decision logic:</strong></p>
+<ul>
+<li>Motor policies where the vehicle make is ‘HONDA’ receive a special expiry date of ‘2099-01-01’, effectively extending the policy indefinitely</li>
+<li>This override is applied after policy data retrieval, replacing whatever expiry date was returned from the database</li>
+>>>>>>> Stashed changes
 </ul>
 <p><strong>Code:</strong></p>
 <div class="code-block">
@@ -259,12 +334,20 @@
 <tr>
 <td><code>CA_M_MAKE</code></td>
 <td>input</td>
+<<<<<<< Updated upstream
 <td>Evaluated to determine whether the insured vehicle is a Honda, which triggers the expiry date override rule</td>
+=======
+<td>Tested against the value ‘HONDA’ to determine whether the special expiry date override business rule should be applied</td>
+>>>>>>> Stashed changes
 </tr>
 <tr>
 <td><code>CA_EXPIRY_DATE</code></td>
 <td>output</td>
+<<<<<<< Updated upstream
 <td>Overridden to ‘2099-01-01’ when the vehicle make is ‘HONDA’, extending the policy’s effective coverage period</td>
+=======
+<td>Receives the overridden expiry date value of ‘2099-01-01’ when the insured vehicle make is ‘HONDA’</td>
+>>>>>>> Stashed changes
 </tr>
 </tbody>
 </table>
@@ -280,7 +363,11 @@
 <ul>
 <li class="toc-level-4"><a href="#211-initialize-policy-inquiry-return-code">2.1.1 Initialize Policy Inquiry Return Code</a></li>
 <li class="toc-level-4"><a href="#212-link-to-policy-database-retrieval-program">2.1.2 Link to Policy Database Retrieval Program</a></li>
+<<<<<<< Updated upstream
 <li class="toc-level-4"><a href="#213-override-policy-expiry-date-for-honda-motor-vehicles">2.1.3 Override Policy Expiry Date for Honda Motor Vehicles</a></li>
+=======
+<li class="toc-level-4"><a href="#213-honda-vehicle-policy-expiry-date-override">2.1.3 Honda Vehicle Policy Expiry Date Override</a></li>
+>>>>>>> Stashed changes
 </ul>
 </li>
 </ul>

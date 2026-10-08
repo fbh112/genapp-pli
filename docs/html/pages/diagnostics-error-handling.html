@@ -1,0 +1,634 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Handling & Diagnostics Subsystem - GenApp PL/I Policy Inquiry Application</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <script src="../assets/mermaid.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: { useMaxWidth: true }
+        });
+    </script>
+
+    <!-- Prism.js for syntax highlighting (bundled — no CDN required) -->
+    <link rel="stylesheet" href="../assets/prism-tomorrow.css">
+    <script src="../assets/prism-core.js"></script>
+    <script src="../assets/prism-languages.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <span class="header-app-name"><a href="../../index.html" style="color: inherit; text-decoration: none;">GenApp PL/I Policy Inquiry Application</a></span>
+        </div>
+        <div class="header-right">
+        </div>
+    </header>
+    <div class="shell">
+        <aside class="sidebar" id="wiki-sidebar">
+            <nav>
+                
+        <div class="nav-home-wrap">
+            <a href="../../index.html" class="nav-home">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 6.5L8 2l6 4.5V14a1 1 0 01-1 1H3a1 1 0 01-1-1V6.5z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M6 15V9h4v6" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                Home
+            </a>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Application Documentation</div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">System Overview</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="system-summary.html" class="nav-link" data-page-id="system-summary">Executive Summary &amp; Application Landscape</a>
+                <a href="policy-inquiry-overview.html" class="nav-link" data-page-id="policy-inquiry-overview">Policy Inquiry Functional Domain</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">System Architecture</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="application-boundaries.html" class="nav-link" data-page-id="application-boundaries">Application Boundaries &amp; Component Hierarchy</a>
+                <a href="integration-dependencies.html" class="nav-link" data-page-id="integration-dependencies">External Dependencies &amp; Integration Architecture</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle open" type="button">
+                <span class="nav-toggle-text">Program Specifications</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items open">
+                <a href="lgipol01-program-spec.html" class="nav-link" data-page-id="lgipol01-program-spec">LGIPOL01 Module Reference</a>
+                <a href="diagnostics-error-handling.html" class="nav-link active" data-page-id="diagnostics-error-handling">Error Handling &amp; Diagnostics Subsystem</a>
+            </div>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Program Documentation</div>
+    <div class="nav-section">
+        <button class="nav-section-toggle" type="button">
+            <span class="nav-toggle-text">program</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items">
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../sources/program/PLI Programs/LGIPOL01.html" class="nav-link">LGIPOL01</a>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="nav-section">
+        <button class="nav-section-toggle" type="button">
+            <span class="nav-toggle-text">business-rule</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items">
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../sources/business-rule/PLI Programs/LGIPOL01-overview.html" class="nav-link">LGIPOL01-overview</a>
+                <a href="../sources/business-rule/PLI Programs/LGIPOL01-inventory.html" class="nav-link">LGIPOL01-inventory</a>
+            </div>
+        </div>
+        </div>
+    </div>
+            </nav>
+        </aside>
+        <main class="main">
+            <div class="page-container">
+                <div class="content-layout">
+                    <div class="prose">
+                        <details class="source-files-disclosure">
+            <summary>
+                <svg class="sf-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Source Files
+                <span style="margin-left:4px;font-size:11px;color:var(--fg-subtle)">(2)</span>
+            </summary>
+            <div class="source-files-body">
+                <ul class="source-files-list">
+            <li><a href="../sources/program/PLI Programs/LGIPOL01.html">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+                    <path d="M4 2h6l4 4v8a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M10 2v4h4" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                LGIPOL01
+            </a></li>
+            <li><a href="../sources/business-rule/PLI Programs/LGIPOL01-inventory.html">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+                    <path d="M4 2h6l4 4v8a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M10 2v4h4" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                LGIPOL01-inventory
+            </a></li>
+                </ul>
+            </div>
+        </details>
+                        <h1 id="error-handling--diagnostics-subsystem" tabindex="-1">Error Handling &amp; Diagnostics Subsystem</h1>
+<h2 id="1-overview" tabindex="-1">1. Overview</h2>
+<p>The Error Handling &amp; Diagnostics Subsystem covers the operational error handling used by the policy inquiry transaction. The central program is <code>LGIPOL01</code>, a CICS-hosted PL/I program. The subsystem has three parts:</p>
+<ul>
+<li><strong>Input validation.</strong> <code>LGIPOL01</code> checks that a COMMAREA was supplied (<code>EIBCALEN</code>).</li>
+<li><strong>Diagnostic logging.</strong> The <code>WRITE_ERROR_MESSAGE</code> subroutine builds timestamped error records and sends them to the transient data queue (TDQ) through the shared utility program <code>LGSTSQ</code>.</li>
+<li><strong>Transaction abend.</strong> When a fatal invocation error occurs, the task ends with the abend code <code>LGCA</code>.</li>
+</ul>
+<p>The subsystem is deliberately small. It handles one fatal condition, a missing COMMAREA. For that condition it records enough context to diagnose the problem: date, time, program name, customer number, policy number, and a snapshot of the raw COMMAREA. It then stops the transaction.</p>
+<h3 id="11-key-capabilities" tabindex="-1">1.1 Key Capabilities</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Mechanism</th>
+<th>Outcome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Detect missing request payload</td>
+<td><code>IF EIBCALEN = 0</code></td>
+<td>Error path is entered</td>
+</tr>
+<tr>
+<td>Capture execution context</td>
+<td><code>EIBTRNID</code>, <code>EIBTRMID</code>, <code>EIBTASKN</code> copied to <code>WS_TRANSID</code>, <code>WS_TERMID</code>, <code>WS_TASKNUM</code></td>
+<td>Context is available for tracing</td>
+</tr>
+<tr>
+<td>Timestamp error records</td>
+<td><code>EXEC CICS ASKTIME</code> and <code>EXEC CICS FORMATTIME</code></td>
+<td><code>EM_DATE</code> and <code>EM_TIME</code> are populated</td>
+</tr>
+<tr>
+<td>Persist diagnostics</td>
+<td><code>EXEC CICS LINK PROGRAM('LGSTSQ')</code></td>
+<td>Error record and COMMAREA snapshot are written to the TDQ</td>
+</tr>
+<tr>
+<td>Terminate abnormally</td>
+<td><code>EXEC CICS ABEND ABCODE('LGCA') NODUMP</code></td>
+<td>Task ends with a named abend and no storage dump</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-scope" tabindex="-1">1.2 Scope</h3>
+<p>This page covers the error handling parts of <code>LGIPOL01</code>. It also describes the normal-path steps that prepare diagnostic data: return code initialisation and capture of the customer and policy numbers. The policy inquiry business logic is mentioned only where it affects error handling. That includes the call to <code>LGIPDB01</code> and the <code>HONDA</code> expiry override.</p>
+<h2 id="2-system-architecture" tabindex="-1">2. System Architecture</h2>
+<h3 id="21-component-view" tabindex="-1">2.1 Component View</h3>
+<div class="mermaid">
+graph TD
+    A[Calling Transaction / Program] -->|COMMAREA via COMM_AREA_PTR| B[LGIPOL01<br>Policy Inquiry Business Logic]
+    B -->|EXEC CICS LINK<br>Length 32000| C[LGIPDB01<br>DB2 Policy Retrieval]
+    B -->|EIBCALEN = 0| D[WRITE_ERROR_MESSAGE<br>Internal Subroutine]
+    D -->|ASKTIME / FORMATTIME| E[CICS Time Services]
+    D -->|EXEC CICS LINK<br>ERROR_MSG| F[LGSTSQ<br>Logging Utility]
+    D -->|EXEC CICS LINK<br>CA_ERROR_MSG| F
+    F --> G[(Transient Data Queue)]
+    B -->|ABEND LGCA NODUMP| H[CICS Task Termination]
+    C --> I[(DB2 Policy / Customer Tables)]
+    B -->|EXEC CICS RETURN| A
+</div>
+<p>The diagram shows these relationships:</p>
+<ul>
+<li><code>LGIPOL01</code> is the only program that makes error handling decisions. The calling program supplies the COMMAREA and receives the result.</li>
+<li><code>WRITE_ERROR_MESSAGE</code> is an internal procedure inside <code>LGIPOL01</code>, not a separate CICS program.</li>
+<li><code>LGSTSQ</code> is the only gateway to the TDQ. <code>LGIPOL01</code> links to it twice during one error event.</li>
+<li><code>LGIPDB01</code> is the database access program. It sits on the normal path and is not part of the error logging path.</li>
+</ul>
+<h3 id="22-components-and-responsibilities" tabindex="-1">2.2 Components and Responsibilities</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Type</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LGIPOL01</code></td>
+<td>CICS PL/I program</td>
+<td>Entry point. Validates the COMMAREA, delegates to the backend, applies business rules, and triggers error handling</td>
+</tr>
+<tr>
+<td><code>WRITE_ERROR_MESSAGE</code></td>
+<td>Internal PL/I procedure</td>
+<td>Builds the timestamped error record and the COMMAREA snapshot, then dispatches both to <code>LGSTSQ</code></td>
+</tr>
+<tr>
+<td><code>LGSTSQ</code></td>
+<td>CICS utility program</td>
+<td>Writes the received messages to the transient data queue</td>
+</tr>
+<tr>
+<td><code>LGIPDB01</code></td>
+<td>CICS program</td>
+<td>Retrieves policy data from DB2 and populates the COMMAREA</td>
+</tr>
+<tr>
+<td><code>LGCMAREA</code></td>
+<td><code>%INCLUDE</code> copybook</td>
+<td>Defines the <code>COMM_AREA</code> union, <code>COMM_AREA_PTR</code>, and <code>COMM_AREA_RAW</code></td>
+</tr>
+<tr>
+<td><code>LGPOLICY</code></td>
+<td><code>%INCLUDE</code> copybook</td>
+<td>Defines DB2 host-variable structures and length constants</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-data-structures-used-for-diagnostics" tabindex="-1">2.3 Data Structures Used for Diagnostics</h3>
+<div class="mermaid">
+classDiagram
+    class ERROR_MSG {
+        EM_DATE
+        EM_TIME
+        program name LGIPOL01
+        EM_CUSNUM
+        EM_POLNUM
+        EM_SQLREQ
+        EM_SQLRC
+        EM_MSG_TEXT
+    }
+    class CA_ERROR_MSG {
+        prefix COMMAREA=
+        CA_DATA up to 90 bytes
+    }
+    class COMM_AREA {
+        CA_REQUEST_ID
+        CA_RETURN_CODE
+        CA_CUSTOMER_NUM
+        CA_POLICY_NUM
+        CA_EXPIRY_DATE
+        CA_M_MAKE
+    }
+    class WORKING_STORAGE {
+        WS_TRANSID
+        WS_TERMID
+        WS_TASKNUM
+        WS_CALEN
+        WS_ADDR_DFHCOMMAREA
+    }
+    COMM_AREA --> ERROR_MSG : customer and policy numbers
+    COMM_AREA --> CA_ERROR_MSG : raw bytes via COMM_AREA_RAW
+    WORKING_STORAGE --> ERROR_MSG : execution context
+</div>
+<p><code>ERROR_MSG</code> is a union layout. It can hold a freeform message string (<code>EM_MSG_TEXT</code>) or structured transaction details. <code>CA_ERROR_MSG</code> is the second record. It carries the raw COMMAREA content, prefixed with <code>COMMAREA=</code>.</p>
+<h2 id="3-operational-error-handling" tabindex="-1">3. Operational Error Handling</h2>
+<h3 id="31-execution-context-capture" tabindex="-1">3.1 Execution Context Capture</h3>
+<p>At the start of the main procedure, <code>LGIPOL01</code> copies the CICS Execution Interface Block (EIB) fields into working storage. This preserves the runtime context for later diagnostics.</p>
+<table>
+<thead>
+<tr>
+<th>EIB Field</th>
+<th>Working Storage Target</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EIBTRNID</code></td>
+<td><code>WS_TRANSID</code></td>
+<td>4-character transaction identifier</td>
+</tr>
+<tr>
+<td><code>EIBTRMID</code></td>
+<td><code>WS_TERMID</code></td>
+<td>4-character terminal identifier</td>
+</tr>
+<tr>
+<td><code>EIBTASKN</code></td>
+<td><code>WS_TASKNUM</code></td>
+<td>7-digit CICS task number</td>
+</tr>
+<tr>
+<td><code>EIBCALEN</code></td>
+<td>(tested directly)</td>
+<td>Length of the received COMMAREA</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-commarea-validation" tabindex="-1">3.2 COMMAREA Validation</h3>
+<p>The first decision in the program checks whether the caller supplied a COMMAREA. A zero length means the request has no payload, so the program cannot continue.</p>
+<ul>
+<li>If <code>EIBCALEN = 0</code>, the program sets the message text, calls <code>WRITE_ERROR_MESSAGE</code>, and abends.</li>
+<li>If <code>EIBCALEN &gt; 0</code>, it continues with normal processing.</li>
+</ul>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">PL1</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-pl1">IF EIBCALEN = 0 THEN
+   DO;
+      EM_MSG_TEXT = &#039; NO COMMAREA RECEIVED&#039;;
+      CALL WRITE_ERROR_MESSAGE;
+      EXEC CICS ABEND ABCODE(&#039;LGCA&#039;) NODUMP;
+   END;</code></pre>
+</div>
+<h3 id="33-preparation-of-diagnostic-data-on-the-normal-path" tabindex="-1">3.3 Preparation of Diagnostic Data on the Normal Path</h3>
+<p>If validation passes, the program prepares the data that any later error record would need:</p>
+<ol>
+<li>It initialises <code>CA_RETURN_CODE</code> to <code>'00'</code>, which is the default success state.</li>
+<li>It records the COMMAREA length in <code>WS_CALEN</code> and resolves the pointer <code>WS_ADDR_DFHCOMMAREA</code>.</li>
+<li>It copies <code>CA_CUSTOMER_NUM</code> and <code>CA_POLICY_NUM</code> into <code>EM_CUSNUM</code> and <code>EM_POLNUM</code>.</li>
+</ol>
+<div class="code-block">
+  <div class="code-block-header">
+    <span class="code-block-lang">PL1</span>
+    <button class="code-block-copy" type="button" onclick="(function(btn){var pre=btn.closest('.code-block').querySelector('pre');navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copied';setTimeout(function(){btn.textContent='Copy'},2000)});})(this)">Copy</button>
+  </div>
+  <pre><code class="language-pl1">CA_RETURN_CODE = &#039;00&#039;;
+EM_CUSNUM = CA_CUSTOMER_NUM;
+EM_POLNUM = CA_POLICY_NUM;</code></pre>
+</div>
+<p>The identifiers are captured before the <code>LINK</code> to <code>LGIPDB01</code>. Any later call to <code>WRITE_ERROR_MESSAGE</code> will therefore carry accurate customer and policy numbers.</p>
+<h3 id="34-operational-flow" tabindex="-1">3.4 Operational Flow</h3>
+<pre><code class="language-mermaid">flowchart TD
+    A([Start LGIPOL01])
+    B[Capture EIBTRNID, EIBTRMID, EIBTASKN]
+    C{EIBCALEN = 0?}
+    D[Set EM_MSG_TEXT&lt;br&gt;NO COMMAREA RECEIVED]
+</code></pre>
+
+                        <div class="related-pages">
+                            <p class="related-pages-title">Related Pages</p>
+                            <div class="card-grid">
+                                
+            <a href="lgipol01-program-spec.html" class="card">
+                <span class="card-title">LGIPOL01 Module Reference</span>
+                <span class="card-description">Detailed technical specification for the LGIPOL01 CICS PL/I policy inquiry coordinator program, including COMMAREA interface and execution lifecycle.</span>
+            </a>
+            <a href="integration-dependencies.html" class="card">
+                <span class="card-title">External Dependencies &amp; Integration Architecture</span>
+                <span class="card-description">Inter-program linkage, CICS COMMAREA interfaces, backend data access (LGIPDB01), and logging integration services (LGSTSQ).</span>
+            </a>
+                            </div>
+                        </div>
+                    </div>
+                    <nav class="toc-panel" aria-label="On this page">
+  <span class="toc-panel-label">On this page</span>
+  <ul class="toc-list">
+<li class="toc-level-2"><a href="#1-overview">1. Overview</a>
+<ul>
+<li class="toc-level-3"><a href="#11-key-capabilities">1.1 Key Capabilities</a></li>
+<li class="toc-level-3"><a href="#12-scope">1.2 Scope</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#2-system-architecture">2. System Architecture</a>
+<ul>
+<li class="toc-level-3"><a href="#21-component-view">2.1 Component View</a></li>
+<li class="toc-level-3"><a href="#22-components-and-responsibilities">2.2 Components and Responsibilities</a></li>
+<li class="toc-level-3"><a href="#23-data-structures-used-for-diagnostics">2.3 Data Structures Used for Diagnostics</a></li>
+</ul>
+</li>
+<li class="toc-level-2"><a href="#3-operational-error-handling">3. Operational Error Handling</a>
+<ul>
+<li class="toc-level-3"><a href="#31-execution-context-capture">3.1 Execution Context Capture</a></li>
+<li class="toc-level-3"><a href="#32-commarea-validation">3.2 COMMAREA Validation</a></li>
+<li class="toc-level-3"><a href="#33-preparation-of-diagnostic-data-on-the-normal-path">3.3 Preparation of Diagnostic Data on the Normal Path</a></li>
+<li class="toc-level-3"><a href="#34-operational-flow">3.4 Operational Flow</a></li>
+</ul>
+</li>
+</ul>
+
+</nav>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+    /* toc-spy.js — highlights the active heading in the TOC panel on scroll */
+    (function () {
+      function init() {
+        var panel = document.querySelector('.toc-panel');
+        if (!panel) return;
+        var links = Array.prototype.slice.call(panel.querySelectorAll('a[href^="#"]'));
+        if (!links.length) return;
+
+        var headingIds = links.map(function (a) { return a.getAttribute('href').slice(1); });
+        var headings = headingIds.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+
+        function clearActive() {
+          panel.querySelectorAll('.toc-active').forEach(function (el) { el.classList.remove('toc-active'); });
+          panel.querySelectorAll('.toc-parent-active').forEach(function (el) { el.classList.remove('toc-parent-active'); });
+        }
+
+        function setActive(id) {
+          clearActive();
+          var link = panel.querySelector('a[href="#' + id + '"]');
+          if (!link) return;
+          link.classList.add('toc-active');
+          var li = link.closest('li');
+          if (li) {
+            var parentLi = li.parentElement && li.parentElement.closest('li');
+            if (parentLi) parentLi.classList.add('toc-parent-active');
+          }
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              setActive(entry.target.id);
+            }
+          });
+        }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+        headings.forEach(function (h) { observer.observe(h); });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+    </script>
+    <script>
+    /* sidebar-toggle.js — persists open/closed state across navigation */
+    (function () {
+
+      var STORAGE_KEY = 'sb_open';
+
+      function getOpenSet() {
+        try {
+          var raw = sessionStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+      }
+
+      function saveOpenSet(set) {
+        try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(set)); } catch (e) {}
+      }
+
+      function findItems(toggle) {
+        var node = toggle.nextSibling;
+        while (node) {
+          if (node.nodeType === 1 && node.classList.contains('nav-section-items'))
+            return node;
+          node = node.nextSibling;
+        }
+        return null;
+      }
+
+      function toggleKey(toggle, index) {
+        var label = (toggle.querySelector('.nav-toggle-text') || toggle).textContent.trim().replace(/\s+/g, ' ');
+        return index + ':' + label;
+      }
+
+      function openSection(toggle, items, key, set) {
+        toggle.classList.add('open');
+        items.classList.add('open');
+        if (set) set[key] = true;
+      }
+
+      function closeSection(toggle, items, key, set) {
+        toggle.classList.remove('open');
+        items.classList.remove('open');
+        if (set) set[key] = false;
+      }
+
+      function init() {
+        var sidebar = document.getElementById('wiki-sidebar');
+        var toggles = Array.prototype.slice.call(
+          document.querySelectorAll('.nav-section-toggle')
+        );
+
+        var activeIdx = -1;
+        toggles.forEach(function (toggle, idx) {
+          var items = findItems(toggle);
+          if (!items) return;
+          if (items.querySelector('.nav-link.active')) {
+            activeIdx = idx;
+          }
+        });
+
+        var savedSet = getOpenSet();
+        var openSet = savedSet || {};
+
+        if (activeIdx !== -1) {
+          openSet[toggleKey(toggles[activeIdx], activeIdx)] = true;
+        }
+
+        toggles.forEach(function (toggle, idx) {
+          var items = findItems(toggle);
+          if (!items) return;
+
+          var key = toggleKey(toggle, idx);
+          var shouldOpen = openSet[key] === true;
+
+          if (shouldOpen) {
+            toggle.classList.add('open');
+            items.classList.add('open');
+          }
+
+          toggle.addEventListener('click', function () {
+            var nowOpen = toggle.classList.contains('open');
+            if (nowOpen) {
+              closeSection(toggle, items, key, openSet);
+            } else {
+              openSection(toggle, items, key, openSet);
+            }
+            saveOpenSet(openSet);
+          });
+        });
+
+        saveOpenSet(openSet);
+
+        /* Restore sidebar scroll position after sections are expanded so the
+           scroll height is correct when we apply scrollTop. */
+        if (sidebar) {
+          try {
+            var savedScroll = sessionStorage.getItem('sb_scroll');
+            if (savedScroll !== null) { sidebar.scrollTop = parseInt(savedScroll, 10) || 0; }
+          } catch (_e) {}
+        }
+
+        window.addEventListener('pagehide', function () {
+          saveOpenSet(openSet);
+          if (sidebar) {
+            try { sessionStorage.setItem('sb_scroll', String(sidebar.scrollTop)); } catch (_e) {}
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+    })();
+    </script>
+    <script>
+    /* nav-tracking.js — only stamps sessionStorage when clicking a source-file link
+       that lives inside the "Source Files" disclosure section, not from sidebar or cards. */
+    (function () {
+      document.addEventListener('click', function (e) {
+        var link = e.target.closest('a[href]');
+        if (!link) return;
+        var href = link.getAttribute('href');
+        if (!href || href.indexOf('sources/') === -1) return;
+        /* Only set referrer when the click originates from inside the Source Files
+           disclosure (.source-files-disclosure). Any other path — sidebar, cards,
+           direct navigation — must not set a referrer. */
+        if (!link.closest('.source-files-disclosure')) return;
+        try {
+          sessionStorage.setItem('wiki_referrer', JSON.stringify({
+            href: location.href,
+            title: document.title,
+            file: location.pathname.split('/').pop()
+          }));
+        } catch (_e) {}
+      });
+    })();
+    </script>
+    <footer class="wiki-footer">Made by IBM Bob Premium Package for Z</footer>
+</body>
+</html>

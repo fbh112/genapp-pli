@@ -3,6 +3,7 @@
 This file provides guidance to agents when working with code in this repository.
 
 ## Project Overview
+<<<<<<< Updated upstream
 
 **GenApp-PLI** — a CICS-based general insurance application written in **PL/I** (z/OS mainframe). No build toolchain exists in this repo; compilation and deployment happen on the target z/OS system via JCL.
 
@@ -79,3 +80,19 @@ When a workflow or skill specifies a default output path (e.g. `.bobz/implementa
 ## Local Metadata Database
 
 A Bob local analysis database has been scanned and stored. Location is recorded in `.bobz/local-settings.json`. Use `execute_sql_query`, `get_program_dependencies`, `get_paragraphs`, or `get_control_flow` tools against it for dependency and flow analysis.
+=======
+This repository contains the PL/I implementation of General Insurance Application (GenApp) for IBM z/OS CICS and Db2/VSAM.
+
+## Application Architecture & Naming Conventions
+- **Naming Pattern**: `LG[A|D|I|U]P[DB|OL|VS]01.pli`
+  - Action: `A`=Add, `D`=Delete, `I`=Inquire, `U`=Update
+  - Component: `POL`=Presentation/Business Logic, `DB`=Db2 data access layer, `VS`=VSAM data access layer
+- **Communication Area**: Structure defined in `Includes/LGCMAREA.inc` as a union based on pointer (`COMM_AREA_PTR`). All programs pass fixed `Length(32000)` on `EXEC CICS LINK`.
+- **Copybooks & Includes**: Referenced via `%INCLUDE <MEMBER>;` without file extension. Mapped via `zapp.yaml` `syslib` property group pointing to `Includes/`.
+
+## Development & Diagnostics
+- **Syntax & Language Validation**: Use `get_diagnostics` with file path (e.g., `PLI Programs/LGIPOL01.pli`) to validate PL/I and copybook syntax via Z Open Editor language server.
+- **Error Logging**: Business and DB layer programs log errors to TDQ via `EXEC CICS LINK PROGRAM('LGSTSQ')` using `ERROR_MSG` and `CA_ERROR_MSG`.
+- **Abend Codes**:
+  - `LGCA`: Missing COMMAREA on entry (`EIBCALEN = 0`).
+>>>>>>> Stashed changes

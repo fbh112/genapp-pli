@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 # Project Coding Rules (Non-Obvious Only)
 
 - **Sequence numbers are mandatory**: Every source line must end with an 8-digit sequence number (e.g. `00010000`). Increment by 10 for new lines; use mid-range values (e.g. `00015000`) for insertions between existing lines.
@@ -8,3 +9,11 @@
 - **Business Rules (ODM) is disabled by default**: The `LGAPBR01` call in `LGAPOL01` only fires when `BUSINESS_RULES = 'Y'`. The commented-out `MOVE` line is intentional — do not uncomment unless ODM is deployed.
 - **`LGPOLICY.inc` field lengths are the single source of truth** for DB2 record sizes. If DB2 schema changes, update `WS_*_LEN` constants in `LGPOLICY.inc` first — programs read these at run time.
 - **Data dictionary location**: `.bobz/DD.json` (if created). Check `.bobz/local-settings.json` for `databaseLocation` before running analysis queries.
+=======
+# AGENTS.md - Agent Mode Guidance
+
+- **PL/I & Copybook Resolution**: Always use `%INCLUDE <MEMBER>;` without `.inc` extension. Syslib paths are resolved via `zapp.yaml`.
+- **CICS Program Link Convention**: All inter-program invocations (`EXEC CICS LINK`) between business router (`LGxPOL01`) and backend data access (`LGxPDB01`/`LGxPVS01`) pass `Commarea(COMM_AREA)` with hardcoded `Length(32000)`.
+- **Diagnostics Check**: After modifying any PL/I file, always run `get_diagnostics` to ensure clean parsing before completing changes.
+- **Error Handling Pattern**: When handling fatal conditions (e.g. `EIBCALEN = 0`), format timestamp using `EXEC CICS ASKTIME` / `FORMATTIME`, invoke `LGSTSQ` via CICS LINK for diagnostic logging, and terminate with `EXEC CICS ABEND ABCODE('LGCA') NODUMP`.
+>>>>>>> Stashed changes

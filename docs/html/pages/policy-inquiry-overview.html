@@ -1,0 +1,485 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Inquiry Functional Domain - GenApp PL/I Policy Inquiry Application</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <script src="../assets/mermaid.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            flowchart: { useMaxWidth: true }
+        });
+    </script>
+
+    <!-- Prism.js for syntax highlighting (bundled — no CDN required) -->
+    <link rel="stylesheet" href="../assets/prism-tomorrow.css">
+    <script src="../assets/prism-core.js"></script>
+    <script src="../assets/prism-languages.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <span class="header-app-name"><a href="../../index.html" style="color: inherit; text-decoration: none;">GenApp PL/I Policy Inquiry Application</a></span>
+        </div>
+        <div class="header-right">
+        </div>
+    </header>
+    <div class="shell">
+        <aside class="sidebar" id="wiki-sidebar">
+            <nav>
+                
+        <div class="nav-home-wrap">
+            <a href="../../index.html" class="nav-home">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 6.5L8 2l6 4.5V14a1 1 0 01-1 1H3a1 1 0 01-1-1V6.5z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M6 15V9h4v6" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                Home
+            </a>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Application Documentation</div>
+        <div class="nav-section">
+            <button class="nav-section-toggle open" type="button">
+                <span class="nav-toggle-text">System Overview</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items open">
+                <a href="system-summary.html" class="nav-link" data-page-id="system-summary">Executive Summary &amp; Application Landscape</a>
+                <a href="policy-inquiry-overview.html" class="nav-link active" data-page-id="policy-inquiry-overview">Policy Inquiry Functional Domain</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">System Architecture</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="application-boundaries.html" class="nav-link" data-page-id="application-boundaries">Application Boundaries &amp; Component Hierarchy</a>
+                <a href="integration-dependencies.html" class="nav-link" data-page-id="integration-dependencies">External Dependencies &amp; Integration Architecture</a>
+            </div>
+        </div>
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">Program Specifications</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="lgipol01-program-spec.html" class="nav-link" data-page-id="lgipol01-program-spec">LGIPOL01 Module Reference</a>
+                <a href="diagnostics-error-handling.html" class="nav-link" data-page-id="diagnostics-error-handling">Error Handling &amp; Diagnostics Subsystem</a>
+            </div>
+        </div>
+        <div class="nav-divider"></div>
+        <div class="nav-group-label">Program Documentation</div>
+    <div class="nav-section">
+        <button class="nav-section-toggle" type="button">
+            <span class="nav-toggle-text">program</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items">
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../sources/program/PLI Programs/LGIPOL01.html" class="nav-link">LGIPOL01</a>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="nav-section">
+        <button class="nav-section-toggle" type="button">
+            <span class="nav-toggle-text">business-rule</span>
+            <span class="nav-section-chevron">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+        </button>
+        <div class="nav-section-items">
+        <div class="nav-section">
+            <button class="nav-section-toggle" type="button">
+                <span class="nav-toggle-text">PLI Programs</span>
+                <span class="nav-section-chevron">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+            </button>
+            <div class="nav-section-items">
+                <a href="../sources/business-rule/PLI Programs/LGIPOL01-overview.html" class="nav-link">LGIPOL01-overview</a>
+                <a href="../sources/business-rule/PLI Programs/LGIPOL01-inventory.html" class="nav-link">LGIPOL01-inventory</a>
+            </div>
+        </div>
+        </div>
+    </div>
+            </nav>
+        </aside>
+        <main class="main">
+            <div class="page-container">
+                <div class="content-layout">
+                    <div class="prose">
+                        <details class="source-files-disclosure">
+            <summary>
+                <svg class="sf-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Source Files
+                <span style="margin-left:4px;font-size:11px;color:var(--fg-subtle)">(2)</span>
+            </summary>
+            <div class="source-files-body">
+                <ul class="source-files-list">
+            <li><a href="../sources/program/PLI Programs/LGIPOL01.html">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+                    <path d="M4 2h6l4 4v8a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M10 2v4h4" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                LGIPOL01
+            </a></li>
+            <li><a href="../sources/business-rule/PLI Programs/LGIPOL01-overview.html">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+                    <path d="M4 2h6l4 4v8a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                    <path d="M10 2v4h4" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round"/>
+                </svg>
+                LGIPOL01-overview
+            </a></li>
+                </ul>
+            </div>
+        </details>
+                        <h1 id="policy-inquiry-functional-domain" tabindex="-1">Policy Inquiry Functional Domain</h1>
+<p>The Policy Inquiry Functional Domain encompasses the end-to-end processing pipeline for retrieving and presenting insurance policy details across four distinct policy lines: <strong>Endowment</strong>, <strong>House</strong>, <strong>Motor</strong>, and <strong>Commercial</strong>. At the heart of this domain is the CICS-hosted PL/I program <code>LGIPOL01</code>, which acts as the business logic front-end, coordinating communication area validation, backend database delegation, business rule enforcement, and error diagnostics. This domain ensures that customer service representatives and downstream systems can reliably retrieve current policy contracts for any supported policy type.</p>
+<hr>
+<h2 id="1-system-architecture" tabindex="-1">1. System Architecture</h2>
+<p>The Policy Inquiry domain follows a layered architecture pattern: a business logic tier (<code>LGIPOL01</code>) sits between the calling transaction and a dedicated database access tier (<code>LGIPDB01</code>), with a shared logging utility (<code>LGSTSQ</code>) providing cross-cutting diagnostic support. All inter-program communication is conducted via the CICS LINK mechanism using a shared COMMAREA structure.</p>
+<div class="mermaid">
+graph TD
+    CALLER["Calling Program / Transaction"]
+    LGIPOL01["LGIPOL01\nBusiness Logic Front-End\n(CICS PL/I)"]
+    LGIPDB01["LGIPDB01\nDatabase Access Program\n(CICS PL/I)"]
+    LGSTSQ["LGSTSQ\nTDQ Logging Utility\n(CICS)"]
+    DB2[("DB2\nPolicy & Customer\nDatabase")]
+    TDQ["Transient Data Queue\n(TDQ)"]
+    EIB["CICS EIB\n(Runtime Context)"]
+    COMMAREA["COMMAREA\n(LGCMAREA / LGPOLICY)"]
+
+    CALLER -->|"EXEC CICS LINK\n(COMMAREA)"| LGIPOL01
+    EIB -->|"EIBTRNID, EIBTRMID\nEIBTASKN, EIBCALEN"| LGIPOL01
+    LGIPOL01 -->|"EXEC CICS LINK\nLength(32000)"| LGIPDB01
+    LGIPDB01 -->|"SQL SELECT"| DB2
+    DB2 -->|"Policy + Customer Data"| LGIPDB01
+    LGIPDB01 -->|"Populated COMMAREA"| LGIPOL01
+    LGIPOL01 -->|"EXEC CICS LINK\n(ERROR_MSG)"| LGSTSQ
+    LGSTSQ -->|"WRITEQ TD"| TDQ
+    LGIPOL01 -->|"Populated COMMAREA"| CALLER
+    COMMAREA -.->|"Shared Structure"| LGIPOL01
+
+    classDef program fill:#E3F2FD,stroke:#1565C0,stroke-width:1.5px,color:#000;
+    classDef db fill:#E8F5E9,stroke:#2E7D32,stroke-width:1.5px,color:#000;
+    classDef infra fill:#FFF9C4,stroke:#F9A825,stroke-width:1.5px,color:#000;
+    classDef ext fill:#F3E5F5,stroke:#6A1B9A,stroke-width:1.5px,color:#000;
+
+    class LGIPOL01,LGIPDB01,LGSTSQ program;
+    class DB2,TDQ db;
+    class EIB,COMMAREA infra;
+    class CALLER ext;
+</div>
+<p>The architecture enforces a strict separation of concerns:</p>
+<ul>
+<li><strong><code>LGIPOL01</code></strong> owns business logic, COMMAREA validation, and business rule application.</li>
+<li><strong><code>LGIPDB01</code></strong> owns all DB2 data access and returns results via the shared COMMAREA.</li>
+<li><strong><code>LGSTSQ</code></strong> provides a reusable, decoupled logging mechanism writing to CICS Transient Data Queues.</li>
+<li><strong>CICS EIB</strong> supplies runtime context (transaction ID, terminal ID, task number, COMMAREA length) to <code>LGIPOL01</code> automatically.</li>
+</ul>
+<hr>
+<h2 id="2-overview" tabindex="-1">2. Overview</h2>
+<p>The Policy Inquiry Functional Domain is responsible for handling requests to retrieve the full details of an individual insurance policy. It supports four policy lines:</p>
+<table>
+<thead>
+<tr>
+<th>Policy Type</th>
+<th>Key Field</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Endowment</strong></td>
+<td><code>CA_E_SUM_ASSURED</code></td>
+<td>Guaranteed payout (sum assured) of the endowment contract</td>
+</tr>
+<tr>
+<td><strong>House</strong></td>
+<td><code>CA_B_PROPTYPE</code></td>
+<td>Classification of the insured property</td>
+</tr>
+<tr>
+<td><strong>Motor</strong></td>
+<td><code>CA_M_MAKE</code></td>
+<td>Vehicle manufacturer; drives business rule overrides</td>
+</tr>
+<tr>
+<td><strong>Commercial</strong></td>
+<td><code>CA_B_PROPTYPE</code></td>
+<td>Classification of the insured commercial property</td>
+</tr>
+</tbody>
+</table>
+<p>The domain is entered via program <code>LGIPOL01</code>, which accepts a COMMAREA containing a <strong>customer number</strong> (<code>CA_CUSTOMER_NUM</code>) and a <strong>policy number</strong> (<code>CA_POLICY_NUM</code>). Upon successful retrieval by the backend program <code>LGIPDB01</code>, the populated COMMAREA — including all policy attributes, customer details, issue date, expiry date, and payment information — is returned to the caller.</p>
+<p>A notable business rule within this domain applies specifically to <strong>Motor policies</strong>: any policy where the insured vehicle make is <code>HONDA</code> receives an unconditional expiry date override to <code>2099-01-01</code>, representing an indefinite coverage grant.</p>
+<hr>
+<h2 id="3-functional-breakdown" tabindex="-1">3. Functional Breakdown</h2>
+<h3 id="31-function-policy-inquiry-and-data-retrieval" tabindex="-1">3.1 Function: Policy Inquiry and Data Retrieval</h3>
+<p>This function covers the two primary subfunctions executed during every policy inquiry transaction: extracting policy records from the database, and applying any relevant policy term adjustments.</p>
+<h4 id="311-subfunction-policy-data-extraction" tabindex="-1">3.1.1 SubFunction: Policy Data Extraction</h4>
+<p>This subfunction governs the retrieval of comprehensive policy details from the persistent policy repository for a given</p>
+
+                        <div class="related-pages">
+                            <p class="related-pages-title">Related Pages</p>
+                            <div class="card-grid">
+                                
+            <a href="system-summary.html" class="card">
+                <span class="card-title">Executive Summary &amp; Application Landscape</span>
+                <span class="card-description">High-level overview of the GenApp insurance policy inquiry processing system, core domains, and general transaction flows.</span>
+            </a>
+            <a href="lgipol01-program-spec.html" class="card">
+                <span class="card-title">LGIPOL01 Module Reference</span>
+                <span class="card-description">Detailed technical specification for the LGIPOL01 CICS PL/I policy inquiry coordinator program, including COMMAREA interface and execution lifecycle.</span>
+            </a>
+                            </div>
+                        </div>
+                    </div>
+                    <nav class="toc-panel" aria-label="On this page">
+  <span class="toc-panel-label">On this page</span>
+  <ul class="toc-list">
+<li class="toc-level-2"><a href="#1-system-architecture">1. System Architecture</a></li>
+<li class="toc-level-2"><a href="#2-overview">2. Overview</a></li>
+<li class="toc-level-2"><a href="#3-functional-breakdown">3. Functional Breakdown</a>
+<ul>
+<li class="toc-level-3"><a href="#31-function-policy-inquiry-and-data-retrieval">3.1 Function: Policy Inquiry and Data Retrieval</a>
+<ul>
+<li class="toc-level-4"><a href="#311-subfunction-policy-data-extraction">3.1.1 SubFunction: Policy Data Extraction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</nav>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+    /* toc-spy.js — highlights the active heading in the TOC panel on scroll */
+    (function () {
+      function init() {
+        var panel = document.querySelector('.toc-panel');
+        if (!panel) return;
+        var links = Array.prototype.slice.call(panel.querySelectorAll('a[href^="#"]'));
+        if (!links.length) return;
+
+        var headingIds = links.map(function (a) { return a.getAttribute('href').slice(1); });
+        var headings = headingIds.map(function (id) { return document.getElementById(id); }).filter(Boolean);
+
+        function clearActive() {
+          panel.querySelectorAll('.toc-active').forEach(function (el) { el.classList.remove('toc-active'); });
+          panel.querySelectorAll('.toc-parent-active').forEach(function (el) { el.classList.remove('toc-parent-active'); });
+        }
+
+        function setActive(id) {
+          clearActive();
+          var link = panel.querySelector('a[href="#' + id + '"]');
+          if (!link) return;
+          link.classList.add('toc-active');
+          var li = link.closest('li');
+          if (li) {
+            var parentLi = li.parentElement && li.parentElement.closest('li');
+            if (parentLi) parentLi.classList.add('toc-parent-active');
+          }
+        }
+
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              setActive(entry.target.id);
+            }
+          });
+        }, { rootMargin: '0px 0px -70% 0px', threshold: 0 });
+
+        headings.forEach(function (h) { observer.observe(h); });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+    </script>
+    <script>
+    /* sidebar-toggle.js — persists open/closed state across navigation */
+    (function () {
+
+      var STORAGE_KEY = 'sb_open';
+
+      function getOpenSet() {
+        try {
+          var raw = sessionStorage.getItem(STORAGE_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+      }
+
+      function saveOpenSet(set) {
+        try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(set)); } catch (e) {}
+      }
+
+      function findItems(toggle) {
+        var node = toggle.nextSibling;
+        while (node) {
+          if (node.nodeType === 1 && node.classList.contains('nav-section-items'))
+            return node;
+          node = node.nextSibling;
+        }
+        return null;
+      }
+
+      function toggleKey(toggle, index) {
+        var label = (toggle.querySelector('.nav-toggle-text') || toggle).textContent.trim().replace(/\s+/g, ' ');
+        return index + ':' + label;
+      }
+
+      function openSection(toggle, items, key, set) {
+        toggle.classList.add('open');
+        items.classList.add('open');
+        if (set) set[key] = true;
+      }
+
+      function closeSection(toggle, items, key, set) {
+        toggle.classList.remove('open');
+        items.classList.remove('open');
+        if (set) set[key] = false;
+      }
+
+      function init() {
+        var sidebar = document.getElementById('wiki-sidebar');
+        var toggles = Array.prototype.slice.call(
+          document.querySelectorAll('.nav-section-toggle')
+        );
+
+        var activeIdx = -1;
+        toggles.forEach(function (toggle, idx) {
+          var items = findItems(toggle);
+          if (!items) return;
+          if (items.querySelector('.nav-link.active')) {
+            activeIdx = idx;
+          }
+        });
+
+        var savedSet = getOpenSet();
+        var openSet = savedSet || {};
+
+        if (activeIdx !== -1) {
+          openSet[toggleKey(toggles[activeIdx], activeIdx)] = true;
+        }
+
+        toggles.forEach(function (toggle, idx) {
+          var items = findItems(toggle);
+          if (!items) return;
+
+          var key = toggleKey(toggle, idx);
+          var shouldOpen = openSet[key] === true;
+
+          if (shouldOpen) {
+            toggle.classList.add('open');
+            items.classList.add('open');
+          }
+
+          toggle.addEventListener('click', function () {
+            var nowOpen = toggle.classList.contains('open');
+            if (nowOpen) {
+              closeSection(toggle, items, key, openSet);
+            } else {
+              openSection(toggle, items, key, openSet);
+            }
+            saveOpenSet(openSet);
+          });
+        });
+
+        saveOpenSet(openSet);
+
+        /* Restore sidebar scroll position after sections are expanded so the
+           scroll height is correct when we apply scrollTop. */
+        if (sidebar) {
+          try {
+            var savedScroll = sessionStorage.getItem('sb_scroll');
+            if (savedScroll !== null) { sidebar.scrollTop = parseInt(savedScroll, 10) || 0; }
+          } catch (_e) {}
+        }
+
+        window.addEventListener('pagehide', function () {
+          saveOpenSet(openSet);
+          if (sidebar) {
+            try { sessionStorage.setItem('sb_scroll', String(sidebar.scrollTop)); } catch (_e) {}
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+
+    })();
+    </script>
+    <script>
+    /* nav-tracking.js — only stamps sessionStorage when clicking a source-file link
+       that lives inside the "Source Files" disclosure section, not from sidebar or cards. */
+    (function () {
+      document.addEventListener('click', function (e) {
+        var link = e.target.closest('a[href]');
+        if (!link) return;
+        var href = link.getAttribute('href');
+        if (!href || href.indexOf('sources/') === -1) return;
+        /* Only set referrer when the click originates from inside the Source Files
+           disclosure (.source-files-disclosure). Any other path — sidebar, cards,
+           direct navigation — must not set a referrer. */
+        if (!link.closest('.source-files-disclosure')) return;
+        try {
+          sessionStorage.setItem('wiki_referrer', JSON.stringify({
+            href: location.href,
+            title: document.title,
+            file: location.pathname.split('/').pop()
+          }));
+        } catch (_e) {}
+      });
+    })();
+    </script>
+    <footer class="wiki-footer">Made by IBM Bob Premium Package for Z</footer>
+</body>
+</html>

@@ -5,13 +5,20 @@
 ## Table of Contents
 
 - [1. Purpose](#1-purpose)
+<<<<<<< Updated upstream
 - [2. Function: Policy Inquiry Processing](#2-function-policy-inquiry-processing)
   - [2.1 SubFunction: Policy Data Retrieval](#21-subfunction-policy-data-retrieval)
   - [2.2 SubFunction: Policy Coverage Rules Application](#22-subfunction-policy-coverage-rules-application)
+=======
+- [2. Function: Policy Inquiry and Data Retrieval](#2-function-policy-inquiry-and-data-retrieval)
+  - [2.1 SubFunction: Policy Data Extraction](#21-subfunction-policy-data-extraction)
+  - [2.2 SubFunction: Motor Policy Term Adjustments](#22-subfunction-motor-policy-term-adjustments)
+>>>>>>> Stashed changes
 
 ## 1. Purpose
 This document presents a program-level functional view of the business logic in LGIPOL01. Business rules are organised into a Function → SubFunction → Business Rule hierarchy representing the business functions performed in the program. Semantically related rules are consolidated into named SubFunctions that group related business capabilities, and purely technical or setup logic is excluded. Each rule documents its purpose, ordered execution steps with conditions, actions, and outcomes, references to the contributing source paragraphs, and the business significance of each rule.
 
+<<<<<<< Updated upstream
 ## 2. Function: Policy Inquiry Processing
 
 ### 2.1 SubFunction: Policy Data Retrieval
@@ -55,6 +62,40 @@ After policy data is retrieved, a special coverage rule is evaluated: if the ins
 
 ##### 2.2.1.3 Business Significance
 Incorrect application or omission of this rule directly affects coverage validity determinations. If the override is not applied, Honda motor vehicle policyholders may be incorrectly flagged as having lapsed or expired coverage. Conversely, if the rule fires erroneously for non-Honda vehicles, unauthorized coverage extensions would be granted, creating underwriting liability exposure and potential financial loss for the insurer.
+=======
+## 2. Function: Policy Inquiry and Data Retrieval
+
+### 2.1 SubFunction: Policy Data Extraction
+#### 2.1.1 Business Rule: Customer Policy Record Retrieval
+##### 2.1.1.1 Purpose
+Coordinates the retrieval of comprehensive policy details from the persistent policy repository for a specified customer and policy number.
+##### 2.1.1.2 Rule Steps
+1. Initialize Transaction Status
+   - Conditions: None.
+   - Actions: Set `CA_RETURN_CODE` to `'00'`.
+   - Outcomes: Prepares the inquiry transaction in an initial successful state prior to data access.
+   - Relevant Procedures: `LGIPOL01`
+2. Delegate Policy Lookup to Back-End Data Access Service
+   - Conditions: Customer identifier (`CA_CUSTOMER_NUM`) and policy number (`CA_POLICY_NUM`) are provided in the communication interface.
+   - Actions: Pass the communication area and invoke back-end database service `LGIPDB01` via CICS LINK to query policy records.
+   - Outcomes: Populates the communication area with full policy attributes from the database or returns an error status.
+   - Relevant Procedures: `LGIPOL01`
+##### 2.1.1.3 Business Significance
+Failure to invoke or correctly pass parameters to the retrieval service prevents customer service representatives or downstream systems from viewing current policy contracts, disrupting policyholder inquiries and operations.
+
+### 2.2 SubFunction: Motor Policy Term Adjustments
+#### 2.2.1 Business Rule: Honda Vehicle Policy Expiry Date Override
+##### 2.2.1.1 Purpose
+Applies a specific underwriting rule that grants an indefinite coverage period for motor policies insuring Honda vehicles by overriding the stored expiry date.
+##### 2.2.1.2 Rule Steps
+1. Evaluate Vehicle Manufacturer
+   - Conditions: The retrieved motor policy indicates vehicle make `CA_M_MAKE` is equal to `'HONDA'`.
+   - Actions: Replace the standard database policy expiration date `CA_EXPIRY_DATE` with `'2099-01-01'`.
+   - Outcomes: Extends the effective coverage validity of the Honda motor vehicle policy indefinitely.
+   - Relevant Procedures: `LGIPOL01`
+##### 2.2.1.3 Business Significance
+Incorrect application of this rule may lead to premature policy expiration notices, accidental cancellation of active Honda coverage, or unauthorized lifetime coverage on non-qualifying vehicles, resulting in coverage disputes or financial liability.
+>>>>>>> Stashed changes
 
 ---
 

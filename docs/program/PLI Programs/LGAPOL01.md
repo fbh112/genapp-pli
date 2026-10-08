@@ -2,6 +2,7 @@
 
 - [1. Purpose](#1-purpose)
 - [2. Inputs](#2-inputs)
+<<<<<<< Updated upstream
   - [2.1 Communication Area (COMMAREA) — Passed via `COMM_AREA_PTR` parameter](#21-communication-area-commarea--passed-via-comm_area_ptr-parameter)
   - [2.2 CICS Execution Environment](#22-cics-execution-environment)
   - [2.3 Internal Configuration Flag](#23-internal-configuration-flag)
@@ -149,10 +150,471 @@ graph TD
     L -- Yes --> M
     L -- No --> M
     G --> M
+=======
+  - [2.1 CICS Communication Area (COMMAREA)](#21-cics-communication-area-commarea)
+  - [2.2 CICS Executive Interface Block (EIB)](#22-cics-executive-interface-block-eib)
+  - [2.3 Internal Control Flag](#23-internal-control-flag)
+- [3. Outputs](#3-outputs)
+- [4. Processing Logic](#4-processing-logic)
+  - [4.1 Processing Logic Description](#41-processing-logic-description)
+  - [4.2 Database Tables](#42-database-tables)
+- [5. Paragraphs](#5-paragraphs)
+- [6. Dependencies](#6-dependencies)
+  - [6.1 CICS Programs (Linked Modules)](#61-cics-programs-linked-modules)
+  - [6.2 CICS COMMAREA (Inter-program Communication)](#62-cics-commarea-inter-program-communication)
+  - [6.3 CICS EIB (Execute Interface Block) Fields](#63-cics-eib-execute-interface-block-fields)
+  - [6.4 CICS Services Used](#64-cics-services-used)
+  - [6.5 Copybook / Include](#65-copybook--include)
+  - [6.6 Internal Procedure](#66-internal-procedure)
+- [7. Constraints](#7-constraints)
+  - [7.1 Communication Area (COMMAREA) Constraints](#71-communication-area-commarea-constraints)
+  - [7.2 Request Routing Constraints](#72-request-routing-constraints)
+  - [7.3 Data Field Structural Constraints](#73-data-field-structural-constraints)
+  - [7.4 Sequencing and Operational Constraints](#74-sequencing-and-operational-constraints)
+  - [7.5 Error Logging Constraints](#75-error-logging-constraints)
+- [8. Error Handling](#8-error-handling)
+  - [8.1 Communication Area Validation and Abends](#81-communication-area-validation-and-abends)
+  - [8.2 Downstream Service Return Code Inspection](#82-downstream-service-return-code-inspection)
+  - [8.3 Error Logging and Diagnostic Notifications](#83-error-logging-and-diagnostic-notifications)
+- [9. Examples](#9-examples)
+  - [9.1 Example 1: Add a Motor Policy (Standard Path)](#91-example-1-add-a-motor-policy-standard-path)
+  - [9.2 Example 2: Add an Endowment Policy with Business Rules Enabled](#92-example-2-add-an-endowment-policy-with-business-rules-enabled)
+  - [9.3 Example 3: COMMAREA Too Short — Error Return](#93-example-3-commarea-too-short--error-return)
+  - [9.4 Example 4: No COMMAREA Received — ABEND](#94-example-4-no-commarea-received--abend)
+
+## 1. Purpose
+
+LGAPOL01 is a CICS-hosted PL/I program that acts as the business-logic orchestrator for adding new insurance policies to the General Insurance application, supporting four policy types: Endowment, House, Motor, and Commercial. Upon receiving a communication area (COMMAREA), it validates that the area is present and of sufficient length, initialises the return code, and then optionally invokes an IBM Operational Decision Manager (ODM) business-rules program (`LGAPBR01`) — but only when the `BUSINESS_RULES` flag is set to `'Y'` and the request is specifically for adding an Endowment policy (`CA_REQUEST_ID = '01AEND'`). Regardless of that conditional step, the program unconditionally delegates the actual database insert work to a downstream program (`LGAPDB01`) via a CICS LINK, passing the full COMMAREA, and returns any non-zero error code directly to the caller. In the event of a missing COMMAREA, it writes a timestamped diagnostic message to a transient data queue through a shared logging utility (`LGSTSQ`) before issuing a CICS ABEND, ensuring operational visibility into failures.
+
+## 2. Inputs
+
+### 2.1 CICS Communication Area (COMMAREA)
+
+The program receives a single pointer parameter (`COMM_AREA_PTR`) at entry, which maps to the `COMM_AREA` structure. All business inputs arrive through this structure, passed by the CICS caller at transaction invocation.
+
+**Header / Control Fields**
+- `CA_REQUEST_ID` *(CHAR(6))* — Identifies the type of request (e.g., `01AEND` for Add Endowment). Drives routing to the business-rules program and the data-insert program.
+- `CA_RETURN_CODE` *(PIC '99')* — Return code set by this program and downstream programs; read back after the `LGAPDB01` link to decide whether to return early.
+- `CA_CUSTOMER_NUM` *(PIC '9999999999')* — Customer identifier; copied into the error message structure and forwarded to downstream programs.
+
+**Common Policy Fields** *(within `CA_POLICY_REQUEST`)*
+- `CA_POLICY_NUM` *(PIC '9999999999')* — Uniquely identifies the policy being added.
+- `CA_ISSUE_DATE` *(CHAR(10))* — Policy issue date.
+- `CA_EXPIRY_DATE` *(CHAR(10))* — Policy expiry date.
+- `CA_BROKERID` *(PIC '9999999999')* — Broker associated with the policy.
+- `CA_PAYMENT` *(PIC '999999')* — Payment amount for the policy.
+
+**Endowment Policy Fields** *(within `CA_ENDOWMENT`)*
+- `CA_E_WITH_PROFITS` *(CHAR(1))* — With-profits flag for the endowment policy.
+- `CA_E_EQUITIES` *(CHAR(1))* — Equities investment flag.
+- `CA_E_MANAGED_FUND` *(CHAR(1))* — Managed-fund flag.
+- `CA_E_FUND_NAME` *(CHAR(10))* — Name of the investment fund.
+- `CA_E_TERM` *(PIC '99')* — Term of the endowment policy in years.
+- `CA_E_SUM_ASSURED` *(PIC '999999')* — Guaranteed payout (sum assured) amount.
+- `CA_E_LIFE_ASSURED` *(CHAR(31))* — Name of the life assured.
+
+**House Policy Fields** *(within `CA_HOUSE`)*
+- `CA_H_PROPERTY_TYPE` *(CHAR(15))* — Classification of the insured property.
+- `CA_H_BEDROOMS` *(PIC '999')* — Number of bedrooms.
+- `CA_H_VALUE` *(PIC '99999999')* — Assessed value of the property.
+- `CA_H_HOUSE_NAME` *(CHAR(20))* — Property name.
+- `CA_H_HOUSE_NUMBER` *(CHAR(4))* — Property street number.
+- `CA_H_POSTCODE` *(CHAR(8))* — Property postcode.
+
+**Motor Policy Fields** *(within `CA_MOTOR`)*
+- `CA_M_MAKE` *(CHAR(15))* — Vehicle manufacturer.
+- `CA_M_MODEL` *(CHAR(15))* — Vehicle model.
+- `CA_M_VALUE` *(PIC '999999')* — Market value of the vehicle.
+- `CA_M_REGNUMBER` *(CHAR(7))* — Vehicle registration number.
+- `CA_M_COLOUR` *(CHAR(8))* — Vehicle colour.
+- `CA_M_CC` *(PIC '9999')* — Engine displacement in cc.
+- `CA_M_MANUFACTURED` *(CHAR(10))* — Year of manufacture.
+- `CA_M_PREMIUM` *(PIC '999999')* — Motor insurance premium amount.
+- `CA_M_ACCIDENTS` *(PIC '999999')* — Accident history count/value.
+
+**Commercial Policy Fields** *(within `CA_COMMERCIAL`)*
+- `CA_B_Address` *(CHAR(255))* — Business premises address.
+- `CA_B_Postcode` *(CHAR(8))* — Business premises postcode.
+- `CA_B_Latitude` *(CHAR(11))* — Geographic latitude of the premises.
+- `CA_B_Longitude` *(CHAR(11))* — Geographic longitude of the premises.
+- `CA_B_Customer` *(CHAR(255))* — Customer description for the commercial policy.
+- `CA_B_PropType` *(CHAR(255))* — Commercial property type.
+- `CA_B_FirePeril` *(PIC '9999')* — Fire peril risk indicator.
+- `CA_B_FirePremium` *(PIC '99999999')* — Fire peril premium amount.
+- `CA_B_CrimePeril` *(PIC '9999')* — Crime peril risk indicator.
+- `CA_B_CrimePremium` *(PIC '99999999')* — Crime peril premium amount.
+- `CA_B_FloodPeril` *(PIC '9999')* — Flood peril risk indicator.
+- `CA_B_FloodPremium` *(PIC '99999999')* — Flood peril premium amount.
+- `CA_B_WeatherPeril` *(PIC '9999')* — Weather peril risk indicator.
+- `CA_B_WeatherPremium` *(PIC '99999999')* — Weather peril premium amount.
+- `CA_B_Status` *(PIC '9999')* — Underwriting/approval status of the commercial policy.
+- `CA_B_RejectReason` *(CHAR(255))* — Reason for rejection if the commercial policy is declined.
+
+**Claim Fields** *(within `CA_CLAIM`)*
+- `CA_C_Num` *(PIC '9999999999')* — Claim number.
+- `CA_C_Date` *(CHAR(10))* — Date of the claim.
+- `CA_C_Paid` *(PIC '99999999')* — Amount already paid on the claim.
+- `CA_C_Value` *(PIC '99999999')* — Total assessed value of the claim.
+- `CA_C_Cause` *(CHAR(255))* — Narrative description of the cause of the claim.
+- `CA_C_Observations` *(CHAR(255))* — Adjuster observations associated with the claim.
+
+### 2.2 CICS Executive Interface Block (EIB)
+
+These are runtime values injected by CICS at task initiation, not part of the COMMAREA, but read directly by the program:
+
+- `EIBCALEN` — Length of the received COMMAREA; checked before any processing to guard against a missing or undersized COMMAREA.
+- `EIBTRNID` — Current CICS transaction identifier; stored for diagnostic tracing.
+- `EIBTRMID` — Terminal identifier of the originating terminal; stored for diagnostic tracing.
+- `EIBTASKN` — CICS task number; stored for diagnostic tracing.
+
+### 2.3 Internal Control Flag
+
+- `BUSINESS_RULES` *(CHAR(1), initialised to `'N'`)* — A compile-time/deploy-time toggle (set in source) that enables ODM business-rule processing for Endowment Add requests when changed to `'Y'`. Although technically an internal variable, it acts as an external configuration switch because it must be intentionally edited and recompiled to activate the feature.
+
+## 3. Outputs
+
+**Communication Area (COMMAREA) — returned to caller**
+- `CA_RETURN_CODE`
+  - Returned to the calling program via COMMAREA on every exit path
+  - Set to `'00'` at initialization (success), `'98'` if the COMMAREA length is insufficient; also reflects any non-zero code propagated back by the downstream database insert program (`LGAPDB01`)
+- `CA_POLICY_NUM` *(within `CA_POLICY_REQUEST`)*
+  - Part of the COMMAREA passed to `LGAPDB01` (and conditionally to `LGAPBR01`); populated by the caller and returned as-is, forming the key of the inserted policy record
+- `CA_CUSTOMER_NUM`
+  - Passed through COMMAREA to downstream programs; also copied into the error message for diagnostic logging
+- `CA_REQUEST_ID`
+  - Drives routing logic; passed unchanged in COMMAREA to `LGAPBR01` / `LGAPDB01` so downstream programs know the request type
+- `CA_ISSUE_DATE`, `CA_EXPIRY_DATE`, `CA_PAYMENT`, `CA_BROKERID`
+  - Common policy attributes passed through COMMAREA to `LGAPDB01` as part of the policy record being persisted
+- `CA_E_SUM_ASSURED` *(Endowment-specific)*
+  - Endowment financial attribute forwarded in COMMAREA to `LGAPDB01` and optionally to `LGAPBR01` for ODM rule evaluation
+- `CA_H_PROPERTY_TYPE` *(House-specific)*
+  - House policy classification attribute forwarded in COMMAREA to `LGAPDB01`
+- `CA_M_MAKE` *(Motor-specific)*
+  - Motor vehicle identification attribute forwarded in COMMAREA to `LGAPDB01`
+- `CA_B_STATUS`, `CA_B_FIREPREMIUM` *(Commercial-specific)*
+  - Commercial policy underwriting status and fire premium forwarded in COMMAREA to `LGAPDB01`
+- `CA_C_CAUSE` *(Claim-specific)*
+  - Claim cause narrative forwarded in COMMAREA to `LGAPDB01`
+
+**CICS Transient Data Queue (TDQ) — error log written via `LGSTSQ`**
+- `ERROR_MSG` (written on COMMAREA-absent condition)
+  - Full diagnostic record written to the TDQ via `LGSTSQ`; contains date (`EM_DATE`), time (`EM_TIME`), program name, customer number (`EM_CUSNUM`), policy number (`EM_POLNUM`), SQL request label (`EM_SQLREQ`), and SQLCODE (`EM_SQLRC`)
+  - `EM_MSG_TEXT` carries the human-readable error description (e.g., `' NO COMMAREA RECEIVED'`)
+- `CA_ERROR_MSG` (written alongside `ERROR_MSG` when COMMAREA is present)
+  - Up to 90 bytes of raw COMMAREA content (`CA_DATA`) prepended with the literal `'COMMAREA='` and written to the TDQ, providing a hex-level snapshot of the inbound request for post-mortem diagnosis
+
+**CICS ABEND — abnormal termination signal**
+- `EXEC CICS ABEND ABCODE('LGCA') NODUMP`
+  - Issued when no COMMAREA is received (`EIBCALEN = 0`); terminates the task with abend code `LGCA`, which is observable in the CICS system log and any active transaction monitoring infrastructure
+
+**CICS LINK calls — delegated processing outputs**
+- `LGAPBR01` (conditional)
+  - Invoked only when `BUSINESS_RULES = 'Y'` and `CA_REQUEST_ID = '01AEND'`; applies ODM business rules to the Endowment policy and may modify COMMAREA fields (including `CA_RETURN_CODE`) before control returns
+- `LGAPDB01` (unconditional)
+  - Performs the actual database insert of the policy record; updates `CA_RETURN_CODE` and potentially other COMMAREA fields to reflect the persistence outcome; its result directly determines whether the program returns early with an error or completes normally
+
+## 4. Processing Logic
+
+Okay, this is excellent!
+We have the following tables:
+1. `POLICY` with columns:
+   - `POLICYNUMBER` (integer/primary key, DB2 IDENTITY value)
+   - `CUSTOMERNUMBER` (integer, references customer)
+   - `ISSUEDATE` (date/char)
+   - `EXPIRYDATE` (date/char)
+   - `POLICYTYPE` (char)
+   - `LASTCHANGED` (timestamp)
+   - `BROKERID` (integer)
+   - `BROKERSREFERENCE` (char)
+   - `PAYMENT` (integer)
+
+And specific policy tables inserted into by procedures:
+- `INSERT_ENDOW`: `ENDOWMENT` table
+- `INSERT_HOUSE`: `HOUSE` table
+- `INSERT_MOTOR`: `MOTOR` table
+- `INSERT_COMMERCIAL`: `COMMERCIAL` table
+- `INSERT_CLAIM`: `CLAIM` table
+
+This information is very complete! Let's examine the relationships:
+- A policy type is linked to a customer (CUSTOMERNUMBER) and belongs to a category (POLICYTYPE: 'E', 'H', 'M', 'C').
+- Each specific table (ENDOWMENT, HOUSE, MOTOR, COMMERCIAL, CLAIM) is linked to a policy number (`POLICYNUMBER`).
+- A Claim has a policy number (`POLICYNUMBER`).
+
+Let's begin preparing the content directly without any preamble.
+
+Wait, let's verify if there is any other detail in the prompt.
+- No self-commentary, no introductory text, no preamble, no "Here is the analysis...", etc. The very first character must be part of the section content itself.
+- For Mermaid flowchart:
+  - Pastel color palette.
+  - Define explicit `classDef` styles with fill, stroke, and black text (`color:#000`).
+  - Assign a class to every node.
+  - Avoid raw condition code, keep labels simple.
+  - Do NOT include parentheses `()` or colons `:` inside node labels. Let's make sure our Mermaid flowchart contains clean labels.
+- For Processing Logic Description:
+  - High-level Summary
+  - Execution Flow (with conditions/branches, validations, error handling, business rules)
+  - External Interactions
+  - Plain Language Summary
+- For Database Tables:
+  - ER diagram using Mermaid `erDiagram`.
+  - Only letters, digits, and underscores in attribute names.
+  - Replace dots with underscores.
+  - Use standard types: string, int, date, decimal, etc.
+  - Format: `type attributeName "optional comment"`
+  - Output only the Mermaid code block.
+
+Let's carefully verify the flowchart nodes and classes.
+We want pastel colors:
+- Light Green for Start/End: `fill:#E2F0D9,stroke:#385723,stroke-width:1px,color:#000`
+- Light Blue for Process: `fill:#D9E1F2,stroke:#1F4E79,stroke-width:1px,color:#000`
+- Light Yellow/Orange for Decision: `fill:#FFF2CC,stroke:#D6B656,stroke-width:1px,color:#000`
+- Light Red for Error/Abend: `fill:#FCE4D6,stroke:#C65911,stroke-width:1px,color:#000`
+
+Let's design the flow:
+1. Start node `A` ([Start: Add Policy Request]) -> Class Green
+2. Process node `B` [Initialize Transaction Metadata and Return Code] -> Class Blue
+3. Decision node `C` {{Is COMMAREA Empty}} -> Class Yellow
+   - Yes -> Process `D1` [Write Error Message <br> NO COMMAREA RECEIVED] -> Class Blue
+   - Yes -> Process `D2` [Abend CICS Task with Code LGCA] -> Class Red
+   - No -> Process `E` [Map COMMAREA Address and Customer Number] -> Class Blue
+4. Process `F` [Calculate Expected Header Length] -> Class Blue
+5. Decision `G` {{Is COMMAREA Length Sufficient}} -> Class Yellow
+   - No -> Process `H1` [Set Return Code to 98] -> Class Blue
+   - No -> Process `H2` [Return Control to CICS Caller] -> Class Red
+   - Yes -> Decision `I` {{Are Business Rules Enabled}} -> Class Yellow
+6. Decision `I` {{Are Business Rules Enabled}}
+   - Yes -> Decision `J` {{Is Request ID for Endowment Policy}} -> Class Yellow
+     - Yes -> Process `K` [Link to Business Rule Program LGAPBR01] -> Class Blue
+     - No -> Process `L` [Link to DB Insert Program LGAPDB01] -> Class Blue
+   - No -> Process `L` [Link to DB Insert Program LGAPDB01] -> Class Blue
+7. Process `L` [Link to DB Insert Program LGAPDB01] -> Decision `M` {{Is DB Return Code Greater Than Zero}} -> Class Yellow
+   - Yes -> Process `N` [Return Control to CICS Caller] -> Class Red
+   - No -> Process `O` [Return Success and Control to CICS Caller] -> Class Red
+
+Let's check if there are any parentheses in these labels:
+`[Start: Add Policy Request]` -> wait, no `()` inside. Let's make it `[Start Add Policy Request]`.
+`[Initialize Transaction Metadata]` -> no `()`.
+`{{Is COMMAREA Empty}}` -> no `()`.
+`[Write Error Message - NO COMMAREA RECEIVED]` -> no `()`.
+`[Abend CICS Task with Code LGCA]` -> no `()`.
+`[Map COMMAREA Address and Customer Number]` -> no `()`.
+`[Calculate Expected Header Length]` -> no `()`.
+`{{Is COMMAREA Length Sufficient}}` -> no `()`.
+`[Set Return Code to 98]` -> no `()`.
+`[Return Control to CICS Caller]` -> no `()`.
+`{{Are Business Rules Enabled}}` -> no `()`.
+`{{Is Request ID for Endowment Policy}}` -> no `()`.
+`[Link to Business Rule Program LGAPBR01]` -> no `()`.
+`[Link to DB Insert Program LGAPDB01]` -> no `()`.
+`{{Is DB Return Code Greater Than Zero}}` -> no `()`.
+`[Return Success and Control to CICS Caller]` -> no `()`.
+
+Let's make sure there are NO parentheses inside the labels, and NO colons. E.g., `[Start Add Policy Request]`.
+
+Let's define the classes:
+```mermaid
+graph TD
+    classDef startEnd fill:#E2F0D9,stroke:#385723,stroke-width:1px,color:#000;
+    classDef process fill:#D9E1F2,stroke:#1F4E79,stroke-width:1px,color:#000;
+    classDef decision fill:#FFF2CC,stroke:#D6B656,stroke-width:1px,color:#000;
+    classDef errorAbend fill:#FCE4D6,stroke:#C65911,stroke-width:1px,color:#000;
+
+    A([Start Add Policy Request]):::startEnd
+    B[Initialize Transaction Metadata and Return Code]:::process
+    C{{Is COMMAREA Empty}}:::decision
+    D1[Write Error Message for Empty COMMAREA]:::process
+    D2[Abend CICS Task with Code LGCA]:::errorAbend
+    E[Map COMMAREA Address and Customer Number]:::process
+    F[Calculate Expected Header Length]:::process
+    G{{Is COMMAREA Length Sufficient}}:::decision
+    H1[Set Return Code to 98]:::process
+    H2[Return Control to CICS Caller]:::errorAbend
+    I{{Are Business Rules Enabled}}:::decision
+    J{{Is Request ID for Endowment Policy}}:::decision
+    K[Link to Business Rule Program LGAPBR01]:::process
+    L[Link to DB Insert Program LGAPDB01]:::process
+    M{{Is DB Return Code Greater Than Zero}}:::decision
+    N[Return Error Control to CICS Caller]:::errorAbend
+    O[Return Success Control to CICS Caller]:::startEnd
+
+    A --> B
+    B --> C
+    C -- Yes --> D1
+    D1 --> D2
+    C -- No --> E
+    E --> F
+    F --> G
+    G -- No --> H1
+    H1 --> H2
+    G -- Yes --> I
+    I -- Yes --> J
+    J -- Yes --> K
+    K --> L
+    J -- No --> L
+    I -- No --> L
+    L --> M
+    M -- Yes --> N
+    M -- No --> O
+```
+
+This is incredibly clean and perfectly meets all requirements! No parentheses `()` or colons `:` inside the brackets/labels, pastel colors with explicit class definitions, and very simple labels.
+
+Let's double-check the processing logic description.
+- High-level Summary: Explain what the program does (add policy request processing, checking request types, linking to business rules if active, linking to the database routine `LGAPDB01`, etc.).
+- Execution Flow: Aligned with the diagram, describing conditions/branches, validations, error handling, and business rules (e.g. `BUSINESS_RULES = 'Y'` flag, check `CA_REQUEST_ID = '01AEND'`, error writing to TDQ via `LGSTSQ`).
+- External Interactions: Links to database program `LGAPDB01` (to insert into POLICY and specific tables like ENDOWMENT, HOUSE, MOTOR, COMMERCIAL, CLAIM) and links to VSAM program via `LGAPVS01` (which is linked inside `LGAPDB01`), plus links to TDQ logging program `LGSTSQ` and CICS business rules program `LGAPBR01`.
+- Plain Language Summary: Simple non-technical language.
+
+Let's verify the ER diagram attributes:
+- Only letters, digits, and underscores in attribute names.
+- Replace dots with underscores.
+- Use standard types: `string`, `int`, `date`, `decimal`, etc.
+- Format: `type attributeName "optional comment"`.
+
+Let's design the ER diagram:
+Tables:
+1. `CUSTOMER` (since policies reference customers):
+   - `int customer_number "Primary Key"`
+   - `string first_name`
+   - `string last_name`
+2. `POLICY` (the core policy table):
+   - `int policy_number "Primary Key"`
+   - `int customer_number "Foreign Key referencing Customer"`
+   - `date issue_date`
+   - `date expiry_date`
+   - `string policy_type`
+   - `string last_changed`
+   - `int broker_id`
+   - `string brokers_reference`
+   - `int payment`
+3. `ENDOWMENT` (endowment specific details):
+   - `int policy_number "Primary Key, Foreign Key referencing Policy"`
+   - `string with_profits`
+   - `string equities`
+   - `string managed_fund`
+   - `string fund_name`
+   - `int term`
+   - `int sum_assured`
+   - `string life_assured`
+4. `HOUSE` (house specific details):
+   - `int policy_number "Primary Key, Foreign Key referencing Policy"`
+   - `string property_type`
+   - `int bedrooms`
+   - `int value`
+   - `string house_name`
+   - `string house_number`
+   - `string postcode`
+5. `MOTOR` (motor specific details):
+   - `int policy_number "Primary Key, Foreign Key referencing Policy"`
+   - `string make`
+   - `string model`
+   - `int value`
+   - `string reg_number`
+   - `string colour`
+   - `int cc`
+   - `string manufactured`
+   - `int premium`
+   - `int accidents`
+6. `COMMERCIAL` (commercial specific details):
+   - `int policy_number "Primary Key, Foreign Key referencing Policy"`
+   - `string address`
+   - `string postcode`
+   - `string latitude`
+   - `string longitude`
+   - `string customer`
+   - `string property_type`
+   - `int fire_peril`
+   - `int fire_premium`
+   - `int crime_peril`
+   - `int crime_premium`
+   - `int flood_peril`
+   - `int flood_premium`
+   - `int weather_peril`
+   - `int weather_premium`
+   - `int status`
+   - `string reject_reason`
+7. `CLAIM` (claim details):
+   - `int claim_number "Primary Key"`
+   - `int policy_number "Foreign Key referencing Policy"`
+   - `date claim_date`
+   - `int paid_amount`
+   - `int claim_value`
+   - `string cause`
+   - `string observations`
+
+Let's define the relationships:
+- `CUSTOMER ||--o{ POLICY : "has"`
+- `POLICY ||--o| ENDOWMENT : "specializes to"`
+- `POLICY ||--o| HOUSE : "specializes to"`
+- `POLICY ||--o| MOTOR : "specializes to"`
+- `POLICY ||--o| COMMERCIAL : "specializes to"`
+- `POLICY ||--o{ CLAIM : "has"`
+
+This is extremely detailed and directly represents the logical database schema of the GenApp application!
+
+Let's double-check all requirements:
+- First character of response is part of the section content. No "Sure! Here is..." or "### Analysis..." as a top heading. We begin with `### Mermaid Flow Diagram` because the caller injects the main header.
+- Pastel color palette for Mermaid flowchart.
+- No parentheses `()` or colons `:` inside labels.
+- Standard types in `erDiagram`.
+- Clean, readable text with logical sections.
+
+Let's review the Mermaid flowchart layout once more to guarantee it works.
+- Node IDs: A, B, C, D1, D2, E, F, G, H1, H2, I, J, K, L, M, N, O.
+- Clear branching using `-- Yes -->` and `-- No -->`.
+- Standard classes mapped cleanly.
+
+Everything looks absolute and pristine. I will output the analysis exactly as specified. No commentary, starting immediately with `### Mermaid Flow Diagram`.### Mermaid Flow Diagram
+
+```mermaid
+graph TD
+    classDef startEnd fill:#E2F0D9,stroke:#385723,stroke-width:1px,color:#000;
+    classDef process fill:#D9E1F2,stroke:#1F4E79,stroke-width:1px,color:#000;
+    classDef decision fill:#FFF2CC,stroke:#D6B656,stroke-width:1px,color:#000;
+    classDef errorAbend fill:#FCE4D6,stroke:#C65911,stroke-width:1px,color:#000;
+
+    A([Start Add Policy Request]):::startEnd
+    B[Initialize Transaction Metadata and Return Code]:::process
+    C{{Is COMMAREA Empty}}:::decision
+    D1[Write Error Message for Empty COMMAREA]:::process
+    D2[Abend CICS Task with Code LGCA]:::errorAbend
+    E[Map COMMAREA Address and Customer Number]:::process
+    F[Calculate Expected Header Length]:::process
+    G{{Is COMMAREA Length Sufficient}}:::decision
+    H1[Set Return Code to 98]:::process
+    H2[Return Control to CICS Caller]:::errorAbend
+    I{{Are Business Rules Enabled}}:::decision
+    J{{Is Request ID for Endowment Policy}}:::decision
+    K[Link to Business Rule Program LGAPBR01]:::process
+    L[Link to DB Insert Program LGAPDB01]:::process
+    M{{Is DB Return Code Greater Than Zero}}:::decision
+    N[Return Error Control to CICS Caller]:::errorAbend
+    O[Return Success Control to CICS Caller]:::startEnd
+
+    A --> B
+    B --> C
+    C -- Yes --> D1
+    D1 --> D2
+    C -- No --> E
+    E --> F
+    F --> G
+    G -- No --> H1
+    H1 --> H2
+    G -- Yes --> I
+    I -- Yes --> J
+    J -- Yes --> K
+    K --> L
+    J -- No --> L
+    I -- No --> L
+    L --> M
+    M -- Yes --> N
+    M -- No --> O
+>>>>>>> Stashed changes
 ```
 
 ---
 
+<<<<<<< Updated upstream
 ### 4.2 Processing Logic Description
 
 #### 4.2.1 High-level Summary
@@ -288,10 +750,143 @@ erDiagram
     POLICY ||--o| HOUSE_POLICY : "has"
     POLICY ||--o| MOTOR_POLICY : "has"
     POLICY ||--o| COMMERCIAL_POLICY : "has"
+=======
+### 4.1 Processing Logic Description
+
+#### 4.1.1 High-level Summary
+`LGAPOL01.pli` is the core presentation and business logic router for adding new insurance policies in the General Insurance Application (GenApp). It manages incoming requests for adding various policy types—Endowment, House, Motor, and Commercial—as well as Claims. The program validates the communication area (COMMAREA), optionally routes the request through external Operational Decision Manager (ODM) business rules, links to the database insert module (`LGAPDB01`), and executes standardized error handling if any part of the execution flow fails.
+
+#### 4.1.2 Execution Flow
+The detailed execution flow is as follows:
+
+1. **Initialization**:
+   - Captures runtime environment metadata from the CICS Execute Interface Block (EIB), saving the transaction ID (`EIBTRNID`), terminal ID (`EIBTRMID`), task number (`EIBTASKN`), and COMMAREA length (`EIBCALEN`) into the local `WS_HEADER` structure.
+
+2. **COMMAREA Validation**:
+   - **Existence Check**: If `EIBCALEN` is equal to 0, the program calls the local routine `WRITE_ERROR_MESSAGE` to log the failure message `" NO COMMAREA RECEIVED"` and triggers an abnormal termination (ABEND) with control block code `LGCA` and the `NODUMP` option.
+   - **Address Mapping**: Assigns the incoming COMMAREA pointer (`COMM_AREA_PTR`) to the local pointer `WS_ADDR_DFHCOMMAREA`, mapping the structure overlay defined in the `LGCMAREA` include.
+   - **Return Code Preset**: Sets `CA_RETURN_CODE` to `'00'` (success) and copies the provided `CA_CUSTOMER_NUM` to the error message structure `EM_CUSNUM` for tracing.
+   - **Size Check**: Evaluates if the received COMMAREA length (`EIBCALEN`) is at least as large as the calculated minimum header length (`WS_CA_HEADER_LEN`, which is 28 bytes). If the length is insufficient, it overrides `CA_RETURN_CODE` with `'98'` and returns control immediately to the caller using `EXEC CICS RETURN`.
+
+3. **Conditional Business Rules Routing**:
+   - The program defines a local flag `BUSINESS_RULES` initialized to `'N'`.
+   - If this flag is toggled to `'Y'`, the program inspects `CA_REQUEST_ID`. If the request is for adding an Endowment policy (`'01AEND'`), it triggers an external link to the business rule engine program (`LGAPBR01`) passing the `COMM_AREA` structure over a length of 32,500 bytes.
+
+4. **Database Insertion Delegation**:
+   - Links via `EXEC CICS LINK` to the database access layer program `LGAPDB01`, passing the `COMM_AREA` (length 32,500).
+   - If `LGAPDB01` returns a non-zero response (checked via `CA_RETURN_CODE > 0`), the program halts downstream processes and returns immediately to the caller.
+
+5. **Completion**:
+   - Returns control normally to the CICS calling program via `EXEC CICS RETURN` upon successful execution.
+
+6. **Error Handling Procedure (`WRITE_ERROR_MESSAGE`)**:
+   - Resolves the current system date and time using `EXEC CICS ASKTIME` and formats it using `EXEC CICS FORMATTIME` (formatting options: `MMDDYYYY` and `TIME`).
+   - Populates the `ERROR_MSG` structure with the timestamp, program ID (`LGAPOL01`), customer ID, policy ID, and DB2 SQL details.
+   - Logs the compiled error message to the Transient Data Queue (TDQ) by linking to the specialized logger program `LGSTSQ`.
+   - Additionally, writes up to 90 bytes of the raw COMMAREA data (`COMM_AREA_RAW`) to the TDQ using `LGSTSQ` for diagnostic analysis.
+
+#### 4.1.3 External Interactions
+- **CICS Program `LGAPBR01` (Business Rules)**: Conditionally linked to enforce automated endowment rules (underwriter approval limits, risk classification, etc.).
+- **CICS Program `LGAPDB01` (Db2/VSAM Data Access Layer)**: Dispatched to handle the actual creation of database records inside DB2 (and subsequent VSAM updates via `LGAPVS01`).
+- **CICS Program `LGSTSQ` (Transient Data Queue Writer)**: Linked to dump detailed application errors and diagnostic context payloads into CICS transient data logs.
+
+#### 4.1.4 Plain Language Summary
+`LGAPOL01` is a traffic-controller program. When a request to add a new insurance policy arrives, this program first checks that the request is valid and has not sent empty or corrupted data. If the request is for a savings-based policy (Endowment) and business rules are activated, it forwards the request to an evaluation program to make sure it complies with company policies. Then, it sends the request to the database layer to write the details permanent to the system (creating the main policy and specific details depending on whether it is a House, Motor, Commercial, or Claim policy). If any error occurs during these checks or database updates, it logs a formatted report containing timestamps and identifiers into the system's error queue.
+
+---
+
+### 4.2 Database Tables
+
+```mermaid
+erDiagram
+    CUSTOMER {
+        int customer_number "Primary Key"
+        string first_name "First Name"
+        string last_name "Last Name"
+    }
+    POLICY {
+        int policy_number "Primary Key (DB2 Identity)"
+        int customer_number "Foreign Key"
+        date issue_date "Date Issued"
+        date expiry_date "Date Expired"
+        string policy_type "E=Endow, H=House, M=Motor, C=Commercial"
+        string last_changed "Timestamp"
+        int broker_id "Broker Number"
+        string brokers_reference "Broker Reference"
+        int payment "Premium/Payment"
+    }
+    ENDOWMENT {
+        int policy_number "Primary Key, Foreign Key"
+        string with_profits "With Profits Flag (Y/N)"
+        string equities "Equities Flag (Y/N)"
+        string managed_fund "Managed Fund Flag (Y/N)"
+        string fund_name "Investment Fund Name"
+        int term "Policy Term in Years"
+        int sum_assured "Guaranteed Payout Amount"
+        string life_assured "Life Assured Party Name"
+    }
+    HOUSE {
+        int policy_number "Primary Key, Foreign Key"
+        string property_type "Property Classification"
+        int bedrooms "Number of Bedrooms"
+        int value "Estimated House Value"
+        string house_name "Property Name"
+        string house_number "Street Number"
+        string postcode "Postal Code"
+    }
+    MOTOR {
+        int policy_number "Primary Key, Foreign Key"
+        string make "Vehicle Manufacturer"
+        string model "Vehicle Model"
+        int value "Vehicle Value"
+        string reg_number "License Plate"
+        string colour "Vehicle Color"
+        int cc "Engine Capacity"
+        string manufactured "Manufacture Year"
+        int premium "Calculated Premium"
+        int accidents "Previous Accidents Count"
+    }
+    COMMERCIAL {
+        int policy_number "Primary Key, Foreign Key"
+        string address "Business Location Address"
+        string postcode "Postal Code"
+        string latitude "Coordinates Latitude"
+        string longitude "Coordinates Longitude"
+        string customer "Business Entity Name"
+        string property_type "Commercial Building Class"
+        int fire_peril "Fire Risk Level Code"
+        int fire_premium "Fire Cover Premium"
+        int crime_peril "Crime Risk Level Code"
+        int crime_premium "Crime Cover Premium"
+        int flood_peril "Flood Risk Level Code"
+        int flood_premium "Flood Cover Premium"
+        int weather_peril "Weather Risk Level Code"
+        int weather_premium "Weather Cover Premium"
+        int status "Approval Status Code"
+        string reject_reason "Reason for Underwriting Rejection"
+    }
+    CLAIM {
+        int claim_number "Primary Key"
+        int policy_number "Foreign Key"
+        date claim_date "Date Claim Lodged"
+        int paid_amount "Disbursed Compensation"
+        int claim_value "Estimated Damages Value"
+        string cause "Cause description of event"
+        string observations "Adjuster comments"
+    }
+
+    CUSTOMER ||--o{ POLICY : "has"
+    POLICY ||--o| ENDOWMENT : "specializes to"
+    POLICY ||--o| HOUSE : "specializes to"
+    POLICY ||--o| MOTOR : "specializes to"
+    POLICY ||--o| COMMERCIAL : "specializes to"
+    POLICY ||--o{ CLAIM : "originates"
+>>>>>>> Stashed changes
 ```
 
 ## 5. Paragraphs
 
+<<<<<<< Updated upstream
 - **Main Initialization**
   - Purpose: Initializes runtime transaction and environment details from the CICS execution context.
   - Operations performed: Assigns CICS Execute Interface Block (EIB) values, including transaction ID (`EIBTRNID`), terminal ID (`EIBTRMID`), task number (`EIBTASKN`), and communication area length (`EIBCALEN`), to internal working storage fields.
@@ -585,6 +1180,321 @@ CICS Commarea
 1. `LGAPOL01` evaluates `EIBCALEN` (15) against the required header length (`WS_REQUIRED_CA_LEN` = 28 bytes).
 2. Because `EIBCALEN < 28`, the program assigns return code `'98'` to `CA_RETURN_CODE` to signal an invalid or truncated commarea.
 3. The program executes `EXEC CICS RETURN` immediately without invoking ODM business rules (`LGAPBR01`) or DB2 database operations (`LGAPDB01`).
+=======
+- **Main Procedure Body (LGAPOL01)**
+  - This is the program's entry point and primary execution block. It orchestrates all top-level logic: initialization, COMMAREA validation, optional business rule invocation, and delegation to the database insert program.
+  - **Initialization:**
+    - Captures CICS execution interface block (EIB) values — transaction ID (`EIBTRNID`), terminal ID (`EIBTRMID`), task number (`EIBTASKN`), and COMMAREA length (`EIBCALEN`) — into working storage fields (`WS_TRANSID`, `WS_TERMID`, `WS_TASKNUM`, `WS_CALEN`).
+    - Copies `CA_CUSTOMER_NUM` into `EM_CUSNUM` for use in any subsequent diagnostic error messages.
+    - Initializes `CA_RETURN_CODE` to `'00'` (success).
+    - Saves the COMMAREA pointer into `WS_ADDR_DFHCOMMAREA`.
+  - **COMMAREA Presence Check:**
+    - Tests `EIBCALEN = 0`; if true, sets `EM_MSG_TEXT` to `' NO COMMAREA RECEIVED'`, calls `WRITE_ERROR_MESSAGE`, then issues `EXEC CICS ABEND ABCODE('LGCA') NODUMP` to terminate abnormally without a dump.
+  - **COMMAREA Length Validation:**
+    - Calculates the required length as `WS_CA_HEADER_LEN` (28) added to `WS_REQUIRED_CA_LEN`.
+    - If `EIBCALEN < WS_REQUIRED_CA_LEN`, sets `CA_RETURN_CODE = '98'` and immediately returns to the caller via `EXEC CICS RETURN`, signalling an insufficient COMMAREA error.
+  - **Business Rules Conditional Invocation:**
+    - Checks the `BUSINESS_RULES` flag (initialized to `'N'`; would need to be set to `'Y'` at compile/runtime to activate).
+    - If `BUSINESS_RULES = 'Y'` and `CA_REQUEST_ID = '01AEND'` (Add Endowment policy request), links to the ODM business rules program `LGAPBR01` via `EXEC CICS LINK`, passing the full 32,500-byte COMMAREA. This allows policy-specific business rule validation before data insertion.
+  - **Database Insert Delegation:**
+    - Unconditionally links to `LGAPDB01` via `EXEC CICS LINK` with the full COMMAREA (32,500 bytes), which performs the actual policy data insert for whichever policy type (`01AEND`, House, Motor, or Commercial) is encoded in `CA_REQUEST_ID`.
+    - After the link returns, checks `CA_RETURN_CODE > 0`; if true, immediately returns to the caller, propagating any error set by `LGAPDB01`.
+  - **Normal Return:**
+    - Falls through to `EXEC CICS RETURN` to pass control back to the CICS transaction caller upon successful completion.
+
+- **WRITE_ERROR_MESSAGE**
+  - An internal subroutine invoked when an unrecoverable error is detected (e.g., missing COMMAREA). Its responsibility is to format and write a structured diagnostic message — including a timestamp, program name, customer number, and contextual data — to a CICS Transient Data Queue (TDQ) via the `LGSTSQ` logging utility program.
+  - **Timestamp Acquisition and Formatting:**
+    - Issues `EXEC CICS ASKTIME ABSTIME(ABS_TIME)` to retrieve the current absolute time into the `ABS_TIME` fixed decimal field.
+    - Issues `EXEC CICS FORMATTIME ABSTIME(ABS_TIME) MMDDYYYY(DATE1) TIME(TIME1)` to convert the absolute time into a human-readable date (`DATE1`, 10 chars) and time (`TIME1`, 8 chars).
+    - Populates `EM_DATE` and `EM_TIME` in the `ERROR_MSG` structure with these formatted values.
+  - **Primary Error Message Write:**
+    - Links to `LGSTSQ` via `EXEC CICS LINK PROGRAM('LGSTSQ') COMMAREA(ERROR_MSG) LENGTH(STG(ERROR_MSG))`, writing the full `ERROR_MSG` structure (containing date, time, program name, customer number, and error text) to the TDQ.
+  - **COMMAREA Dump Write (Conditional):**
+    - Checks if `EIBCALEN > 0` to confirm a COMMAREA exists before attempting to extract it.
+    - If `EIBCALEN < 91`, copies the exact number of available COMMAREA bytes into `CA_DATA` using `LEFT(COMM_AREA_RAW, EIBCALEN)`, then links to `LGSTSQ` to write `CA_ERROR_MSG`.
+    - Otherwise (COMMAREA ≥ 91 bytes), copies the first 90 bytes via `LEFT(COMM_AREA_RAW, 90)` into `CA_DATA` and writes it via `LGSTSQ`, capping the dump at 90 bytes.
+    - This conditional branching ensures the raw COMMAREA prefix is always logged for diagnostic purposes without risking an overrun into undefined memory.
+
+## 6. Dependencies
+
+### 6.1 CICS Programs (Linked Modules)
+
+- **LGAPDB01**
+  - Invoked unconditionally via `EXEC CICS LINK` with the full `COMM_AREA` (32,500 bytes)
+  - Responsible for performing all database insert operations for the new policy (Endowment, House, Motor, or Commercial)
+  - Its return code is reflected back in `CA_RETURN_CODE` and checked to determine whether to return early
+
+- **LGAPBR01**
+  - Invoked conditionally via `EXEC CICS LINK` only when `BUSINESS_RULES = 'Y'` and `CA_REQUEST_ID = '01AEND'`
+  - Performs ODM (Operational Decision Manager) business rule validation for Endowment policy additions
+  - Disabled by default; enabled by setting the `BUSINESS_RULES` flag to `'Y'`
+
+- **LGSTSQ**
+  - Invoked via `EXEC CICS LINK` within the `WRITE_ERROR_MESSAGE` internal procedure
+  - Acts as a shared error-logging utility; writes formatted error messages (and optionally raw COMMAREA bytes) to a Transient Data Queue (TDQ)
+  - Called up to three times per error event: once for the primary error message and once or twice for the COMMAREA dump
+
+---
+
+### 6.2 CICS COMMAREA (Inter-program Communication)
+
+- **COMM_AREA** (based on `COMM_AREA_PTR`, copybook `LGCMAREA`)
+  - Passed by the calling transaction as the program's entry parameter
+  - Carries the request identifier, return code, customer number, and the full policy-specific payload to and from linked programs
+  - Shared with `LGAPDB01` and (conditionally) `LGAPBR01` as the primary data exchange mechanism
+
+---
+
+### 6.3 CICS EIB (Execute Interface Block) Fields
+
+- **EIBCALEN**
+  - Checked on entry to verify that a COMMAREA was provided (`= 0` triggers ABEND) and that its length meets the minimum required length (`< WS_REQUIRED_CA_LEN` sets return code `'98'`)
+  - Also checked inside `WRITE_ERROR_MESSAGE` to decide how many bytes of raw COMMAREA to log
+
+- **EIBTRNID**
+  - Read into `WS_TRANSID`; captures the CICS transaction identifier for diagnostic context
+
+- **EIBTRMID**
+  - Read into `WS_TERMID`; captures the CICS terminal identifier for diagnostic context
+
+- **EIBTASKN**
+  - Read into `WS_TASKNUM`; captures the CICS task number for diagnostic context
+
+---
+
+### 6.4 CICS Services Used
+
+- **`EXEC CICS ABEND ABCODE('LGCA') NODUMP`**
+  - Issued when no COMMAREA is present; terminates the task with a named abend code without producing a dump
+
+- **`EXEC CICS RETURN`**
+  - Used in three places: on length-check failure (with return code `'98'`), after a non-zero return from `LGAPDB01`, and on normal completion
+
+- **`EXEC CICS ASKTIME` / `EXEC CICS FORMATTIME`**
+  - Called within `WRITE_ERROR_MESSAGE` to obtain and format the current date and time for inclusion in error log entries
+
+---
+
+### 6.5 Copybook / Include
+
+- **LGCMAREA** (`%INCLUDE LGCMAREA` → expanded inline from `Includes/LGCMAREA.inc`)
+  - Defines the complete `COMM_AREA` structure used for all policy types (Endowment, House, Motor, Commercial, Claim) and customer/security request layouts
+  - Required at compile time; the expanded content is embedded directly in the source
+
+---
+
+### 6.6 Internal Procedure
+
+- **`WRITE_ERROR_MESSAGE`**
+  - An internal subroutine called when no COMMAREA is detected
+  - Depends on `EXEC CICS ASKTIME`, `EXEC CICS FORMATTIME`, and `LGSTSQ` to function
+  - Consumes the `ERROR_MSG` and `CA_ERROR_MSG` working-storage structures as its data sources
+
+## 7. Constraints
+
+### 7.1 Communication Area (COMMAREA) Constraints
+
+- **COMMAREA must be present at invocation**
+  - `EIBCALEN` is checked at program entry; if it equals `0`, indicating no COMMAREA was passed, the program writes an error message and issues `EXEC CICS ABEND ABCODE('LGCA') NODUMP`, terminating processing immediately
+  - This is an absolute prerequisite — processing cannot proceed without a COMMAREA
+
+- **COMMAREA must meet a minimum length requirement**
+  - `WS_CA_HEADER_LEN` is initialized to `+28`, representing the fixed header portion of the COMMAREA
+  - `WS_REQUIRED_CA_LEN` is computed as the sum of the header length and itself (effectively anchoring the minimum at 28 bytes)
+  - If `EIBCALEN < WS_REQUIRED_CA_LEN`, `CA_RETURN_CODE` is set to `'98'` and the program immediately returns to the caller via `EXEC CICS RETURN` without performing any policy add operation
+  - The maximum addressable COMMAREA size is bounded by the `COMM_AREA_RAW` declaration of `CHAR(32500)`, and all `EXEC CICS LINK` calls pass `LENGTH(32500)` as the upper limit
+
+- **COMMAREA return code is initialized to `'00'` before any processing**
+  - `CA_RETURN_CODE = '00'` is set unconditionally after the COMMAREA presence check, establishing a clean success state before downstream calls
+  - If the data insert program (`LGAPDB01`) returns a non-zero `CA_RETURN_CODE`, the program immediately returns to the caller without further processing
+
+### 7.2 Request Routing Constraints
+
+- **`CA_REQUEST_ID` governs which business-rule path is taken**
+  - Only the value `'01AEND'` (Add Endowment policy) triggers the optional ODM business rules link to `LGAPBR1`; all other request types bypass business rule processing entirely
+  - The 6-character fixed-length picture of `CA_REQUEST_ID` constrains all request identifiers to exactly 6 characters
+
+- **Business rule processing is disabled by default**
+  - `BUSINESS_RULES` is initialized to `'N'`; the ODM call to `LGAPBR01` is gated on `BUSINESS_RULES = 'Y'`
+  - The code comment explicitly states that to enable ODM processing the `BUSINESS_RULES` flag must be set to `'Y'` (the activating assignment is commented out), meaning ODM validation is never invoked in the default deployment
+  - ODM processing applies exclusively to Endowment policy additions (`'01AEND'`); House, Motor, Commercial, and Claim requests are unconditionally excluded from business rule validation
+
+- **Data insert via `LGAPDB01` is unconditional**
+  - Regardless of policy type or the outcome of business rule processing, `LGAPDB01` is always linked with the full COMMAREA; there is no code path that skips the database insert other than an early return due to a prior error
+
+### 7.3 Data Field Structural Constraints
+
+- **Customer number is exactly 10 numeric digits**
+  - `CA_CUSTOMER_NUM` is declared `PIC '9999999999'`, enforcing a fixed 10-digit purely numeric value
+
+- **Policy number is exactly 10 numeric digits**
+  - `CA_POLICY_NUM` is declared `PIC '9999999999'`, enforcing the same 10-digit numeric constraint
+
+- **Return code is exactly 2 numeric digits**
+  - `CA_RETURN_CODE` is declared `PIC '99'`, restricting values to the range `00`–`99`
+
+- **Payment amount is exactly 6 numeric digits**
+  - `CA_PAYMENT` is declared `PIC '999999'`, constraining the payment to a maximum value of `999999` with no decimal or sign
+
+- **Issue date and expiry date are fixed 10-character strings**
+  - Both `CA_ISSUE_DATE` and `CA_EXPIRY_DATE` are `CHAR(10)`; no format validation is performed in this program, but the field length strictly limits the date representation to 10 characters
+
+- **Broker ID is exactly 10 numeric digits**
+  - `CA_BROKERID` is declared `PIC '9999999999'`
+
+- **Policy-type-specific field size constraints:**
+  - Endowment: `CA_E_SUM_ASSURED` is 6 numeric digits (`PIC '999999'`); `CA_E_TERM` is 2 numeric digits (`PIC '99'`); `CA_E_LIFE_ASSURED` is 31 characters
+  - House: `CA_H_PROPERTY_TYPE` is 15 characters; `CA_H_BEDROOMS` is 3 numeric digits; `CA_H_VALUE` is 8 numeric digits
+  - Motor: `CA_M_MAKE` and `CA_M_MODEL` are 15 characters each; `CA_M_VALUE` and `CA_M_PREMIUM` and `CA_M_ACCIDENTS` are 6 numeric digits; `CA_M_REGNUMBER` is 7 characters; `CA_M_CC` is 4 numeric digits
+  - Commercial: `CA_B_STATUS` is 4 numeric digits; `CA_B_FIREPREMIUM`, `CA_B_CRIMEPREMIUM`, `CA_B_FLOODPREMIUM`, and `CA_B_WEATHERPREMIUM` are each 8 numeric digits; `CA_B_FirePeril`, `CA_B_CrimePeril`, `CA_B_FloodPeril`, and `CA_B_WeatherPeril` are each 4 numeric digits; address, customer, property type, and reject reason fields are bounded at 255 characters
+  - Claim: `CA_C_CAUSE` and `CA_C_Observations` are each 255 characters; `CA_C_Paid` and `CA_C_Value` are 8 numeric digits; `CA_C_Num` is 10 numeric digits
+
+- **Varying-length database field is capped at 3,900 characters**
+  - `WS_VARY_CHAR` is declared `CHAR(3900)`, establishing the hard upper limit on any VARCHAR content passed to the database layer
+
+### 7.4 Sequencing and Operational Constraints
+
+- **Strict processing order must be maintained:**
+  - COMMAREA presence check (`EIBCALEN = 0`) → COMMAREA length check (`EIBCALEN < WS_REQUIRED_CA_LEN`) → optional ODM business rules link (`LGAPBR01`) → unconditional data insert link (`LGAPDB01`) → return code check → final return
+  - No step may be reordered; the length check explicitly depends on prior initialization of `WS_CA_HEADER_LEN` and `WS_REQUIRED_CA_LEN`
+
+- **Early termination on any error prevents database insertion**
+  - A zero-length COMMAREA causes an immediate ABEND before `CA_RETURN_CODE` is set or `LGAPDB01` is called
+  - An insufficient COMMAREA length causes an immediate return with `CA_RETURN_CODE = '98'` before `LGAPDB01` is called
+  - A non-zero `CA_RETURN_CODE` returned by `LGAPDB01` causes an immediate return, preventing any post-insert processing
+
+### 7.5 Error Logging Constraints
+
+- **Error message COMMAREA data is capped at 90 bytes**
+  - In `WRITE_ERROR_MESSAGE`, if `EIBCALEN > 0` and `EIBCALEN < 91`, exactly `EIBCALEN` bytes of the raw COMMAREA are written to the TDQ; otherwise the dump is truncated to 90 bytes (`LEFT(COMM_AREA_RAW, 90)`)
+  - Error logging only occurs when `EIBCALEN > 0`; if no COMMAREA is present, only the structured `ERROR_MSG` record (without raw COMMAREA data) is written
+
+- **Error message structure has fixed-size fields**
+  - `EM_MSG_TEXT` is 63 characters; free-form diagnostic text exceeding 63 characters will be silently truncated
+  - `EM_DATE` is 10 characters and `EM_TIME` is 8 characters, formatted by `EXEC CICS FORMATTIME` using `MMDDYYYY` and `TIME` options respectively, imposing those specific date and time formats on all log entries
+
+## 8. Error Handling
+
+### 8.1 Communication Area Validation and Abends
+
+- Communication Area Existence Check
+  - The program inspects the CICS communication area length on entry using the EXEC Interface Block field.
+  - If no communication area is passed (length is zero), the program formats an error message indicating that no communication area was received.
+  - It invokes the internal error writing routine to log the incident and immediately terminates processing abnormally by issuing a CICS ABEND with abend code 'LGCA' and the NODUMP option.
+
+- Communication Area Minimum Length Verification
+  - The program validates that the received communication area meets the minimum required length calculated from the header length and required length fields.
+  - If the communication area length is less than the required threshold, the program sets the communication area return code to '98' and immediately executes a CICS RETURN command to return control to the caller without processing the request.
+
+### 8.2 Downstream Service Return Code Inspection
+
+- Database Insert Program Outcome Evaluation
+  - After linking to the downstream data insert program, the program evaluates the communication area return code.
+  - If the return code indicates an error (value greater than zero), the program ceases further execution and returns control immediately to the calling program using a CICS RETURN command, allowing the calling transaction to handle or propagate the failure status.
+
+### 8.3 Error Logging and Diagnostic Notifications
+
+- Error Queue Logging Procedure
+  - The program provides a dedicated internal procedure to format and record diagnostic error messages when failures occur.
+  - Current timestamp information is obtained and formatted via CICS time inquiry commands and populated into the structured error record alongside identifying metadata.
+  - The formatted error message structure is written to the Transient Data Queue (TDQ) by linking to the shared error logging program.
+  - When communication area data is present, the procedure extracts up to the first 90 bytes of raw communication area data and links again to the error logging program to write the supplementary communication area payload for diagnostic tracing.
+
+## 9. Examples
+
+### 9.1 Example 1: Add a Motor Policy (Standard Path)
+
+**Input COMMAREA fields:**
+
+| Field | Value |
+|---|---|
+| `CA_REQUEST_ID` | `01AMOT` |
+| `CA_RETURN_CODE` | `00` |
+| `CA_CUSTOMER_NUM` | `0000001234` |
+| `CA_POLICY_NUM` | `0000009901` |
+| `CA_ISSUE_DATE` | `2024-01-15` |
+| `CA_EXPIRY_DATE` | `2025-01-15` |
+| `CA_BROKERID` | `0000000042` |
+| `CA_PAYMENT` | `000750` |
+| `CA_M_MAKE` | `FORD` |
+| `BUSINESS_RULES` | `N` (hard-coded default) |
+| COMMAREA length | 32500 bytes |
+
+**Expected Output:**
+
+- `CA_RETURN_CODE` = `00` (success)
+- Control is transferred to `LGAPDB01` via `EXEC CICS LINK`, which performs the database insert for the Motor policy.
+- Program returns to the caller normally.
+
+**Explanation:**  
+Because `EIBCALEN` is non-zero and meets the minimum length (≥ 28 bytes), `CA_RETURN_CODE` is initialized to `00`. `BUSINESS_RULES` is `'N'`, so the ODM business rule link to `LGAPBR01` is skipped entirely. The program links directly to `LGAPDB01` with the full COMMAREA. `LGAPDB01` returns `CA_RETURN_CODE = 00`, so the program returns normally to the caller.
+
+---
+
+### 9.2 Example 2: Add an Endowment Policy with Business Rules Enabled
+
+**Input COMMAREA fields:**
+
+| Field | Value |
+|---|---|
+| `CA_REQUEST_ID` | `01AEND` |
+| `CA_RETURN_CODE` | `00` |
+| `CA_CUSTOMER_NUM` | `0000005678` |
+| `CA_POLICY_NUM` | `0000007788` |
+| `CA_ISSUE_DATE` | `2024-03-01` |
+| `CA_EXPIRY_DATE` | `2034-03-01` |
+| `CA_BROKERID` | `0000000010` |
+| `CA_PAYMENT` | `001200` |
+| `CA_E_SUM_ASSURED` | `050000` |
+| `BUSINESS_RULES` | `Y` (manually set to enable ODM) |
+| COMMAREA length | 32500 bytes |
+
+**Expected Output:**
+
+- Program first links to `LGAPBR01` (ODM business rules program) passing the full COMMAREA.
+- After `LGAPBR01` returns, the program links to `LGAPDB01` for the database insert.
+- If `LGAPDB01` returns `CA_RETURN_CODE = 00`, the program exits normally.
+
+**Explanation:**  
+`BUSINESS_RULES = 'Y'` and `CA_REQUEST_ID = '01AEND'` both evaluate to true, triggering the conditional `EXEC CICS LINK` to `LGAPBR01`. This allows ODM to validate or enrich the Endowment policy data before it is persisted. After `LGAPBR01` completes, `LGAPDB01` is called unconditionally to insert the policy. The two-step linkage (rules → database) is unique to Endowment policies when `BUSINESS_RULES` is activated.
+
+---
+
+### 9.3 Example 3: COMMAREA Too Short — Error Return
+
+**Input COMMAREA fields:**
+
+| Field | Value |
+|---|---|
+| `CA_REQUEST_ID` | `01AHSE` |
+| `CA_CUSTOMER_NUM` | `0000009999` |
+| COMMAREA length | 10 bytes (below 28-byte minimum) |
+
+**Expected Output:**
+
+- `CA_RETURN_CODE` = `98`
+- Program issues `EXEC CICS RETURN` immediately, without linking to any downstream program.
+
+**Explanation:**  
+`EIBCALEN` (10) is less than `WS_REQUIRED_CA_LEN` (28, the header minimum). The program sets `CA_RETURN_CODE = '98'` to signal an invalid COMMAREA to the caller and returns immediately. No database insert or business rule evaluation occurs, protecting downstream programs from malformed input.
+
+---
+
+### 9.4 Example 4: No COMMAREA Received — ABEND
+
+**Input:**
+
+- CICS passes `EIBCALEN = 0` (no COMMAREA provided at all).
+
+**Expected Output:**
+
+- Error message `' NO COMMAREA RECEIVED'` is written to the TDQ via `LGSTSQ`.
+- Program issues `EXEC CICS ABEND ABCODE('LGCA') NODUMP`, abnormally terminating the task with abend code `LGCA`.
+
+**Explanation:**  
+The very first check tests `EIBCALEN = 0`. If true, the `WRITE_ERROR_MESSAGE` internal procedure is called, which obtains the current timestamp via `EXEC CICS ASKTIME` / `EXEC CICS FORMATTIME`, formats a diagnostic message including the program name, and writes it to the transient data queue. The program then issues a NODUMP abend, preventing unnecessary dump generation while still signalling a fatal error to CICS.
+>>>>>>> Stashed changes
 
 ---
 

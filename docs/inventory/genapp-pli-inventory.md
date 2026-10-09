@@ -1,7 +1,40 @@
 # GenApp-PLI — Complete Application Inventory
 
-> Generated from local scanner database and source inspection.  
+> Generated from local scanner database and source inspection.
 > All 11 PL/I programs and 1 supporting utility are catalogued.
+
+---
+
+## Table of Contents
+
+- [1. Application Overview](#1-application-overview)
+- [2. Program Summary Table](#2-program-summary-table)
+- [3. Per-Program Detail](#3-per-program-detail)
+  - [LGTESTP1](#lgtestp1)
+  - [LGAPOL01](#lgapol01)
+  - [LGAPDB01](#lgapdb01)
+  - [LGAPVS01](#lgapvs01)
+  - [LGIPOL01](#lgipol01)
+  - [LGIPDB01](#lgipdb01)
+  - [LGDPOL01](#lgdpol01)
+  - [LGDPDB01](#lgdpdb01)
+  - [LGDPVS01](#lgdpvs01)
+  - [LGUPOL01](#lgupol01)
+  - [LGUPDB01](#lgupdb01)
+  - [LGUPVS01](#lgupvs01)
+- [4. Shared Resources Summary](#4-shared-resources-summary)
+  - [4a. Include Files](#4a-include-files)
+  - [4b. DB2 Tables](#4b-db2-tables)
+  - [4c. VSAM Files](#4c-vsam-files)
+  - [4d. BMS Maps](#4d-bms-maps)
+  - [4e. CICS Transactions](#4e-cics-transactions)
+- [5. Supporting / External Programs](#5-supporting--external-programs)
+- [6. Calling Hierarchy](#6-calling-hierarchy)
+- [7. Data Flow by Operation](#7-data-flow-by-operation)
+  - [Add Policy](#add-policy)
+  - [Inquire Policy](#inquire-policy)
+  - [Delete Policy](#delete-policy)
+  - [Update Policy](#update-policy)
 
 ---
 
